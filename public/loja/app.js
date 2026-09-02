@@ -124,21 +124,53 @@ document.addEventListener('input', e => {
   }
 });
 
-// ---------- Máscara de CPF/CNPJ ----------
+// ---------- Máscara de CPF/CNPJ (reconhece automaticamente pela quantidade de dígitos) ----------
+// Até 11 dígitos = CPF (000.000.000-00). A partir do 12º dígito = CNPJ (00.000.000/0000-00).
+function isValidCpf(digits) {
+  if (digits.length !== 11 || /^(\d)\1{10}$/.test(digits)) return false;
+  const calc = (len) => {
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += Number(digits[i]) * (len + 1 - i);
+    const r = (sum * 10) % 11;
+    return r === 10 ? 0 : r;
+  };
+  return calc(9) === Number(digits[9]) && calc(10) === Number(digits[10]);
+}
+function isValidCnpj(digits) {
+  if (digits.length !== 14 || /^(\d)\1{13}$/.test(digits)) return false;
+  const calc = (len) => {
+    const weights = len === 12 ? [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2] : [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += Number(digits[i]) * weights[i];
+    const r = sum % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return calc(12) === Number(digits[12]) && calc(13) === Number(digits[13]);
+}
+function formatCpfCnpj(digits) {
+  if (digits.length <= 11) {
+    return digits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+  return digits
+    .replace(/(\d{2})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1/$2')
+    .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+}
+function cpfCnpjTypeLabel(digits) {
+  if (!digits.length) return '';
+  if (digits.length <= 11) return digits.length === 11 ? (isValidCpf(digits) ? '· CPF ✓' : '· CPF (inválido)') : '· CPF';
+  return digits.length === 14 ? (isValidCnpj(digits) ? '· CNPJ ✓' : '· CNPJ (inválido)') : '· CNPJ';
+}
 document.addEventListener('input', e => {
   if (['registerCpfCnpj', 'profileCpfCnpj'].includes(e.target.id)) {
-    let v = e.target.value.replace(/\D/g, '').slice(0, 14);
-    if (v.length <= 11) {
-      v = v.replace(/(\d{3})(\d)/, '$1.$2')
-           .replace(/(\d{3})(\d)/, '$1.$2')
-           .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-    } else {
-      v = v.replace(/(\d{2})(\d)/, '$1.$2')
-           .replace(/(\d{3})(\d)/, '$1.$2')
-           .replace(/(\d{3})(\d)/, '$1/$2')
-           .replace(/(\d{4})(\d{1,2})$/, '$1-$2');
-    }
-    e.target.value = v;
+    const digits = e.target.value.replace(/\D/g, '').slice(0, 14);
+    e.target.value = formatCpfCnpj(digits);
+    const hint = document.getElementById(e.target.id + 'Type');
+    if (hint) hint.textContent = cpfCnpjTypeLabel(digits);
   }
 });
 
@@ -170,7 +202,11 @@ function applyUser(user) {
     const c = document.getElementById('profileCpfCnpj');
     if (n) n.value = user.name || '';
     if (e) e.value = user.email || '';
-    if (c) c.value = user.cpfCnpj || '';
+    if (c) {
+      c.value = user.cpfCnpj || '';
+      const hint = document.getElementById('profileCpfCnpjType');
+      if (hint) hint.textContent = cpfCnpjTypeLabel((user.cpfCnpj || '').replace(/\D/g, ''));
+    }
   }
 }
 
@@ -185,6 +221,13 @@ document.getElementById('createAccount')?.addEventListener('click', async () => 
   if (!/^\S+@\S+\.\S+$/.test(email)) { alert('Digite um e-mail válido.'); return; }
   if (pass.length < 6) { alert('A senha deve ter pelo menos 6 caracteres.'); return; }
   if (pass !== pass2) { alert('As senhas não conferem.'); return; }
+  const cpfCnpjDigits = cpfCnpj.replace(/\D/g, '');
+  if (cpfCnpjDigits.length && cpfCnpjDigits.length !== 11 && cpfCnpjDigits.length !== 14) {
+    alert('Digite um CPF (11 números) ou CNPJ (14 números) completo, ou deixe o campo em branco.');
+    return;
+  }
+  if (cpfCnpjDigits.length === 11 && !isValidCpf(cpfCnpjDigits)) { alert('Esse CPF não é válido. Confira os números.'); return; }
+  if (cpfCnpjDigits.length === 14 && !isValidCnpj(cpfCnpjDigits)) { alert('Esse CNPJ não é válido. Confira os números.'); return; }
   try {
     const { customer } = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, phone, email, password: pass, cpfCnpj }) });
     applyUser(customer);
@@ -226,6 +269,13 @@ document.querySelector('#perfil .btn')?.addEventListener('click', async () => {
   const name = document.getElementById('profileName').value.trim();
   const email = document.getElementById('profileEmail').value.trim().toLowerCase();
   const cpfCnpj = document.getElementById('profileCpfCnpj').value.trim();
+  const cpfCnpjDigits = cpfCnpj.replace(/\D/g, '');
+  if (cpfCnpjDigits.length && cpfCnpjDigits.length !== 11 && cpfCnpjDigits.length !== 14) {
+    alert('Digite um CPF (11 números) ou CNPJ (14 números) completo, ou deixe o campo em branco.');
+    return;
+  }
+  if (cpfCnpjDigits.length === 11 && !isValidCpf(cpfCnpjDigits)) { alert('Esse CPF não é válido. Confira os números.'); return; }
+  if (cpfCnpjDigits.length === 14 && !isValidCnpj(cpfCnpjDigits)) { alert('Esse CNPJ não é válido. Confira os números.'); return; }
   try {
     const { customer } = await api('/api/auth/me', { method: 'PUT', body: JSON.stringify({ name, email, cpfCnpj }) });
     currentUser = customer;
@@ -468,6 +518,91 @@ function buildPixQrSvg(pixCode) {
   return null;
 }
 
+// ---------- Pagamento com Cartão de Crédito (Mercado Pago Checkout Bricks) ----------
+// O formulário do cartão é renderizado AQUI DENTRO do site (o cliente nunca sai
+// da página); só o token do cartão (nunca o número em si) sai do navegador.
+let mpSdkInstance = null;
+let mpPublicKeyCache = null;
+let cardBrickController = null;
+
+async function getMpPublicKey() {
+  if (mpPublicKeyCache !== null) return mpPublicKeyCache;
+  try {
+    const { publicKey } = await api('/api/payments/config');
+    mpPublicKeyCache = publicKey || false;
+  } catch {
+    mpPublicKeyCache = false;
+  }
+  return mpPublicKeyCache;
+}
+
+async function mountCardBrick(amounts) {
+  const container = document.getElementById('cardPaymentBrick');
+  const statusEl = document.getElementById('cardPaymentStatus');
+  if (!container) return;
+
+  if (typeof MercadoPago === 'undefined') {
+    container.innerHTML = '<p class="form-help" style="color:#e06a6a">Não foi possível carregar o pagamento com cartão agora. Verifique sua conexão e tente novamente.</p>';
+    return;
+  }
+  const publicKey = await getMpPublicKey();
+  if (!publicKey) {
+    container.innerHTML = '<p class="form-help" style="color:#e06a6a">O pagamento com cartão ainda está sendo configurado nesta loja. Escolha Pix ou Retirada/Entrega por enquanto.</p>';
+    return;
+  }
+
+  if (cardBrickController && cardBrickController.unmount) {
+    try { cardBrickController.unmount(); } catch { /* já desmontado */ }
+  }
+  container.innerHTML = '';
+
+  if (!mpSdkInstance) mpSdkInstance = new MercadoPago(publicKey, { locale: 'pt-BR' });
+  const bricksBuilder = mpSdkInstance.bricks();
+
+  cardBrickController = await bricksBuilder.create('cardPayment', 'cardPaymentBrick', {
+    initialization: { amount: amounts.subtotal },
+    customization: { visual: { style: { theme: 'dark' } } },
+    callbacks: {
+      onReady: () => {},
+      onError: (error) => {
+        console.error(error);
+        if (statusEl) { statusEl.textContent = 'Verifique os dados do cartão e tente novamente.'; statusEl.style.color = '#e06a6a'; statusEl.style.display = 'block'; }
+      },
+      onSubmit: (cardFormData) => new Promise(async (resolve, reject) => {
+        if (statusEl) { statusEl.textContent = 'Processando pagamento...'; statusEl.style.color = '#9da2aa'; statusEl.style.display = 'block'; }
+        try {
+          const { address } = await api('/api/addresses/mine');
+          if (!address) {
+            alert('Cadastre seu endereço de entrega antes de finalizar o pedido.');
+            show('endereco');
+            return reject();
+          }
+          const items = cart.map((i) => ({ productId: i.productId, quantity: i.quantity }));
+          const { order } = await api('/api/orders', { method: 'POST', body: JSON.stringify({ items, paymentMethod: 'cartao' }) });
+          const result = await api('/api/payments/card', { method: 'POST', body: JSON.stringify({ orderId: order.id, ...cardFormData }) });
+
+          if (result.status === 'approved') {
+            if (statusEl) { statusEl.textContent = 'Pagamento aprovado!'; statusEl.style.color = '#39c979'; }
+            cart = []; saveCart();
+            alert('Pagamento aprovado! Seu pedido foi confirmado. Acompanhe o status na sua tela de Perfil.');
+            show('perfil');
+          } else if (result.status === 'in_process' || result.status === 'pending') {
+            if (statusEl) { statusEl.textContent = 'Pagamento em análise. Você já pode acompanhar o pedido no seu Perfil.'; statusEl.style.color = '#e0b94a'; }
+            cart = []; saveCart();
+            show('perfil');
+          } else {
+            if (statusEl) { statusEl.textContent = 'Pagamento não aprovado. Verifique os dados do cartão ou tente outro cartão.'; statusEl.style.color = '#e06a6a'; }
+          }
+          resolve();
+        } catch (err) {
+          if (statusEl) { statusEl.textContent = err.message || 'Não foi possível processar o pagamento.'; statusEl.style.color = '#e06a6a'; statusEl.style.display = 'block'; }
+          reject(err);
+        }
+      }),
+    },
+  });
+}
+
 // ---------- Carrinho ----------
 function addToCart(productId, productsList) {
   if (!authenticated) { show('cadastro'); return; }
@@ -564,6 +699,8 @@ function renderCart() {
 function renderPaymentInfo(method, amounts, scroll) {
   const panel = document.getElementById('paymentInfoPanel');
   if (!panel) return;
+  const checkoutBtn = document.getElementById('checkoutBtn');
+  if (checkoutBtn && method !== 'cartao') checkoutBtn.style.display = '';
   if (method === 'pix') {
     const code = buildPixCode(amounts.pixTotal);
     const qrSvg = buildPixQrSvg(code);
@@ -589,9 +726,16 @@ function renderPaymentInfo(method, amounts, scroll) {
     panel.innerHTML = `
       <div class="panel payment-panel">
         <div class="kicker">PAGAMENTO NO CARTÃO DE CRÉDITO</div>
-        <p style="margin:8px 0;color:#c7c9cd">Total: <b>${money(amounts.subtotal)}</b> em até 12x de ${money(amounts.installment)} sem juros</p>
-        <p class="form-help">O pagamento no cartão é feito na maquininha da loja, no momento da retirada ou entrega das peças.</p>
+        <p style="margin:8px 0 14px;color:#c7c9cd">Total: <b>${money(amounts.subtotal)}</b> em até 12x de ${money(amounts.installment)} sem juros</p>
+        <div id="cardPaymentBrick">
+          <p class="form-help">Carregando formulário de pagamento...</p>
+        </div>
+        <p id="cardPaymentStatus" style="display:none;margin-top:10px;font-size:13px"></p>
+        <p class="form-help">Seus dados do cartão são enviados direto e com segurança para o processador de pagamentos — a loja nunca guarda o número do seu cartão.</p>
       </div>`;
+    const checkoutBtn = document.getElementById('checkoutBtn');
+    if (checkoutBtn) checkoutBtn.style.display = 'none';
+    mountCardBrick(amounts);
   } else {
     panel.innerHTML = `
       <div class="panel payment-panel">
