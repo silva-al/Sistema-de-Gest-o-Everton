@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="#090a0c" name="theme-color"/>
+<title>Fahren Parts — Painel de gestão</title>
+<link href="admin.css" rel="stylesheet"/>
+</head>
+<body>
+
+<div class="login-wrap" id="loginScreen">
+  <div class="panel">
+    <div class="logo" style="margin-bottom:16px">FAHREN<span>PARTS</span> · Gestão</div>
+    <h2>Entrar no painel</h2>
+    <div class="field"><label>E-mail</label><input id="adminEmail" type="email" placeholder="admin@fahrenparts.com"/></div>
+    <div class="field"><label>Senha</label><input id="adminPassword" type="password" placeholder="Sua senha"/></div>
+    <button class="btn" id="adminLoginBtn" style="width:100%">ENTRAR</button>
+    <div class="error hidden" id="loginError"></div>
+  </div>
+</div>
+
+<div class="app hidden" id="mainScreen">
+  <div class="top">
+    <div class="logo">FAHREN<span>PARTS</span> · Gestão</div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <span id="adminName" style="color:#9da2aa;font-size:14px"></span>
+      <button class="btn secondary small" id="logoutBtn">Sair</button>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="estoque">Estoque</button>
+    <button class="tab-btn" data-tab="pedidos">Pedidos</button>
+  </div>
+
+  <!-- ESTOQUE -->
+  <section id="tab-estoque">
+    <div class="panel">
+      <h2 id="formTitle">Cadastrar peça</h2>
+      <div class="row">
+        <div class="field"><label>Nome</label><input id="pName" placeholder="Ex: Pastilha de freio dianteira"/></div>
+        <div class="field"><label>Código</label><input id="pCode" placeholder="Ex: PF-1001"/></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Categoria</label><input id="pCategory" placeholder="Ex: Freios" list="categoryList"/><datalist id="categoryList"></datalist></div>
+        <div class="field"><label>Preço (R$)</label><input id="pPrice" inputmode="decimal" placeholder="189,90"/></div>
+        <div class="field"><label>Estoque</label><input id="pStock" inputmode="numeric" placeholder="0"/></div>
+      </div>
+      <div class="row">
+        <div class="field" style="flex:2"><label>Descrição</label><input id="pDescription" placeholder="Aplicação compatível"/></div>
+        <div class="field" style="flex:2"><label>URL da foto (opcional)</label><input id="pPhoto" placeholder="https://..."/></div>
+      </div>
+      <button class="btn" id="saveProductBtn">SALVAR PEÇA</button>
+      <button class="btn secondary hidden" id="cancelEditBtn" type="button">CANCELAR EDIÇÃO</button>
+      <div class="error hidden" id="productFormError"></div>
+      <div class="msg hidden" id="productFormMsg"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Peças cadastradas</h2>
+      <div class="field" style="max-width:320px"><input id="stockSearch" placeholder="Buscar por nome ou código..."/></div>
+      <table>
+        <thead><tr><th>Nome</th><th>Código</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th></th></tr></thead>
+        <tbody id="productsTableBody"><tr><td colspan="6">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PEDIDOS -->
+  <section id="tab-pedidos" class="hidden">
+    <div class="panel">
+      <h2>Pedidos dos clientes</h2>
+      <div class="field" style="max-width:260px">
+        <label>Filtrar por status</label>
+        <select id="orderStatusFilter">
+          <option value="">Todos</option>
+          <option value="novo">Novo</option>
+          <option value="em_preparacao">Em preparação</option>
+          <option value="pronto">Pronto</option>
+          <option value="entregue">Entregue</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+      <table>
+        <thead><tr><th>Pedido</th><th>Cliente</th><th>Itens</th><th>Total</th><th>Pagamento</th><th>Data</th><th>Status</th></tr></thead>
+        <tbody id="ordersTableBody"><tr><td colspan="7">Carregando...</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>
