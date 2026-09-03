@@ -423,16 +423,25 @@ function money(v) { return v.toLocaleString('pt-BR', { style: 'currency', curren
 
 async function loadCategories() {
   const select = document.getElementById('filterCategory');
-  if (!select || select.dataset.loaded) return;
+  if (!select) return;
+  const currentVal = select.value;
   try {
-    const { categories } = await api('/api/products/categories');
-    categories.forEach(c => {
+    const data = await api('/api/products/categories');
+    const list = data.categories || [];
+    select.innerHTML = '<option value="">Todas as categorias</option>';
+    list.forEach(item => {
+      const name = typeof item === 'string' ? item : item.name;
+      const count = typeof item === 'object' && item.count ? ` (${item.count} ${item.count === 1 ? 'peça' : 'peças'})` : '';
       const opt = document.createElement('option');
-      opt.value = c; opt.textContent = c;
+      opt.value = name;
+      opt.textContent = `${name}${count}`;
       select.appendChild(opt);
     });
+    if (currentVal) select.value = currentVal;
     select.dataset.loaded = '1';
-  } catch { /* segue sem categorias */ }
+  } catch (err) {
+    console.error('Erro ao carregar categorias:', err);
+  }
 }
 
 // ---------- Categorias da tela inicial (peças reais do catálogo) ----------

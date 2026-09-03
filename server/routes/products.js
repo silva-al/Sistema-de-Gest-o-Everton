@@ -66,10 +66,25 @@ router.get('/', async (req, res) => {
 });
 
 router.get('/categories', async (_req, res) => {
-  const result = await db.query(
-    "SELECT DISTINCT category FROM products WHERE category IS NOT NULL AND active = true ORDER BY category"
-  );
-  res.json({ categories: result.rows.map((r) => r.category) });
+  try {
+    const result = await db.query(`
+      SELECT category, COUNT(*)::int AS count
+      FROM products
+      WHERE category IS NOT NULL AND active = true
+      GROUP BY category
+      ORDER BY category
+    `);
+    res.json({
+      categories: result.rows.map((r) => ({
+        name: r.category,
+        count: r.count,
+      })),
+      names: result.rows.map((r) => r.category),
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao buscar categorias.' });
+  }
 });
 
 // Uma peça real (nome + foto) para representar cada categoria — usado nos cards

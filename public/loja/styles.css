@@ -1,5 +1,5 @@
 
-*{box-sizing:border-box}html,body{margin:0;background:#090a0c;color:#fff;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}html,body{margin:0;background:#090a0c;color:#fff;color-scheme:dark;font-family:Arial,Helvetica,sans-serif}
 body{min-height:100vh}.app{max-width:1100px;margin:auto;min-height:100vh;background:#0b0c0f}
 .header{position:sticky;top:0;z-index:20;background:#08090b;border-bottom:1px solid #27292d}
 .header-inner{height:88px;display:flex;align-items:center;padding:0 28px;gap:30px}
@@ -324,15 +324,23 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
 .select-modern select{
   appearance:none;-webkit-appearance:none;
   flex:1;
-  background:transparent;
+  background:#0e1013;
   border:0;
-  color:#fff;
+  color:#ffffff !important;
+  color-scheme:dark;
   font-size:15px;
   font-weight:600;
   padding:14px 0;
   cursor:pointer;
 }
 .select-modern select:focus{outline:none}
+.select-modern select option,
+select option {
+  background-color:#14171d !important;
+  color:#ffffff !important;
+  font-size:15px;
+  padding:10px 14px;
+}
 .select-modern-chevron{flex:0 0 auto;color:#8b9199;pointer-events:none}
 
 .stock-qty{color:#8f949c;font-weight:400}
