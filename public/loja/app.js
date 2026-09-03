@@ -613,7 +613,7 @@ function renderProducts(container, products) {
       <div class="part-photo">${img ? `<img src="${img}" alt="${p.name}" loading="lazy">` : '🔩'}</div>
       <b>${p.name}</b>
       <small>${p.description || p.category || 'Aplicação compatível'}</small>
-      <div class="stock">${p.inStock ? `● Em estoque <span class="stock-qty">(${p.stockQty} un.)</span>` : '○ Fora de estoque'}</div>
+      <div class="stock">${p.inStock ? '● Disponível' : '○ Fora de estoque'}</div>
       <div class="price">${money(p.price)}</div>
       ${p.inStock ? `
         <div class="product-qty-row">
