@@ -93,15 +93,20 @@ router.get('/categories', async (_req, res) => {
 // cadastradas para venda (nunca um nome ou foto genérico da categoria).
 // Prioriza a peça com foto cadastrada; sem foto, o site usa uma foto padrão da categoria.
 router.get('/categories/featured', async (_req, res) => {
-  const result = await db.query(`
-    SELECT DISTINCT ON (category) category, name, photo_url
-    FROM products
-    WHERE category IS NOT NULL AND active = true
-    ORDER BY category, (photo_url IS NULL) ASC, updated_at DESC
-  `);
-  res.json({
-    categories: result.rows.map((r) => ({ category: r.category, name: r.name, photoUrl: r.photo_url })),
-  });
+  try {
+    const result = await db.query(`
+      SELECT id, name, code, category, description, price_cents, stock_qty, photo_url, active
+      FROM products
+      WHERE active = true
+      ORDER BY updated_at DESC, id ASC
+      LIMIT 40
+    `);
+    const list = result.rows.map(serialize);
+    res.json({ categories: list, products: list });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao buscar peças em destaque.' });
+  }
 });
 
 router.get('/:id', async (req, res) => {

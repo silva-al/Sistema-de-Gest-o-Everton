@@ -447,31 +447,62 @@ async function loadCategories() {
   }
 }
 
-// ---------- Categorias da tela inicial (peças reais do catálogo) ----------
-// Cada card mostra o nome e a foto de uma peça que já está cadastrada para
-// venda (nunca um nome genérico de categoria), porque peças diferentes de
-// uma mesma categoria têm modelos diferentes.
+// ---------- Carrossel automático infinito de todas as peças ----------
 async function loadCategoryCarousel() {
   const wrap = document.getElementById('categoryCarousel');
   const track = document.getElementById('categoryCarouselTrack');
-  if (!track) return;
+  const relTrack = document.getElementById('detailRelatedCarouselTrack');
+  if (!track && !relTrack) return;
   try {
-    const { categories } = await api('/api/products/categories/featured');
-    if (!categories.length) {
-      track.innerHTML = '';
+    const res = await api('/api/products/categories/featured');
+    const items = res.products || res.categories || [];
+    if (!items.length) {
       if (wrap) wrap.style.display = 'none';
       return;
     }
     if (wrap) wrap.style.display = '';
+
     const cardHtml = (c, hidden) => {
-      const photo = c.photoUrl || CATEGORY_IMAGES[c.category];
-      return `<div class="card cat-card" data-category="${c.category}"${hidden ? ' aria-hidden="true"' : ''}>${
-        photo ? `<img alt="${hidden ? '' : c.name}" loading="lazy" src="${photo}">` : ''
-      }<b>${c.name}</b><small>${c.category}</small></div>`;
+      const photo = c.photoUrl || CATEGORY_IMAGES[c.category] || 'images/categorias/filtros.jpg';
+      const priceVal = typeof c.price === 'number' ? c.price : (c.price_cents ? c.price_cents / 100 : 0);
+      return `<div class="card cat-card" data-product-id="${c.id || ''}" data-category="${c.category || ''}"${hidden ? ' aria-hidden="true"' : ''}>
+        <div class="cat-card-img-wrap">
+          <img alt="${hidden ? '' : c.name}" loading="lazy" src="${photo}">
+        </div>
+        <b>${c.name}</b>
+        <small>${c.category || 'Peça'}</small>
+        <div class="cat-card-price">${priceVal > 0 ? money(priceVal) : 'Disponível'}</div>
+      </div>`;
     };
-    track.innerHTML = categories.map(c => cardHtml(c, false)).join('') + categories.map(c => cardHtml(c, true)).join('');
-    track.querySelectorAll('.cat-card').forEach(el => { el.onclick = () => goToCategory(el.dataset.category); });
-  } catch { /* mantém a seção como estava se a API falhar */ }
+
+    // Garante itens suficientes para um loop perfeito e contínuo sem saltos
+    let baseList = items;
+    while (baseList.length < 8) {
+      baseList = baseList.concat(items);
+    }
+    const htmlContent = baseList.map(c => cardHtml(c, false)).join('') + baseList.map(c => cardHtml(c, true)).join('');
+
+    const attachEvents = (t) => {
+      if (!t) return;
+      t.innerHTML = htmlContent;
+      t.querySelectorAll('.cat-card').forEach(el => {
+        el.onclick = () => {
+          const prodId = el.dataset.productId;
+          if (prodId) {
+            const prodObj = items.find(p => String(p.id) === String(prodId));
+            openProductDetails(prodId, prodObj);
+          } else {
+            goToCategory(el.dataset.category);
+          }
+        };
+      });
+    };
+
+    attachEvents(track);
+    attachEvents(relTrack);
+  } catch (err) {
+    console.error('Erro ao carregar carrossel:', err);
+  }
 }
 
 async function goToCategory(category) {
@@ -789,6 +820,7 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
   if (push) {
     window.history.replaceState({ screen: 'produto', depth: navDepth, productId: product.id }, '');
   }
+  loadCategoryCarousel();
 }
 
 // Inicializador dos Efeitos Interativos de Hiper Zoom e Ângulos 3D

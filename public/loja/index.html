@@ -47,7 +47,7 @@
 <div class="card"><div class="icon"><svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><path d="M1 7h13v9H1z"></path><path d="M14 10h4l3 3v3h-7z"></path><circle cx="6" cy="19" r="2"></circle><circle cx="18" cy="19" r="2"></circle></svg></div><div><b>Entrega rápida</b><small>Agilidade para a região</small></div></div>
 <div class="card"><div class="icon"><svg fill="none" height="22" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewbox="0 0 24 24" width="22"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg></div><div><b>Compatibilidade</b><small>Peças certas para seu carro</small></div></div>
 </div></div>
-<div class="section"><div class="section-head"><h2>Categorias</h2><button class="ver-todas" data-go="pecas">VER TODAS <span>›</span></button></div>
+<div class="section"><div class="section-head"><div><h2 style="margin:0">Peças em Destaque</h2><small style="color:#ed1c24;font-size:12px;font-weight:700">⚡ Passando automaticamente no carrossel</small></div><button class="ver-todas" data-go="pecas">VER TODAS <span>›</span></button></div>
 <div class="carousel" id="categoryCarousel">
 <div class="carousel-track" id="categoryCarouselTrack"></div>
 </div>
@@ -216,7 +216,20 @@
 
       <div class="fp-tab-content" id="tabCompat">
         <div class="fp-tab-body" id="detailCompatibility">
+      </div>
+    </div>
+
+    <!-- Carrossel de Mais Peças Automático na Tela de Produto -->
+    <div class="fp-detail-related-section" style="margin-top:28px">
+      <div class="section-head">
+        <div>
+          <h3 style="margin:0;font-size:18px;color:#fff">Outras Peças do Catálogo</h3>
+          <small style="color:#ed1c24;font-size:12px;font-weight:700">⚡ Passando todas as peças automaticamente</small>
         </div>
+        <button class="ver-todas" data-go="pecas">VER TODAS <span>›</span></button>
+      </div>
+      <div class="carousel" id="detailRelatedCarousel">
+        <div class="carousel-track" id="detailRelatedCarouselTrack"></div>
       </div>
     </div>
   </div>

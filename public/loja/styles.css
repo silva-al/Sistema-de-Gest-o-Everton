@@ -243,67 +243,97 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
 }
 
 
-/* ===== STYLE BLOCK — carrossel automático de categorias ===== */
+/* ===== STYLE BLOCK — carrossel automático infinito de peças ===== */
 
 .carousel{
   position:relative;
   overflow:hidden;
   margin:0 -30px;
-  padding:2px 0;
-  -webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
-  mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);
+  padding:6px 0 12px;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 4%,#000 96%,transparent);
+  scrollbar-width:none;
 }
+.carousel::-webkit-scrollbar{display:none}
+
 .carousel-track{
   display:flex;
   width:max-content;
-  gap:12px;
+  gap:14px;
   padding:0 30px;
-  animation:fp-carousel 32s linear infinite;
+  animation:fp-carousel 22s linear infinite !important;
+  will-change:transform;
 }
-.carousel:hover .carousel-track{animation-play-state:paused}
-.carousel .card{
-  flex:0 0 180px;
-  text-align:center;
-  font-size:34px;
+.carousel:hover .carousel-track,
+.carousel:active .carousel-track{
+  animation-play-state:paused;
 }
-.carousel .card b{font-size:14px}
-.carousel .card small{font-size:11px}
 
 @keyframes fp-carousel{
-  from{transform:translateX(0)}
-  to{transform:translateX(-50%)}
+  0%{transform:translate3d(0, 0, 0)}
+  100%{transform:translate3d(-50%, 0, 0)}
+}
+
+.carousel .cat-card{
+  flex:0 0 200px;
+  background:#11141a;
+  border:1px solid #252932;
+  border-radius:12px;
+  overflow:hidden;
+  text-align:left;
+  cursor:pointer;
+  box-shadow:0 4px 16px rgba(0, 0, 0, 0.4);
+  transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.carousel .cat-card:hover{
+  transform:translateY(-4px);
+  border-color:#ed1c24;
+  box-shadow:0 8px 24px rgba(237, 28, 36, 0.28);
+}
+.cat-card-img-wrap{
+  width:100%;
+  height:130px;
+  overflow:hidden;
+  background:#08090c;
+  position:relative;
+}
+.cat-card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+  transition:transform .3s ease;
+}
+.carousel .cat-card:hover img{
+  transform:scale(1.06);
+}
+.cat-card b{
+  display:block;
+  padding:10px 12px 2px;
+  font-size:14px;
+  color:#fff;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.cat-card small{
+  display:block;
+  padding:0 12px 6px;
+  color:#8f949c;
+  font-size:12px;
+}
+.cat-card-price{
+  padding:0 12px 10px;
+  font-size:13.5px;
+  font-weight:800;
+  color:#ed1c24;
 }
 
 @media(max-width:600px){
   .carousel{margin:0 -16px}
-  .carousel-track{padding:0 16px;gap:10px}
-  .carousel .card{flex:0 0 150px;font-size:28px}
-}
-
-@media(prefers-reduced-motion:reduce){
-  .carousel-track{animation:none}
-  .carousel{overflow-x:auto}
-}
-
-
-/* ===== STYLE BLOCK — categorias com fotos reais das peças ===== */
-
-.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.section-head h2{margin:0}
-.ver-todas{background:none;border:0;color:var(--red);font-weight:900;font-size:12px;letter-spacing:1px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:6px 0;transition:gap .18s var(--ease)}
-.ver-todas:hover{gap:8px}
-.ver-todas span{font-size:15px;line-height:1}
-
-.cat-card{padding:0;overflow:hidden;text-align:left;font-size:0}
-.cat-card img{width:100%;height:112px;object-fit:cover;display:block;background:#0c0e11}
-.cat-card b,.cat-card small{display:block;padding:0 14px;font-size:14px}
-.cat-card b{margin-top:12px}
-.cat-card small{margin:2px 0 14px;color:#8f949c;font-size:12px}
-
-.carousel .cat-card{flex:0 0 190px}
-@media(max-width:600px){
+  .carousel-track{padding:0 16px;gap:10px;animation-duration:18s !important}
   .carousel .cat-card{flex:0 0 160px}
-  .cat-card img{height:96px}
+  .cat-card-img-wrap{height:110px}
 }
 
 
