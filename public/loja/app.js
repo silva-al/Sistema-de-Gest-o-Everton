@@ -31,18 +31,41 @@ function updateCartBadge() {
   const totalCount = cart.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
 
   if (badge) {
-    if (totalCount > 0) {
-      badge.textContent = totalCount > 99 ? '99+' : String(totalCount);
-      badge.style.display = 'inline-flex';
-    } else {
-      badge.textContent = '0';
-      badge.style.display = 'none';
-    }
+    badge.textContent = totalCount > 99 ? '99+' : String(totalCount);
+    badge.classList.toggle('has-items', totalCount > 0);
+    badge.style.display = 'inline-flex';
   }
 
   if (headerCount) {
-    headerCount.textContent = totalCount > 0 ? `(${totalCount} ${totalCount === 1 ? 'item' : 'itens'})` : '';
+    headerCount.textContent = totalCount > 0 ? `(${totalCount} ${totalCount === 1 ? 'peça' : 'peças'})` : '(0 peças)';
   }
+}
+
+function showToast(message, onAction) {
+  const container = document.getElementById('toastContainer') || document.body;
+  const toast = document.createElement('div');
+  toast.className = 'fp-toast';
+  toast.innerHTML = `
+    <span class="fp-toast-msg">${message}</span>
+    ${onAction ? '<button type="button" class="fp-toast-btn">VER CARRINHO ›</button>' : ''}
+    <button type="button" class="fp-toast-close" aria-label="Fechar">✕</button>
+  `;
+  if (onAction) {
+    toast.querySelector('.fp-toast-btn')?.addEventListener('click', () => {
+      toast.remove();
+      onAction();
+    });
+  }
+  toast.querySelector('.fp-toast-close')?.addEventListener('click', () => toast.remove());
+  container.appendChild(toast);
+  setTimeout(() => {
+    if (toast.parentNode) {
+      toast.style.transition = 'opacity .3s, transform .3s';
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(20px)';
+      setTimeout(() => toast.remove(), 300);
+    }
+  }, 4000);
 }
 
 function saveCart() {
@@ -57,7 +80,7 @@ function updateNav() {
   nav.forEach(b => {
     const id = b.dataset.screen;
     let visible = true;
-    if (!authenticated && (id === 'perfil' || id === 'carrinho')) visible = false;
+    if (!authenticated && id === 'perfil') visible = false;
     if (authenticated && id === 'cadastro') visible = false;
     b.style.display = visible ? '' : 'none';
   });
@@ -93,7 +116,7 @@ backBtn?.addEventListener('click', () => {
 
 function show(id, opts = {}) {
   const { push = true } = opts;
-  if (!authenticated && !['welcome', 'inicio', 'pecas', 'cadastro'].includes(id)) {
+  if (!authenticated && !['welcome', 'inicio', 'pecas', 'cadastro', 'carrinho'].includes(id)) {
     alert('Faça seu cadastro ou entre na sua conta para acessar esta área.');
     show('inicio');
     return;
@@ -447,31 +470,64 @@ async function goToCategory(category) {
   await loadCatalog();
 }
 
-function renderProducts(container, products, { showAddToCart }) {
+function renderProducts(container, products) {
   if (!products.length) {
     container.innerHTML = '<p style="color:#9da2aa">Nenhuma peça encontrada com esses filtros.</p>';
     return;
   }
   container.innerHTML = products.map(p => {
     const img = p.photoUrl || CATEGORY_IMAGES[p.category];
+    const maxQty = p.stockQty || 99;
     return `
-    <div class="product">
+    <div class="product" data-product-id="${p.id}">
       <div class="part-photo">${img ? `<img src="${img}" alt="${p.name}" loading="lazy">` : '🔩'}</div>
       <b>${p.name}</b>
       <small>${p.description || p.category || 'Aplicação compatível'}</small>
       <div class="stock">${p.inStock ? `● Em estoque <span class="stock-qty">(${p.stockQty} un.)</span>` : '○ Fora de estoque'}</div>
       <div class="price">${money(p.price)}</div>
-      ${showAddToCart
-        ? `<button class="btn add-cart" data-id="${p.id}" ${p.inStock ? '' : 'disabled style="opacity:.5;cursor:not-allowed;margin-top:12px"'} style="margin-top:12px">ADICIONAR AO CARRINHO</button>`
-        : `<button class="btn" data-auth="login" style="margin-top:12px">ENTRAR PARA COMPRAR</button>`}
+      ${p.inStock ? `
+        <div class="product-qty-row">
+          <label class="qty-label">Quantidade:</label>
+          <div class="qty-control">
+            <button type="button" class="btn-qty-btn p-minus" data-id="${p.id}" aria-label="Diminuir quantidade">−</button>
+            <input type="number" class="product-qty-val" data-id="${p.id}" value="1" min="1" max="${maxQty}" readonly />
+            <button type="button" class="btn-qty-btn p-plus" data-id="${p.id}" aria-label="Aumentar quantidade">+</button>
+          </div>
+        </div>
+        <button class="btn add-cart-btn" data-id="${p.id}">COLOCAR NO CARRINHO</button>
+      ` : `
+        <button class="btn" disabled style="opacity:.5;cursor:not-allowed;margin-top:12px;width:100%">FORA DE ESTOQUE</button>
+      `}
     </div>`;
   }).join('');
 
-  if (showAddToCart) {
-    container.querySelectorAll('.add-cart').forEach(btn => btn.addEventListener('click', () => addToCart(btn.dataset.id, products)));
-  } else {
-    container.querySelectorAll('[data-auth]').forEach(b => b.onclick = () => { show('cadastro'); setTimeout(() => openLogin(), 50); });
-  }
+  container.querySelectorAll('.product').forEach(card => {
+    const id = card.dataset.productId;
+    const input = card.querySelector('.product-qty-val');
+    const minus = card.querySelector('.p-minus');
+    const plus = card.querySelector('.p-plus');
+    const addBtn = card.querySelector('.add-cart-btn');
+    const max = parseInt(input?.max, 10) || 99;
+
+    if (minus && input) {
+      minus.onclick = () => {
+        let val = parseInt(input.value, 10) || 1;
+        if (val > 1) input.value = val - 1;
+      };
+    }
+    if (plus && input) {
+      plus.onclick = () => {
+        let val = parseInt(input.value, 10) || 1;
+        if (val < max) input.value = val + 1;
+      };
+    }
+    if (addBtn) {
+      addBtn.onclick = () => {
+        const qty = parseInt(input?.value, 10) || 1;
+        addToCart(id, products, qty, addBtn);
+      };
+    }
+  });
 }
 
 let catalogTimer = null;
@@ -485,7 +541,7 @@ async function loadCatalog() {
   if (category) params.set('category', category);
   try {
     const { products } = await api('/api/products?' + params.toString());
-    renderProducts(container, products, { showAddToCart: authenticated });
+    renderProducts(container, products);
   } catch (err) {
     container.innerHTML = `<p style="color:#e06a6a">Não foi possível carregar as peças agora. ${err.message}</p>`;
   }
@@ -793,6 +849,13 @@ function renderFallbackCardForm(amounts, container, statusEl) {
     submitBtn.textContent = 'PROCESSANDO...';
 
     try {
+      if (!authenticated) {
+        alert('Cadastre-se ou entre na sua conta para finalizar o pedido.');
+        show('cadastro');
+        submitBtn.disabled = false;
+        submitBtn.textContent = `PAGAR R$ ${money(subtotal).replace('R$', '').trim()} COM CARTÃO`;
+        return;
+      }
       const { address } = await api('/api/addresses/mine');
       if (!address) {
         alert('Cadastre seu endereço de entrega antes de finalizar o pedido.');
@@ -853,16 +916,31 @@ function renderFallbackCardForm(amounts, container, statusEl) {
 }
 
 // ---------- Carrinho ----------
-function addToCart(productId, productsList) {
-  if (!authenticated) { show('cadastro'); return; }
+function addToCart(productId, productsList, quantity = 1, triggerBtn = null) {
   const product = productsList.find(p => String(p.id) === String(productId));
   if (!product || !product.inStock) return;
+  const qty = Math.max(1, parseInt(quantity, 10) || 1);
   const existing = cart.find(i => String(i.productId) === String(productId));
-  if (existing) existing.quantity += 1;
-  else cart.push({ productId: product.id, name: product.name, price: product.price, quantity: 1 });
+  if (existing) {
+    existing.quantity += qty;
+  } else {
+    cart.push({ productId: product.id, name: product.name, price: product.price, quantity: qty });
+  }
   saveCart();
-  alert('Peça adicionada ao carrinho.');
-  show('carrinho');
+
+  // Feedback visual imediato no botão da peça sem sair da página
+  if (triggerBtn) {
+    const origHtml = triggerBtn.innerHTML;
+    triggerBtn.innerHTML = `✓ Adicionado (${qty} un.)`;
+    triggerBtn.classList.add('added-feedback');
+    setTimeout(() => {
+      triggerBtn.innerHTML = origHtml;
+      triggerBtn.classList.remove('added-feedback');
+    }, 1800);
+  }
+
+  // Notificação toast elegante permitindo continuar comprando ou entrar no carrinho
+  showToast(`✓ ${qty}x "${product.name}" colocado no carrinho!`, () => show('carrinho'));
 }
 
 function renderCart() {
@@ -882,13 +960,15 @@ function renderCart() {
   el.innerHTML = `
     <div class="cart-items">
       ${cart.map(i => `
-        <div class="cart-row" data-id="${i.productId}" style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)">
-          <div style="flex:1"><b>${i.name}</b><div style="color:#9da2aa;font-size:13px">${money(i.price)} cada</div></div>
-          <button class="qty-minus" style="background:#202226;color:#fff;border:0;border-radius:6px;width:28px;height:28px;cursor:pointer">−</button>
-          <span style="min-width:20px;text-align:center">${i.quantity}</span>
-          <button class="qty-plus" style="background:#202226;color:#fff;border:0;border-radius:6px;width:28px;height:28px;cursor:pointer">+</button>
-          <div style="min-width:90px;text-align:right">${money(i.price * i.quantity)}</div>
-          <button class="remove-item" style="background:none;color:#e06a6a;border:0;cursor:pointer">Remover</button>
+        <div class="cart-row" data-id="${i.productId}" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);flex-wrap:wrap">
+          <div style="flex:1;min-width:180px"><b>${i.name}</b><div style="color:#9da2aa;font-size:13px">${money(i.price)} un.</div></div>
+          <div style="display:flex;align-items:center;gap:4px;background:#0c0e11;padding:3px 6px;border-radius:6px;border:1px solid #282b30">
+            <button class="qty-minus" style="background:#202226;color:#fff;border:0;border-radius:4px;width:26px;height:26px;cursor:pointer;font-weight:bold;font-size:14px" title="Diminuir">−</button>
+            <span style="min-width:28px;text-align:center;font-weight:800;font-size:14px">${i.quantity}</span>
+            <button class="qty-plus" style="background:#202226;color:#fff;border:0;border-radius:4px;width:26px;height:26px;cursor:pointer;font-weight:bold;font-size:14px" title="Aumentar">+</button>
+          </div>
+          <div style="min-width:90px;text-align:right;font-weight:700">${money(i.price * i.quantity)}</div>
+          <button class="remove-item" style="background:none;color:#e06a6a;border:0;cursor:pointer;font-size:13px;padding:4px 6px">Remover</button>
         </div>`).join('')}
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:16px;font-size:18px">
@@ -1008,7 +1088,12 @@ function changeQty(id, delta) {
 
 async function checkout() {
   const errEl = document.getElementById('checkoutError');
-  errEl.style.display = 'none';
+  if (errEl) errEl.style.display = 'none';
+  if (!authenticated) {
+    alert('Cadastre-se ou entre na sua conta para finalizar o pedido.');
+    show('cadastro');
+    return;
+  }
   const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value || 'retirada';
   try {
     const { address } = await api('/api/addresses/mine');
