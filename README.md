@@ -56,6 +56,8 @@ O plano grátis do Supabase já é suficiente para começar.
    - `DATABASE_URL` = a connection string do Supabase (passo 2)
    - `JWT_SECRET` = um texto longo e aleatório (pode gerar em https://generate-secret.vercel.app/32)
    - `NODE_ENV` = `production`
+   - `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_PUBLIC_KEY` = só quando for cobrar de
+     verdade (veja a seção "Pagamento online" mais abaixo)
 5. Depois do primeiro deploy, rode uma vez o script de inicialização do banco. No Render, use
    a aba **Shell** do serviço (ou rode localmente apontando `DATABASE_URL` para o Supabase):
    ```bash
@@ -77,19 +79,52 @@ server/            Backend (Node + Express + PostgreSQL)
   schema.sql         estrutura das tabelas
   init-db.js         cria tabelas + primeiro usuário admin
   middleware/auth.js login/sessão (JWT em cookie)
-  routes/            auth, admin-auth, products, orders, addresses
+  routes/            auth, admin-auth, products, orders, addresses,
+                     payments, vehicles, uploads
+  services/          payment-service.js (Pix/cartão), vehicle-service.js (placa)
+  migrations/        histórico das mudanças de banco (o schema.sql já aplica tudo)
 public/loja/        Tela do cliente (index.html, styles.css, app.js)
 public/admin/       Painel de gestão (index.html, admin.css, admin.js)
+public/uploads/     Fotos de peças enviadas pelo painel (não vai para o Git)
 ```
+
+## Pagamento online (Pix e cartão)
+
+Já está funcionando dentro do site:
+
+- **Pix**: gera QR Code e "copia e cola" no padrão do Banco Central, com 4% de desconto.
+- **Cartão de crédito**: formulário do Mercado Pago (Checkout Bricks) dentro da própria
+  página — o número do cartão nunca passa pelo nosso servidor, só um token. Parcelamento
+  em até 12x.
+
+Sem as chaves configuradas o sistema roda em **modo teste**: o Pix sai com a chave do
+`PIX_KEY` (ou simulado) e o cartão aprova automaticamente, para você conseguir testar a loja
+inteira antes de contratar a maquininha. Para valer de verdade, preencha no `.env` (e no
+Render):
+
+- `MERCADOPAGO_ACCESS_TOKEN` — fica só no servidor, nunca aparece no site.
+- `MERCADOPAGO_PUBLIC_KEY` — é o que o navegador usa para montar o formulário do cartão.
+  Sem ela, a opção "Cartão" não aparece para o cliente.
+- `PIX_KEY` — alternativa ao Mercado Pago, se preferir receber Pix direto na conta.
+
+No painel do Mercado Pago, aponte o **webhook** para `https://SEU-SITE/api/payments/webhook`
+para os pagamentos aprovados fora do site caírem sozinhos no pedido.
+
+## Consulta por placa
+
+A rota `/api/vehicles/plate/:placa` já existe e aceita placa Mercosul e antiga. Sem
+`VEHICLE_API_TOKEN` configurado ela responde com dados de **demonstração** (marca, modelo,
+ano — sempre os mesmos para a mesma placa), o que serve para apresentar a tela ao Everton.
+Com o token de um provedor (WDAPI2, APIBrasil ou compatível) ela passa a trazer dados reais.
 
 ## O que ainda falta decidir (pendências combinadas com o Everton)
 
-- **Consulta de placa real**: hoje a tela "Placa" continua só visual (não busca dados de
-  verdade). Assim que definir com o dono da oficina qual fonte de dados usar para os veículos
-  que estão na oficina, essa parte é conectada.
-- **Pagamento online**: os pedidos hoje só ficam registrados com status (novo → em preparação
-  → pronto → entregue). Se quiser cobrar via Pix/cartão dentro do site, isso entra depois como
-  uma etapa nova.
+- **Fonte dos dados de placa**: definir com o dono da oficina qual provedor contratar (a
+  consulta real é paga por consulta) — e se a tela "Placa" deve mostrar os veículos que
+  estão na oficina em vez de consulta aberta. A tela da loja ainda não chama a rota acima.
+- **Fotos das peças**: o upload de imagem pelo painel (`POST /api/uploads`) já funciona, mas
+  o painel ainda não tem o botão. E, no plano grátis do Render, as imagens somem a cada
+  deploy — se for usar de verdade, vale guardar num storage externo (ex.: Supabase Storage).
 
 ## Segurança
 

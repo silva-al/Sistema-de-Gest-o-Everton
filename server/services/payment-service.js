@@ -200,9 +200,13 @@ async function processCardPayment(order, cardData, requestedInstallments, custom
   const installmentValue = Number((totalWithInterest / installmentsCount).toFixed(2));
   const installmentAmountCents = Math.round(installmentValue * 100);
 
+  // O número do cartão NUNCA chega aqui quando o pagamento vem do Checkout Bricks
+  // (o navegador manda só o token). Por isso a bandeira e os 4 últimos dígitos vêm
+  // do próprio Brick quando existirem; o detectCardBrand fica como fallback dos
+  // fluxos antigos que ainda mandavam o número.
   const cleanNumber = (cardData?.cardNumber || '').replace(/\D/g, '');
-  const lastFour = cleanNumber.slice(-4) || '1234';
-  const brand = detectCardBrand(cleanNumber);
+  let lastFour = cardData?.lastFour || cleanNumber.slice(-4) || '1234';
+  let brand = cardData?.cardBrand || (cleanNumber ? detectCardBrand(cleanNumber) : 'Cartão');
 
   const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
@@ -220,7 +224,9 @@ async function processCardPayment(order, cardData, requestedInstallments, custom
           token: cardData.cardToken,
           description: `Pedido #${order.id} - Fahren Parts (${installmentsCount}x sem juros)`,
           installments: installmentsCount,
-          payment_method_id: brand.toLowerCase(),
+          // O Brick já informa o payment_method_id correto ("visa", "master", "elo"…).
+          payment_method_id: cardData.paymentMethodId || brand.toLowerCase(),
+          ...(cardData.issuerId ? { issuer_id: String(cardData.issuerId) } : {}),
           payer: {
             email: customer.email,
             identification: {
@@ -232,8 +238,25 @@ async function processCardPayment(order, cardData, requestedInstallments, custom
       });
 
       const data = await response.json();
+
+      if (response.ok && data.status === 'rejected') {
+        // Cartão recusado pelo emissor: não altera o pedido, devolve o motivo.
+        return {
+          paymentId: String(data.id || ''),
+          status: 'recusado',
+          rejectionDetail: data.status_detail || null,
+          installments: installmentsCount,
+          installmentValue,
+          totalAmount: totalWithInterest,
+          isSandbox: false,
+          message: 'Pagamento recusado pela operadora do cartão.',
+        };
+      }
+
       if (response.ok && (data.status === 'approved' || data.status === 'in_process')) {
         const paymentId = String(data.id);
+        if (data.payment_method_id) brand = data.payment_method_id;
+        if (data.card && data.card.last_four_digits) lastFour = data.card.last_four_digits;
         const paymentStatus = data.status === 'approved' ? 'aprovado' : 'pendente';
         const operationalStatus = paymentStatus === 'aprovado' ? 'em_preparacao' : 'novo';
 
