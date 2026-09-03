@@ -106,7 +106,11 @@ navDepth = window.history.state.depth || 0;
 window.addEventListener('popstate', e => {
   const st = e.state || { screen: 'inicio', depth: 0 };
   navDepth = st.depth || 0;
-  show(st.screen || 'inicio', { push: false });
+  if (st.screen === 'produto' && st.productId) {
+    openProductDetails(st.productId, null, false);
+  } else {
+    show(st.screen || 'inicio', { push: false });
+  }
 });
 
 backBtn?.addEventListener('click', () => {
@@ -116,7 +120,7 @@ backBtn?.addEventListener('click', () => {
 
 function show(id, opts = {}) {
   const { push = true } = opts;
-  if (!authenticated && !['welcome', 'inicio', 'pecas', 'cadastro', 'carrinho'].includes(id)) {
+  if (!authenticated && !['welcome', 'inicio', 'pecas', 'cadastro', 'carrinho', 'produto'].includes(id)) {
     alert('Faça seu cadastro ou entre na sua conta para acessar esta área.');
     show('inicio');
     return;
@@ -517,24 +521,414 @@ function renderProducts(container, products) {
     const addBtn = card.querySelector('.add-cart-btn');
     const max = parseInt(input?.max, 10) || 99;
 
+    // Ao clicar na foto, nome ou card da peça, abre a tela completa com hiper zoom
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('.product-qty-row') || e.target.closest('.add-cart-btn') || e.target.closest('button')) {
+        return;
+      }
+      const prod = products.find(p => String(p.id) === String(id));
+      openProductDetails(id, prod);
+    });
+
     if (minus && input) {
-      minus.onclick = () => {
+      minus.onclick = (e) => {
+        e.stopPropagation();
         let val = parseInt(input.value, 10) || 1;
         if (val > 1) input.value = val - 1;
       };
     }
     if (plus && input) {
-      plus.onclick = () => {
+      plus.onclick = (e) => {
+        e.stopPropagation();
         let val = parseInt(input.value, 10) || 1;
         if (val < max) input.value = val + 1;
       };
     }
     if (addBtn) {
-      addBtn.onclick = () => {
+      addBtn.onclick = (e) => {
+        e.stopPropagation();
         const qty = parseInt(input?.value, 10) || 1;
         addToCart(id, products, qty, addBtn);
       };
     }
+  });
+}
+
+// ---------- Detalhes da Peça e Visualizador de Hiper Zoom 3D ----------
+let currentProduct = null;
+
+async function openProductDetails(productId, cachedProduct = null, push = true) {
+  let product = cachedProduct;
+  if (!product) {
+    try {
+      const data = await api('/api/products/' + productId);
+      product = data.product;
+    } catch (err) {
+      console.error('Erro ao buscar detalhes da peça:', err);
+    }
+  }
+
+  if (!product) {
+    alert('Não foi possível carregar os dados desta peça no momento.');
+    return;
+  }
+
+  currentProduct = product;
+  const img = product.photoUrl || CATEGORY_IMAGES[product.category] || 'images/categorias/filtros.jpg';
+  const priceVal = typeof product.price === 'number' ? product.price : parseFloat(product.price) || 0;
+  const pixPrice = priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04));
+  const installmentVal = priceVal > 0 ? (priceVal / 12) : 0;
+  const inStock = product.inStock !== false && (product.stockQty == null || product.stockQty > 0);
+  const stockQty = product.stockQty || 0;
+  const maxQty = inStock ? (stockQty > 0 ? stockQty : 99) : 0;
+
+  // Breadcrumbs e Títulos
+  const crumbCat = document.getElementById('detailBreadcrumbCat');
+  const crumbName = document.getElementById('detailBreadcrumbName');
+  if (crumbCat) crumbCat.textContent = product.category || 'Peças';
+  if (crumbName) crumbName.textContent = product.name;
+
+  const catBadge = document.getElementById('detailCategoryBadge');
+  const codeBadge = document.getElementById('detailCodeBadge');
+  if (catBadge) catBadge.textContent = product.category || 'Geral';
+  if (codeBadge) codeBadge.textContent = `Cód: #${product.code || ('FP-00' + product.id)}`;
+
+  const titleEl = document.getElementById('detailTitle');
+  const subtitleEl = document.getElementById('detailSubtitle');
+  if (titleEl) titleEl.textContent = product.name;
+  if (subtitleEl) subtitleEl.textContent = product.description || 'Aplicação compatível e procedência certificada com garantia.';
+
+  // Imagem e Lightbox
+  const mainImg = document.getElementById('detailMainImg');
+  const lbImg = document.getElementById('lightboxImg');
+  const lbTitle = document.getElementById('lightboxTitle');
+  if (mainImg) {
+    mainImg.src = img;
+    mainImg.alt = product.name;
+  }
+  if (lbImg) lbImg.src = img;
+  if (lbTitle) lbTitle.textContent = `${product.name} - Inspeção em Alta Resolução`;
+
+  // Estoque e Disponibilidade
+  const stockIndicator = document.getElementById('detailStockIndicator');
+  const stockDesc = document.getElementById('detailStockDesc');
+  const addCartBtn = document.getElementById('detailAddCartBtn');
+  const buyNowBtn = document.getElementById('detailBuyNowBtn');
+  if (stockIndicator) {
+    stockIndicator.className = `fp-stock-indicator ${inStock ? '' : 'out-of-stock'}`;
+    stockIndicator.textContent = inStock ? `● Em estoque (${stockQty} un. disponíveis para envio imediato)` : '○ Fora de estoque no momento';
+  }
+  if (stockDesc) {
+    stockDesc.textContent = inStock
+      ? 'Peça disponível para entrega rápida ou retirada presencial imediata em nossa loja.'
+      : 'Este item está temporariamente sem estoque em nossa loja física.';
+  }
+  if (addCartBtn) {
+    addCartBtn.disabled = !inStock;
+    addCartBtn.style.opacity = inStock ? '1' : '.5';
+    addCartBtn.style.cursor = inStock ? 'pointer' : 'not-allowed';
+    addCartBtn.textContent = inStock ? '🛒 COLOCAR NO CARRINHO' : 'FORA DE ESTOQUE';
+  }
+  if (buyNowBtn) {
+    buyNowBtn.disabled = !inStock;
+    buyNowBtn.style.display = inStock ? 'inline-block' : 'none';
+  }
+
+  // Preço e Parcelamento
+  const pixEl = document.getElementById('detailPixPrice');
+  const regEl = document.getElementById('detailPrice');
+  const instEl = document.getElementById('detailInstallment');
+  if (pixEl) pixEl.textContent = money(pixPrice);
+  if (regEl) regEl.textContent = money(priceVal);
+  if (instEl) instEl.textContent = `em até 12x de ${money(installmentVal)} sem juros`;
+
+  // Seletor de Quantidade
+  const qtyInput = document.getElementById('detailQtyInput');
+  const qtySubtotal = document.getElementById('detailQtySubtotal');
+  if (qtyInput) {
+    qtyInput.value = 1;
+    qtyInput.max = maxQty;
+  }
+  function updateDetailSubtotal() {
+    const q = parseInt(qtyInput?.value, 10) || 1;
+    if (qtySubtotal) qtySubtotal.textContent = `Total: ${money(priceVal * q)}`;
+  }
+  updateDetailSubtotal();
+
+  const minusBtn = document.getElementById('detailQtyMinus');
+  const plusBtn = document.getElementById('detailQtyPlus');
+  if (minusBtn && qtyInput) {
+    minusBtn.onclick = () => {
+      let q = parseInt(qtyInput.value, 10) || 1;
+      if (q > 1) {
+        qtyInput.value = q - 1;
+        updateDetailSubtotal();
+      }
+    };
+  }
+  if (plusBtn && qtyInput) {
+    plusBtn.onclick = () => {
+      let q = parseInt(qtyInput.value, 10) || 1;
+      if (q < maxQty) {
+        qtyInput.value = q + 1;
+        updateDetailSubtotal();
+      }
+    };
+  }
+
+  // Ações de Carrinho
+  if (addCartBtn) {
+    addCartBtn.onclick = () => {
+      if (!inStock) return;
+      const q = parseInt(qtyInput?.value, 10) || 1;
+      addToCart(product.id, [product], q, addCartBtn);
+    };
+  }
+  if (buyNowBtn) {
+    buyNowBtn.onclick = () => {
+      if (!inStock) return;
+      const q = parseInt(qtyInput?.value, 10) || 1;
+      addToCart(product.id, [product], q, buyNowBtn);
+      show('carrinho');
+    };
+  }
+
+  // Link para WhatsApp com mensagem personalizada
+  const waLink = document.getElementById('detailWhatsAppLink');
+  if (waLink) {
+    const msg = `Olá! Gostaria de tirar uma dúvida sobre a peça ${product.name} (Código: ${product.code || product.id}).`;
+    waLink.href = `https://wa.me/5519989932064?text=${encodeURIComponent(msg)}`;
+  }
+
+  // Descrição Técnica Completa
+  const fullDesc = document.getElementById('detailFullDescription');
+  if (fullDesc) {
+    fullDesc.innerHTML = `
+      <p>A peça <strong>${product.name}</strong> é desenvolvida atendendo aos mais rigorosos padrões de qualidade e especificações técnicas de montadoras automotivas.</p>
+      <p style="margin-top:10px">${product.description ? product.description : 'Item essencial para o funcionamento correto e duradouro do sistema mecânico/elétrico do seu veículo. Proporciona alto rendimento, durabilidade prolongada e encaixe preciso sem necessidade de adaptações.'}</p>
+      <div style="margin-top:16px;padding:12px;background:#15181f;border-left:3px solid #ed1c24;border-radius:6px">
+        <strong>Recomendação de instalação:</strong> Para garantir a segurança e a validade da garantia de 90 dias, a instalação deve ser realizada por um mecânico ou centro automotivo especializado.
+      </div>
+    `;
+  }
+
+  const specName = document.getElementById('specName');
+  const specCode = document.getElementById('specCode');
+  const specCat = document.getElementById('specCategory');
+  const specStock = document.getElementById('specStock');
+  if (specName) specName.textContent = product.name;
+  if (specCode) specCode.textContent = product.code || `#FP-${product.id}`;
+  if (specCat) specCat.textContent = product.category || 'Geral';
+  if (specStock) specStock.textContent = inStock ? `${stockQty} unidades em estoque` : 'Esgotado';
+
+  const compatBody = document.getElementById('detailCompatibility');
+  if (compatBody) {
+    compatBody.innerHTML = `
+      <p>Compatibilidade certificada para veículos que utilizam a referência <strong>${product.code || product.name}</strong>.</p>
+      <p style="margin-top:10px;color:#9da2aa">Categoria: <strong>${product.category || 'Peças Automotivas'}</strong>.</p>
+      <p style="margin-top:12px">Para confirmar se esta peça é compatível com o chassi, motorização ou ano exato do seu veículo, clique no botão de WhatsApp para atendimento direto com nossa equipe técnica.</p>
+    `;
+  }
+
+  // Reseta visualizador para posição neutra
+  if (typeof window.resetViewer === 'function') {
+    window.resetViewer();
+  }
+
+  // Navega para a tela do produto
+  show('produto', { push });
+  if (push) {
+    window.history.replaceState({ screen: 'produto', depth: navDepth, productId: product.id }, '');
+  }
+}
+
+// Inicializador dos Efeitos Interativos de Hiper Zoom e Ângulos 3D
+function initProductViewer() {
+  const stage = document.getElementById('viewerStage');
+  const track = document.getElementById('viewerTrack');
+  const img = document.getElementById('detailMainImg');
+  const sheen = document.getElementById('viewerSheen');
+  const reticle = document.getElementById('viewerReticle');
+  const angleInd = document.getElementById('angleIndicator');
+  const badgeText = document.getElementById('viewerBadgeText');
+  const controls = document.querySelectorAll('.fp-viewer-controls .btn-ctrl');
+
+  if (!stage || !track || !img) return;
+
+  function setActiveBtn(id) {
+    controls.forEach(b => b.classList.toggle('active', b.id === id));
+  }
+
+  function handleInteraction(clientX, clientY, zoomLevel = 2.8) {
+    const rect = stage.getBoundingClientRect();
+    let x = (clientX - rect.left) / rect.width;
+    let y = (clientY - rect.top) / rect.height;
+    x = Math.max(0, Math.min(1, x));
+    y = Math.max(0, Math.min(1, y));
+
+    // Inclinação 3D proporcional à posição do cursor/dedo
+    const tiltY = ((x - 0.5) * 28).toFixed(1);
+    const tiltX = ((0.5 - y) * 22).toFixed(1);
+
+    track.classList.remove('is-resting');
+    img.classList.remove('is-resting');
+
+    track.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(12px)`;
+    img.style.transformOrigin = `${(x * 100).toFixed(1)}% ${(y * 100).toFixed(1)}%`;
+    img.style.transform = `scale(${zoomLevel})`;
+
+    if (sheen) {
+      sheen.style.background = `radial-gradient(circle at ${(x * 100).toFixed(1)}% ${(y * 100).toFixed(1)}%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.06) 38%, transparent 70%)`;
+    }
+
+    if (reticle) {
+      reticle.style.display = 'block';
+      reticle.style.left = `${(x * 100).toFixed(1)}%`;
+      reticle.style.top = `${(y * 100).toFixed(1)}%`;
+    }
+
+    if (angleInd) {
+      angleInd.textContent = `3D: ${tiltY > 0 ? '+' : ''}${tiltY}° / ${tiltX > 0 ? '+' : ''}${tiltX}°`;
+    }
+    if (badgeText) {
+      badgeText.textContent = `Hiper Zoom ${zoomLevel}x • Ângulo dinâmico`;
+    }
+  }
+
+  window.resetViewer = function() {
+    track.classList.add('is-resting');
+    img.classList.add('is-resting');
+    track.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
+    img.style.transform = 'scale(1)';
+    img.style.transformOrigin = 'center center';
+    if (sheen) sheen.style.background = 'none';
+    if (reticle) reticle.style.display = 'none';
+    if (angleInd) angleInd.textContent = '3D: 0° / 0°';
+    if (badgeText) badgeText.textContent = 'Passe o mouse ou arraste o dedo para ângulos e zoom';
+    setActiveBtn('ctrlResetAngle');
+  };
+
+  // Eventos de Mouse
+  stage.addEventListener('mousemove', (e) => {
+    handleInteraction(e.clientX, e.clientY);
+  });
+
+  stage.addEventListener('mouseleave', () => {
+    window.resetViewer();
+  });
+
+  // Eventos de Toque (Smartphone / Tablet)
+  stage.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      handleInteraction(t.clientX, t.clientY);
+    }
+  }, { passive: true });
+
+  stage.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+      const t = e.touches[0];
+      handleInteraction(t.clientX, t.clientY);
+    }
+  }, { passive: true });
+
+  stage.addEventListener('touchend', () => {
+    setTimeout(window.resetViewer, 700);
+  });
+
+  // Botões de Ângulos Pré-definidos
+  document.getElementById('ctrlResetAngle')?.addEventListener('click', () => {
+    window.resetViewer();
+  });
+
+  document.getElementById('ctrlAngleLeft')?.addEventListener('click', () => {
+    track.classList.add('is-resting');
+    img.classList.add('is-resting');
+    track.style.transform = 'rotateY(-25deg) rotateX(4deg) translateZ(10px)';
+    img.style.transformOrigin = '30% 50%';
+    img.style.transform = 'scale(1.9)';
+    if (angleInd) angleInd.textContent = '3D: -25.0° / +4.0°';
+    if (badgeText) badgeText.textContent = 'Ângulo Esquerdo (1.9x)';
+    setActiveBtn('ctrlAngleLeft');
+  });
+
+  document.getElementById('ctrlAngleRight')?.addEventListener('click', () => {
+    track.classList.add('is-resting');
+    img.classList.add('is-resting');
+    track.style.transform = 'rotateY(25deg) rotateX(4deg) translateZ(10px)';
+    img.style.transformOrigin = '70% 50%';
+    img.style.transform = 'scale(1.9)';
+    if (angleInd) angleInd.textContent = '3D: +25.0° / +4.0°';
+    if (badgeText) badgeText.textContent = 'Ângulo Direito (1.9x)';
+    setActiveBtn('ctrlAngleRight');
+  });
+
+  document.getElementById('ctrlAngleTop')?.addEventListener('click', () => {
+    track.classList.add('is-resting');
+    img.classList.add('is-resting');
+    track.style.transform = 'rotateX(22deg) rotateY(0deg) translateZ(10px)';
+    img.style.transformOrigin = '50% 30%';
+    img.style.transform = 'scale(1.9)';
+    if (angleInd) angleInd.textContent = '3D: 0.0° / +22.0°';
+    if (badgeText) badgeText.textContent = 'Ângulo Superior (1.9x)';
+    setActiveBtn('ctrlAngleTop');
+  });
+
+  document.getElementById('ctrlMaxZoom')?.addEventListener('click', () => {
+    track.classList.add('is-resting');
+    img.classList.add('is-resting');
+    track.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(16px)';
+    img.style.transformOrigin = 'center center';
+    img.style.transform = 'scale(3.5)';
+    if (angleInd) angleInd.textContent = '3D: Centro • 3.5x';
+    if (badgeText) badgeText.textContent = 'Hiper Zoom Máximo 3.5x';
+    setActiveBtn('ctrlMaxZoom');
+  });
+
+  // Lightbox Modal para tela cheia
+  const modal = document.getElementById('detailLightboxModal');
+  const lbOverlay = document.getElementById('lightboxOverlay');
+  const lbClose = document.getElementById('lightboxClose');
+  const lbImg = document.getElementById('lightboxImg');
+
+  function openLightbox() {
+    if (modal) modal.style.display = 'flex';
+  }
+  function closeLightbox() {
+    if (modal) modal.style.display = 'none';
+    if (lbImg) lbImg.style.transform = 'scale(1)';
+  }
+
+  document.getElementById('ctrlFullscreen')?.addEventListener('click', openLightbox);
+  stage.addEventListener('dblclick', openLightbox);
+  lbOverlay?.addEventListener('click', closeLightbox);
+  lbClose?.addEventListener('click', closeLightbox);
+
+  let lbZoomed = false;
+  lbImg?.addEventListener('dblclick', () => {
+    lbZoomed = !lbZoomed;
+    lbImg.style.transform = lbZoomed ? 'scale(2.2)' : 'scale(1)';
+    lbImg.style.cursor = lbZoomed ? 'zoom-out' : 'zoom-in';
+  });
+
+  // Navegação por Abas
+  document.querySelectorAll('.fp-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.fp-tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.fp-tab-content').forEach(c => c.classList.remove('active'));
+      btn.classList.add('active');
+      const targetId = btn.dataset.tab;
+      document.getElementById(targetId)?.classList.add('active');
+    });
+  });
+
+  // Botões de Voltar ao Catálogo
+  document.getElementById('backToCatalogBtn')?.addEventListener('click', () => {
+    if (navDepth > 0) window.history.back();
+    else show('pecas');
+  });
+  document.getElementById('crumbCatalogLink')?.addEventListener('click', () => {
+    show('pecas');
   });
 }
 
@@ -1158,5 +1552,6 @@ async function init() {
   show('inicio', { push: false });
   loadAddress();
   loadCategoryCarousel();
+  initProductViewer();
 }
 init();

@@ -599,3 +599,637 @@ select option {
   color: #fff;
 }
 
+/* ===== Tela de Detalhes da Peça & Hiper Zoom Interativo em Ângulos ===== */
+.product-detail-screen {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 10px 0 40px;
+}
+
+.fp-detail-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.btn-back-catalog {
+  background: #15181e;
+  border: 1px solid #2e3238;
+  color: #f0f2f5;
+  border-radius: 8px;
+  padding: 9px 16px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 13.5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .15s ease;
+}
+.btn-back-catalog:hover {
+  background: #222630;
+  border-color: #ed1c24;
+  color: #ffffff;
+  transform: translateX(-2px);
+}
+
+.fp-breadcrumbs {
+  font-size: 13px;
+  color: #8e949c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fp-breadcrumbs strong {
+  color: #ffffff;
+  max-width: 280px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fp-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .fp-detail-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+}
+
+/* Visualizador com Ângulos 3D e Hiper Zoom */
+.fp-viewer-column {
+  position: sticky;
+  top: 104px;
+}
+
+.fp-viewer-card {
+  background: #0d0f13;
+  border: 1px solid #282b30;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.65);
+}
+
+.fp-viewer-status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+
+.fp-viewer-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #9da2aa;
+  font-weight: 700;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+.fp-viewer-badge svg {
+  color: #ed1c24;
+}
+
+.fp-angle-indicator {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  background: #171920;
+  color: #ed1c24;
+  border: 1px solid #2e333d;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 11px;
+}
+
+.fp-viewer-stage {
+  height: 420px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: radial-gradient(circle at center, #1b1e25 0%, #0a0b0e 100%);
+  border: 1px solid #262a33;
+  cursor: crosshair;
+  perspective: 1200px;
+  touch-action: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .fp-viewer-stage {
+    height: 310px;
+  }
+}
+
+.fp-viewer-track {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition: transform .05s ease-out;
+}
+
+.fp-viewer-track.is-resting {
+  transition: transform .35s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+#detailMainImg {
+  max-width: 82%;
+  max-height: 82%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+  transform-origin: center center;
+  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.8));
+  will-change: transform, transform-origin;
+  transition: transform .05s ease-out;
+}
+
+#detailMainImg.is-resting {
+  transition: transform .35s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.fp-viewer-sheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 14px;
+  mix-blend-mode: overlay;
+  opacity: 0.9;
+  transition: background .05s ease-out;
+}
+
+.fp-viewer-reticle {
+  position: absolute;
+  width: 44px;
+  height: 44px;
+  border: 1.5px dashed rgba(237, 28, 36, 0.7);
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  display: none;
+  box-shadow: 0 0 14px rgba(237, 28, 36, 0.5);
+}
+
+.fp-viewer-controls {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+  justify-content: center;
+}
+
+.btn-ctrl {
+  background: #14171d;
+  border: 1px solid #2e3238;
+  color: #c7c9cd;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 6px 11px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.btn-ctrl:hover {
+  background: #232730;
+  color: #ffffff;
+  border-color: #ed1c24;
+}
+.btn-ctrl.active {
+  background: #ed1c24;
+  color: #ffffff;
+  border-color: #ed1c24;
+}
+
+.fp-viewer-hint {
+  font-size: 12px;
+  color: #8a9099;
+  text-align: center;
+  margin-top: 12px;
+  line-height: 1.45;
+  background: #12141a;
+  border-radius: 8px;
+  padding: 8px 12px;
+  border: 1px solid #1f232b;
+}
+
+/* Coluna de Informações do Produto */
+.fp-info-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.fp-meta-tags {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.fp-tag-category {
+  background: rgba(237, 28, 36, 0.14);
+  color: #ed1c24;
+  border: 1px solid rgba(237, 28, 36, 0.35);
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fp-tag-code {
+  background: #171920;
+  color: #a2a7af;
+  border: 1px solid #2c3038;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.fp-tag-badge {
+  background: #132219;
+  color: #3fb950;
+  border: 1px solid rgba(63, 185, 80, 0.3);
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.fp-detail-title {
+  font-size: 27px;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 8px 0 6px;
+  line-height: 1.25;
+  letter-spacing: -0.5px;
+}
+
+.fp-detail-subtitle {
+  font-size: 14px;
+  color: #9da2aa;
+  margin-bottom: 16px;
+}
+
+.fp-stock-status-box {
+  background: #0e1115;
+  border: 1px solid #23272f;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+}
+.fp-stock-indicator {
+  font-weight: 800;
+  font-size: 13.5px;
+  color: #3fb950;
+}
+.fp-stock-indicator.out-of-stock {
+  color: #e06a6a;
+}
+.fp-stock-desc {
+  font-size: 12.5px;
+  color: #8c919a;
+  margin-top: 3px;
+}
+
+.fp-price-box {
+  background: #0b0d10;
+  border: 1px solid #282b30;
+  border-left: 4px solid #ed1c24;
+  border-radius: 12px;
+  padding: 14px 18px;
+  margin-bottom: 22px;
+}
+.fp-pix-badge {
+  font-size: 11px;
+  font-weight: 800;
+  color: #3fb950;
+  letter-spacing: 0.5px;
+}
+.fp-pix-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 4px;
+}
+.fp-pix-val {
+  font-size: 32px;
+  font-weight: 900;
+  color: #ffffff;
+  letter-spacing: -0.5px;
+}
+.fp-pix-label {
+  font-size: 13px;
+  color: #9da2aa;
+  font-weight: 700;
+}
+.fp-regular-price-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 13.5px;
+  color: #9ba0a8;
+  flex-wrap: wrap;
+}
+.fp-regular-val {
+  color: #8c9199;
+  text-decoration: line-through;
+}
+.fp-installment {
+  color: #cbd0d8;
+  font-weight: 600;
+}
+
+.fp-action-section {
+  margin-bottom: 22px;
+  background: #0f1116;
+  border: 1px solid #272b33;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.fp-qty-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.fp-qty-picker-label {
+  font-size: 12px;
+  color: #9da2aa;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.fp-detail-qty-control {
+  background: #07080a;
+  border: 1px solid #333740;
+}
+.fp-qty-subtotal {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-left: auto;
+}
+
+.fp-cta-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.fp-btn-cart {
+  flex: 1.2;
+  min-width: 190px;
+  background: #ed1c24;
+  color: #fff;
+  padding: 14px 18px;
+  font-weight: 800;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 0;
+  transition: all .15s ease;
+}
+.fp-btn-cart:hover {
+  background: #ff2a32;
+  transform: scale(1.02);
+}
+.fp-btn-buy {
+  flex: 1;
+  min-width: 160px;
+  background: #238636;
+  border: 1px solid #2ea043;
+  color: #fff;
+  padding: 14px 18px;
+  font-weight: 800;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.fp-btn-buy:hover {
+  background: #2ea043;
+  transform: scale(1.02);
+}
+
+.fp-trust-features {
+  background: #0c0e12;
+  border: 1px solid #23272e;
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.fp-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.fp-trust-icon {
+  font-size: 20px;
+  flex: 0 0 28px;
+  text-align: center;
+}
+.fp-trust-item b {
+  display: block;
+  font-size: 13.5px;
+  color: #f0f2f5;
+}
+.fp-trust-item small, .fp-trust-item small a {
+  font-size: 12px;
+  color: #9da2aa;
+  text-decoration: none;
+}
+.fp-trust-item small a:hover {
+  color: #3fb950;
+  text-decoration: underline;
+}
+
+/* Abas e Especificações Técnicas */
+.fp-tabs-container {
+  margin-top: 36px;
+  border-top: 1px solid #262930;
+  padding-top: 24px;
+}
+.fp-tabs-nav {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid #282b30;
+  padding-bottom: 8px;
+  flex-wrap: wrap;
+}
+.fp-tab-btn {
+  background: transparent;
+  border: 0;
+  color: #8f959e;
+  font-weight: 800;
+  font-size: 13.5px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s ease;
+}
+.fp-tab-btn:hover {
+  color: #ffffff;
+  background: #14171d;
+}
+.fp-tab-btn.active {
+  background: #1a1d23;
+  color: #ed1c24;
+  box-shadow: inset 0 -2px #ed1c24;
+}
+.fp-tab-content {
+  display: none;
+  padding: 20px 4px;
+  color: #d1d5db;
+  line-height: 1.65;
+  font-size: 14.5px;
+}
+.fp-tab-content.active {
+  display: block;
+}
+
+.fp-specs-table {
+  width: 100%;
+  border-collapse: collapse;
+  max-width: 800px;
+}
+.fp-specs-table th {
+  text-align: left;
+  padding: 11px 14px;
+  color: #9da2aa;
+  width: 220px;
+  border-bottom: 1px solid #1f2228;
+  font-size: 13.5px;
+}
+.fp-specs-table td {
+  padding: 11px 14px;
+  color: #ffffff;
+  border-bottom: 1px solid #1f2228;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+/* Estilo do Card no Catálogo para indicar clique de detalhes */
+.product {
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+.product:hover {
+  transform: translateY(-3px);
+  border-color: #3b3f47;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+.product .part-photo {
+  position: relative;
+  overflow: hidden;
+}
+.product .part-photo::after {
+  content: "🔍 Toque para detalhes e hiper zoom";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(14, 16, 20, 0.88);
+  color: #cbd0d8;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 8px;
+  text-align: center;
+  transform: translateY(100%);
+  transition: transform .2s ease;
+}
+.product:hover .part-photo::after {
+  transform: translateY(0);
+}
+
+/* Lightbox Modal */
+.fp-lightbox-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.fp-lightbox-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(5, 6, 8, 0.92);
+  backdrop-filter: blur(8px);
+}
+.fp-lightbox-content {
+  position: relative;
+  z-index: 2;
+  max-width: 92vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.fp-lightbox-close {
+  position: absolute;
+  top: -45px;
+  right: 0;
+  background: #1e2229;
+  border: 1px solid #3c424d;
+  color: #ffffff;
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background .15s;
+}
+.fp-lightbox-close:hover {
+  background: #ed1c24;
+}
+.fp-lightbox-img-wrap {
+  overflow: hidden;
+  max-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0e1014;
+  border-radius: 14px;
+  border: 1px solid #282b32;
+  padding: 20px;
+}
+.fp-lightbox-img-wrap img {
+  max-width: 85vw;
+  max-height: 75vh;
+  object-fit: contain;
+  transition: transform .2s ease;
+  cursor: zoom-in;
+}
+.fp-lightbox-footer {
+  margin-top: 10px;
+  color: #9da2aa;
+  font-size: 13px;
+  display: flex;
+  gap: 16px;
+}
+
+

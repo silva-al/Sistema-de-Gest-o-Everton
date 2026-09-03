@@ -64,6 +64,178 @@
 <div class="products" id="catalogResults" style="margin-top:18px">
 <p style="color:#9da2aa">Carregando peças...</p>
 </div></div></section>
+
+<section class="screen" id="produto">
+  <div class="section product-detail-screen">
+    <div class="fp-detail-topbar">
+      <button type="button" class="btn-back-catalog" id="backToCatalogBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Voltar para o catálogo
+      </button>
+      <div class="fp-breadcrumbs" id="detailBreadcrumbs">
+        <span style="cursor:pointer" id="crumbCatalogLink">Catálogo</span> <span>›</span> <span id="detailBreadcrumbCat">Peças</span> <span>›</span> <strong id="detailBreadcrumbName">Peça</strong>
+      </div>
+    </div>
+
+    <div class="fp-detail-grid">
+      <!-- Coluna Esquerda: Visualizador Interativo com Hiper Zoom e Ângulos 3D -->
+      <div class="fp-viewer-column">
+        <div class="fp-viewer-card" id="detailViewerContainer">
+          <div class="fp-viewer-status-bar">
+            <span class="fp-viewer-badge" id="viewerBadge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+              <span id="viewerBadgeText">Passe o mouse ou arraste o dedo para ângulos e zoom</span>
+            </span>
+            <span class="fp-angle-indicator" id="angleIndicator">3D: 0° / 0°</span>
+          </div>
+
+          <div class="fp-viewer-stage" id="viewerStage">
+            <div class="fp-viewer-track" id="viewerTrack">
+              <img id="detailMainImg" src="" alt="Peça automotiva" loading="eager" draggable="false" />
+              <div class="fp-viewer-sheen" id="viewerSheen"></div>
+              <div class="fp-viewer-reticle" id="viewerReticle"></div>
+            </div>
+          </div>
+
+          <div class="fp-viewer-controls">
+            <button type="button" class="btn-ctrl active" id="ctrlResetAngle" title="Vista Frontal Normal">🔄 Normal</button>
+            <button type="button" class="btn-ctrl" id="ctrlAngleLeft" title="Ver Ângulo Esquerdo">◀ Ângulo Esq.</button>
+            <button type="button" class="btn-ctrl" id="ctrlAngleRight" title="Ver Ângulo Direito">▶ Ângulo Dir.</button>
+            <button type="button" class="btn-ctrl" id="ctrlAngleTop" title="Ver Superior">▲ Superior</button>
+            <button type="button" class="btn-ctrl" id="ctrlMaxZoom" title="Hiper Zoom Máximo">🔍 Hiper Zoom</button>
+            <button type="button" class="btn-ctrl" id="ctrlFullscreen" title="Tela Cheia">⛶ Tela Cheia</button>
+          </div>
+          <div class="fp-viewer-hint">
+            💡 <b>Interativo:</b> Mova o cursor ou arraste com o dedo para ver a peça em múltiplos ângulos de luz e inspecionar detalhes com o hiper zoom!
+          </div>
+        </div>
+      </div>
+
+      <!-- Coluna Direita: Informações Completas, Preço, Estoque e Compra -->
+      <div class="fp-info-column">
+        <div class="fp-meta-tags">
+          <span class="fp-tag-category" id="detailCategoryBadge">Categoria</span>
+          <span class="fp-tag-code" id="detailCodeBadge">Cód: #000</span>
+          <span class="fp-tag-badge">Procedência Garantida</span>
+        </div>
+
+        <h1 class="fp-detail-title" id="detailTitle">Nome da Peça</h1>
+        <div class="fp-detail-subtitle" id="detailSubtitle">Aplicação compatível e procedência certificada</div>
+
+        <div class="fp-stock-status-box" id="detailStockBox">
+          <div class="fp-stock-indicator" id="detailStockIndicator">● Em estoque</div>
+          <div class="fp-stock-desc" id="detailStockDesc">Peça disponível para entrega ou retirada imediata.</div>
+        </div>
+
+        <div class="fp-price-box">
+          <div class="fp-pix-badge">⚡ PAGAMENTO NO PIX COM 4% DE DESCONTO</div>
+          <div class="fp-pix-price-row">
+            <span class="fp-pix-val" id="detailPixPrice">R$ 0,00</span>
+            <span class="fp-pix-label">à vista no Pix</span>
+          </div>
+          <div class="fp-regular-price-row">
+            <span class="fp-regular-val" id="detailPrice">R$ 0,00</span>
+            <span class="fp-installment" id="detailInstallment">em até 12x de R$ 0,00 sem juros</span>
+          </div>
+        </div>
+
+        <div class="fp-action-section">
+          <div class="fp-qty-picker-row">
+            <label class="fp-qty-picker-label">Quantidade:</label>
+            <div class="qty-control fp-detail-qty-control">
+              <button type="button" class="btn-qty-btn" id="detailQtyMinus" aria-label="Diminuir quantidade">−</button>
+              <input type="number" class="product-qty-val" id="detailQtyInput" value="1" min="1" max="99" readonly />
+              <button type="button" class="btn-qty-btn" id="detailQtyPlus" aria-label="Aumentar quantidade">+</button>
+            </div>
+            <span class="fp-qty-subtotal" id="detailQtySubtotal">Total: R$ 0,00</span>
+          </div>
+
+          <div class="fp-cta-buttons">
+            <button type="button" class="btn fp-btn-cart" id="detailAddCartBtn">
+              🛒 COLOCAR NO CARRINHO
+            </button>
+            <button type="button" class="btn fp-btn-buy" id="detailBuyNowBtn">
+              ⚡ COMPRAR AGORA
+            </button>
+          </div>
+        </div>
+
+        <div class="fp-trust-features">
+          <div class="fp-trust-item">
+            <div class="fp-trust-icon">🛡️</div>
+            <div>
+              <b>Garantia Fahren de 90 Dias</b>
+              <small>Procedência garantida com emissão de nota fiscal</small>
+            </div>
+          </div>
+          <div class="fp-trust-item">
+            <div class="fp-trust-icon">🚚</div>
+            <div>
+              <b>Pronta Entrega e Retirada</b>
+              <small>Retire em Hortolândia ou receba em seu endereço</small>
+            </div>
+          </div>
+          <div class="fp-trust-item">
+            <div class="fp-trust-icon">💬</div>
+            <div>
+              <b>Dúvidas sobre o modelo do seu carro?</b>
+              <small><a href="#" id="detailWhatsAppLink" target="_blank" rel="noopener">Fale com nosso especialista no WhatsApp ›</a></small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="fp-tabs-container">
+      <div class="fp-tabs-nav">
+        <button type="button" class="fp-tab-btn active" data-tab="tabDesc">📋 Descrição Completa</button>
+        <button type="button" class="fp-tab-btn" data-tab="tabSpecs">⚙️ Especificações Técnicas</button>
+        <button type="button" class="fp-tab-btn" data-tab="tabCompat">🚗 Aplicação e Compatibilidade</button>
+      </div>
+
+      <div class="fp-tab-content active" id="tabDesc">
+        <div class="fp-tab-body" id="detailFullDescription">
+        </div>
+      </div>
+
+      <div class="fp-tab-content" id="tabSpecs">
+        <div class="fp-tab-body">
+          <table class="fp-specs-table">
+            <tbody>
+              <tr><th>Nome da Peça:</th><td id="specName">-</td></tr>
+              <tr><th>Código / Referência:</th><td id="specCode">-</td></tr>
+              <tr><th>Categoria:</th><td id="specCategory">-</td></tr>
+              <tr><th>Condição:</th><td>Peça Nova, certificada de primeira linha</td></tr>
+              <tr><th>Disponibilidade:</th><td id="specStock">-</td></tr>
+              <tr><th>Garantia:</th><td>90 dias contra defeitos de fabricação</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="fp-tab-content" id="tabCompat">
+        <div class="fp-tab-body" id="detailCompatibility">
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox Modal para visualização ampliada máxima -->
+<div class="fp-lightbox-modal" id="detailLightboxModal" style="display:none">
+  <div class="fp-lightbox-overlay" id="lightboxOverlay"></div>
+  <div class="fp-lightbox-content">
+    <button type="button" class="fp-lightbox-close" id="lightboxClose" aria-label="Fechar">✕</button>
+    <div class="fp-lightbox-img-wrap" id="lightboxImgWrap">
+      <img id="lightboxImg" src="" alt="Visualização máxima" />
+    </div>
+    <div class="fp-lightbox-footer">
+      <span id="lightboxTitle">Peça</span>
+      <span class="lightbox-hint">Arraste para mover • Duplo clique para alternar zoom</span>
+    </div>
+  </div>
+</div>
+
 <section class="screen" id="cadastro"><div class="form-wrap"><div class="panel"><div class="kicker">FAHREN PARTS</div><h2 id="authTitle">Cadastro de cliente</h2><p id="authSubtitle" style="color:#9da2aa">Crie sua conta para consultar peças e acompanhar seus pedidos.</p>
 <div id="registerForm">
 <div class="field"><label>Nome completo</label><input autocomplete="name" id="registerName" placeholder="Seu nome"/></div><div class="field"><label>WhatsApp</label><input autocomplete="tel" id="registerPhone" placeholder="(00) 00000-0000"/></div><div class="field"><label>E-mail</label><input autocomplete="email" id="registerEmail" placeholder="seu@email.com" type="email"/></div><div class="field"><label>CPF/CNPJ <span id="registerCpfCnpjType" style="color:#9da2aa;font-weight:400;text-transform:none"></span></label><input autocomplete="off" id="registerCpfCnpj" inputmode="numeric" placeholder="CPF (000.000.000-00) ou CNPJ (00.000.000/0000-00)"/></div><div class="field password-field"><label>Senha</label><input autocomplete="new-password" id="registerPassword" placeholder="Crie uma senha" type="password"/><button aria-label="Mostrar senha" class="password-toggle" data-target="registerPassword" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button></div><div class="field password-field"><label>Confirmar senha</label><input autocomplete="new-password" id="registerPassword2" placeholder="Repita sua senha" type="password"/><button aria-label="Mostrar confirmação de senha" class="password-toggle" data-target="registerPassword2" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button></div><p class="form-help">Seus dados ficam salvos neste aplicativo para manter sua conta ativa neste dispositivo.</p><button class="btn" id="createAccount" style="width:100%;margin-top:8px">CRIAR CADASTRO</button>
