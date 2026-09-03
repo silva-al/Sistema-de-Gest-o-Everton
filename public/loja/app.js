@@ -475,17 +475,29 @@ async function loadCategoryCarousel() {
       </div>`;
     };
 
+    const cardAllHtml = (hidden) => `
+      <div class="card cat-card cat-card-all" data-go-all="1"${hidden ? ' aria-hidden="true"' : ''} title="Ver todas as peças do catálogo">
+        <div class="cat-card-all-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </div>
+        <b>Ver Todas</b>
+        <small>Catálogo completo ›</small>
+      </div>`;
+
     // Garante itens suficientes para um loop perfeito e contínuo sem saltos
     let baseList = items;
     while (baseList.length < 8) {
       baseList = baseList.concat(items);
     }
-    const htmlContent = baseList.map(c => cardHtml(c, false)).join('') + baseList.map(c => cardHtml(c, true)).join('');
+    const htmlContent = baseList.map(c => cardHtml(c, false)).join('') + cardAllHtml(false)
+                      + baseList.map(c => cardHtml(c, true)).join('') + cardAllHtml(true);
 
     const attachEvents = (t) => {
       if (!t) return;
       t.innerHTML = htmlContent;
-      t.querySelectorAll('.cat-card').forEach(el => {
+      t.querySelectorAll('.cat-card:not(.cat-card-all)').forEach(el => {
         el.onclick = () => {
           const prodId = el.dataset.productId;
           if (prodId) {
@@ -495,6 +507,9 @@ async function loadCategoryCarousel() {
             goToCategory(el.dataset.category);
           }
         };
+      });
+      t.querySelectorAll('.cat-card-all').forEach(el => {
+        el.onclick = () => show('pecas');
       });
     };
 
