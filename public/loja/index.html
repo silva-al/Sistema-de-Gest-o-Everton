@@ -16,13 +16,13 @@
 <div class="app">
 <header class="header"><div class="header-inner">
 <button aria-label="Voltar" class="back-btn" id="backBtn" title="Voltar" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"></path></svg></button>
-<div class="logo">FAHREN<span>PARTS</span></div>
+<div class="logo" id="logoBtn" role="button" tabindex="0" title="Ir para o início" style="cursor:pointer;user-select:none">FAHREN<span>PARTS</span></div>
 <nav class="nav">
 <button class="active" data-screen="inicio">Início</button>
 <button data-screen="placa">Placa</button>
 <button data-screen="pecas">Peças</button>
 <button data-screen="cadastro">Cadastro</button>
-<button data-private="1" data-screen="perfil">Perfil</button><button aria-label="Carrinho de compras" data-private="1" data-screen="carrinho" title="Carrinho de compras"><span class="cart-icon">🛒</span></button>
+<button data-private="1" data-screen="perfil">Perfil</button><button aria-label="Carrinho de compras" class="nav-cart-btn" data-private="1" data-screen="carrinho" id="navCartBtn" title="Carrinho de compras"><span class="cart-icon">🛒</span><span class="cart-badge" id="cartBadge" style="display:none">0</span></button>
 </nav></div></header>
 <section class="visitor-quick-actions" id="visitorQuickActions">
 <button class="btn" data-screen="cadastro">CADASTRE-SE</button>
@@ -87,7 +87,7 @@
 <div class="panel" style="margin-top:16px"><div class="kicker">PEDIDOS</div><h2 style="margin:6px 0 12px">Meus pedidos</h2><div id="myOrders"><p style="color:#9da2aa">Carregando...</p></div></div>
 </div></section>
 <section class="screen" id="endereco"><div class="form-wrap"><div class="panel"><div class="kicker">ENTREGA</div><h2>Onde devemos entregar?</h2><p style="color:#9da2aa">Informe o CEP e complete os dados do endereço para finalizar seu pedido.</p><div class="field"><label>CEP</label><input id="deliveryCep" inputmode="numeric" maxlength="9" placeholder="00000-000"/></div><div class="field"><label>Rua</label><input id="deliveryStreet" placeholder="Nome da rua"/></div><div class="field"><label>Número</label><input id="deliveryNumber" inputmode="numeric" placeholder="Número"/></div><div class="field"><label>Complemento</label><input id="deliveryComplement" placeholder="Apartamento, sala, referência (opcional)"/></div><div class="field"><label>Bairro</label><input id="deliveryNeighborhood" placeholder="Bairro"/></div><div class="field"><label>Cidade</label><input id="deliveryCity" placeholder="Cidade"/></div><div class="field"><label>Estado</label><input id="deliveryState" maxlength="2" placeholder="SP"/></div><button class="btn" id="saveDeliveryAddress" style="width:100%;margin-top:8px">CONFIRMAR ENDEREÇO</button><p class="form-help" id="addressSavedMsg" style="display:none">Endereço salvo no seu perfil para as próximas compras.</p></div></div></section>
-<section class="screen" id="carrinho"><div class="section"><div class="kicker">FAHREN PARTS</div><h2>Carrinho de compras</h2><div class="panel" id="cartContent"><p style="color:#9da2aa">Seu carrinho está vazio. Adicione peças pelo catálogo para continuar.</p><button class="btn" data-go="pecas">VER PEÇAS</button></div></div></section>
+<section class="screen" id="carrinho"><div class="section"><div class="kicker">FAHREN PARTS</div><h2>Carrinho de compras <span id="cartHeaderCount" style="color:#9da2aa;font-size:16px;font-weight:400;margin-left:8px"></span></h2><div class="panel" id="cartContent"><p style="color:#9da2aa">Seu carrinho está vazio. Adicione peças pelo catálogo para continuar.</p><button class="btn" data-go="pecas">VER PEÇAS</button></div></div></section>
 </main>
 <div class="footer-note">Fahren Parts • Plataforma exclusiva para clientes</div>
 </div>

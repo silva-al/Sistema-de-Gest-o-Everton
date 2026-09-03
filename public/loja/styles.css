@@ -393,3 +393,49 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
 @media(max-width:480px){
   .pix-qr-box svg{width:150px;height:150px}
 }
+
+/* ===== Logo interativo e Badge do Carrinho ===== */
+.logo {
+  cursor: pointer !important;
+  user-select: none !important;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.logo:hover {
+  opacity: 0.9;
+  transform: scale(1.02);
+}
+.logo:active {
+  transform: scale(0.98);
+}
+
+.nav-cart-btn {
+  position: relative !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+.cart-badge {
+  position: absolute;
+  top: 1px;
+  right: -2px;
+  background: #e51b23;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 900;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  box-shadow: 0 2px 8px rgba(229, 27, 35, 0.7);
+  border: 1.5px solid #090a0c;
+  line-height: 1;
+  pointer-events: none;
+  animation: badgePop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes badgePop {
+  0% { transform: scale(0.4); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}

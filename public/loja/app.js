@@ -25,9 +25,31 @@ async function api(path, options = {}) {
   return data;
 }
 
+function updateCartBadge() {
+  const badge = document.getElementById('cartBadge');
+  const headerCount = document.getElementById('cartHeaderCount');
+  const totalCount = cart.reduce((sum, i) => sum + (Number(i.quantity) || 0), 0);
+
+  if (badge) {
+    if (totalCount > 0) {
+      badge.textContent = totalCount > 99 ? '99+' : String(totalCount);
+      badge.style.display = 'inline-flex';
+    } else {
+      badge.textContent = '0';
+      badge.style.display = 'none';
+    }
+  }
+
+  if (headerCount) {
+    headerCount.textContent = totalCount > 0 ? `(${totalCount} ${totalCount === 1 ? 'item' : 'itens'})` : '';
+  }
+}
+
 function saveCart() {
   sessionStorage.setItem('fahren_cart', JSON.stringify(cart));
+  updateCartBadge();
 }
+
 
 // ---------- Navegação ----------
 function updateNav() {
@@ -103,6 +125,18 @@ document.querySelectorAll('[data-auth]').forEach(b => b.onclick = () => {
 });
 document.getElementById('showLogin')?.addEventListener('click', openLogin);
 document.getElementById('fpBackRegister')?.addEventListener('click', openRegister);
+
+const logoBtn = document.getElementById('logoBtn');
+if (logoBtn) {
+  logoBtn.addEventListener('click', () => show('inicio'));
+  logoBtn.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      show('inicio');
+    }
+  });
+}
+
 
 // ---------- Mostrar/ocultar senha ----------
 document.querySelectorAll('.password-toggle').forEach(btn => btn.addEventListener('click', () => {
@@ -830,6 +864,7 @@ function addToCart(productId, productsList) {
 }
 
 function renderCart() {
+  updateCartBadge();
   const el = document.getElementById('cartContent');
   if (!cart.length) {
     el.innerHTML = '<p style="color:#9da2aa">Seu carrinho está vazio. Adicione peças pelo catálogo para continuar.</p><button class="btn" data-go="pecas">VER PEÇAS</button>';
@@ -1116,6 +1151,7 @@ async function init() {
     applyUser(null);
   }
   updateNav();
+  updateCartBadge();
   show('inicio', { push: false });
   loadAddress();
   loadCategoryCarousel();
