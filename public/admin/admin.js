@@ -112,6 +112,7 @@ function startEdit(id) {
   document.getElementById('pStock').value = p.stockQty;
   document.getElementById('pDescription').value = p.description || '';
   document.getElementById('pPhoto').value = p.photoUrl || '';
+  document.getElementById('pCompatibility').value = p.compatibility || '';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -120,7 +121,10 @@ document.getElementById('cancelEditBtn').addEventListener('click', resetForm);
 function resetForm() {
   editingProductId = null;
   document.getElementById('formTitle').textContent = 'Cadastrar peça';
-  ['pName', 'pCode', 'pCategory', 'pPrice', 'pStock', 'pDescription', 'pPhoto'].forEach(id => document.getElementById(id).value = '');
+  ['pName', 'pCode', 'pCategory', 'pPrice', 'pStock', 'pDescription', 'pPhoto', 'pCompatibility'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
   document.getElementById('cancelEditBtn').classList.add('hidden');
 }
 
@@ -135,6 +139,7 @@ document.getElementById('saveProductBtn').addEventListener('click', async () => 
     stockQty: Number(document.getElementById('pStock').value || 0),
     description: document.getElementById('pDescription').value.trim() || null,
     photoUrl: document.getElementById('pPhoto').value.trim() || null,
+    compatibility: document.getElementById('pCompatibility').value.trim() || null,
   };
   if (!payload.name || !payload.price || Number.isNaN(payload.price)) {
     errEl.textContent = 'Preencha ao menos nome e preço válidos.'; errEl.classList.remove('hidden'); return;

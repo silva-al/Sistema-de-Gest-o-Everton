@@ -48,8 +48,14 @@
         <div class="field"><label>Estoque</label><input id="pStock" inputmode="numeric" placeholder="0"/></div>
       </div>
       <div class="row">
-        <div class="field" style="flex:2"><label>Descrição</label><input id="pDescription" placeholder="Aplicação compatível"/></div>
-        <div class="field" style="flex:2"><label>URL da foto (opcional)</label><input id="pPhoto" placeholder="https://..."/></div>
+        <div class="field" style="flex:1"><label>Descrição Completa</label><input id="pDescription" placeholder="Descrição, marca e detalhes da peça"/></div>
+        <div class="field" style="flex:1"><label>URL da foto (opcional)</label><input id="pPhoto" placeholder="https://..."/></div>
+      </div>
+      <div class="row">
+        <div class="field" style="flex:1">
+          <label>Aplicação e Compatibilidade Veicular (Modelos, anos e motorizações)</label>
+          <textarea id="pCompatibility" rows="3" placeholder="Ex: VW Gol G5/G6 1.0/1.6 8V (2008 a 2016)&#10;VW Fox 1.0/1.6 (2004 a 2014)&#10;VW Voyage 1.0/1.6 (2009 a 2016)"></textarea>
+        </div>
       </div>
       <button class="btn" id="saveProductBtn">SALVAR PEÇA</button>
       <button class="btn secondary hidden" id="cancelEditBtn" type="button">CANCELAR EDIÇÃO</button>

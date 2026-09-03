@@ -18,6 +18,7 @@ function serialize(row) {
     code: row.code,
     category: row.category,
     description: row.description,
+    compatibility: row.compatibility,
     price: toReais(row.price_cents),
     stockQty: row.stock_qty,
     inStock: row.stock_qty > 0,
@@ -113,14 +114,14 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', requireRole('admin'), async (req, res) => {
   try {
-    const { name, code, category, description, price, stockQty, photoUrl } = req.body || {};
+    const { name, code, category, description, compatibility, price, stockQty, photoUrl } = req.body || {};
     if (!name || price === undefined) {
       return res.status(400).json({ error: 'Nome e preço são obrigatórios.' });
     }
     const result = await db.query(
-      `INSERT INTO products (name, code, category, description, price_cents, stock_qty, photo_url)
-       VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
-      [name.trim(), code || null, category || null, description || null, toCents(price), stockQty || 0, photoUrl || null]
+      `INSERT INTO products (name, code, category, description, compatibility, price_cents, stock_qty, photo_url)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
+      [name.trim(), code || null, category || null, description || null, compatibility || null, toCents(price), stockQty || 0, photoUrl || null]
     );
     res.status(201).json({ product: serialize(result.rows[0]) });
   } catch (err) {
@@ -132,24 +133,26 @@ router.post('/', requireRole('admin'), async (req, res) => {
 
 router.put('/:id', requireRole('admin'), async (req, res) => {
   try {
-    const { name, code, category, description, price, stockQty, photoUrl, active } = req.body || {};
+    const { name, code, category, description, compatibility, price, stockQty, photoUrl, active } = req.body || {};
     const result = await db.query(
       `UPDATE products SET
          name = COALESCE($1, name),
          code = COALESCE($2, code),
          category = COALESCE($3, category),
          description = COALESCE($4, description),
-         price_cents = COALESCE($5, price_cents),
-         stock_qty = COALESCE($6, stock_qty),
-         photo_url = COALESCE($7, photo_url),
-         active = COALESCE($8, active),
+         compatibility = COALESCE($5, compatibility),
+         price_cents = COALESCE($6, price_cents),
+         stock_qty = COALESCE($7, stock_qty),
+         photo_url = COALESCE($8, photo_url),
+         active = COALESCE($9, active),
          updated_at = now()
-       WHERE id = $9 RETURNING *`,
+       WHERE id = $10 RETURNING *`,
       [
         name?.trim() ?? null,
         code ?? null,
         category ?? null,
         description ?? null,
+        compatibility ?? null,
         price !== undefined ? toCents(price) : null,
         stockQty !== undefined ? stockQty : null,
         photoUrl ?? null,

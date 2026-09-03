@@ -188,28 +188,29 @@
 
     <div class="fp-tabs-container">
       <div class="fp-tabs-nav">
-        <button type="button" class="fp-tab-btn active" data-tab="tabDesc">📋 Descrição Completa</button>
-        <button type="button" class="fp-tab-btn" data-tab="tabSpecs">⚙️ Especificações Técnicas</button>
-        <button type="button" class="fp-tab-btn" data-tab="tabCompat">🚗 Aplicação e Compatibilidade</button>
+        <button type="button" class="fp-tab-btn active" data-tab="tabDesc">📋 Descrição e Especificações Técnicas</button>
+        <button type="button" class="fp-tab-btn" data-tab="tabCompat">🚗 Aplicação e Compatibilidade Veicular</button>
       </div>
 
       <div class="fp-tab-content active" id="tabDesc">
-        <div class="fp-tab-body" id="detailFullDescription">
-        </div>
-      </div>
-
-      <div class="fp-tab-content" id="tabSpecs">
         <div class="fp-tab-body">
-          <table class="fp-specs-table">
-            <tbody>
-              <tr><th>Nome da Peça:</th><td id="specName">-</td></tr>
-              <tr><th>Código / Referência:</th><td id="specCode">-</td></tr>
-              <tr><th>Categoria:</th><td id="specCategory">-</td></tr>
-              <tr><th>Condição:</th><td>Peça Nova, certificada de primeira linha</td></tr>
-              <tr><th>Disponibilidade:</th><td id="specStock">-</td></tr>
-              <tr><th>Garantia:</th><td>90 dias contra defeitos de fabricação</td></tr>
-            </tbody>
-          </table>
+          <div id="detailFullDescription"></div>
+          <div class="fp-specs-wrap" style="margin-top:24px">
+            <h3 style="font-size:16px;margin-bottom:12px;color:#fff;display:flex;align-items:center;gap:8px">
+              <span>⚙️</span> Ficha Técnica da Peça
+            </h3>
+            <table class="fp-specs-table">
+              <tbody>
+                <tr><th>Nome da Peça:</th><td id="specName">-</td></tr>
+                <tr><th>Código / Referência:</th><td id="specCode">-</td></tr>
+                <tr><th>Categoria:</th><td id="specCategory">-</td></tr>
+                <tr><th>Condição:</th><td>Peça Nova, certificada de primeira linha</td></tr>
+                <tr><th>Disponibilidade:</th><td id="specStock">-</td></tr>
+                <tr><th>Garantia:</th><td>90 dias corridos contra defeitos de fabricação (com Nota Fiscal)</td></tr>
+                <tr><th>Procedência:</th><td>Distribuição oficial autorizada Fahren Parts</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
@@ -221,17 +222,25 @@
   </div>
 </section>
 
-<!-- Lightbox Modal para visualização ampliada máxima -->
+<!-- Lightbox Modal para visualização ampliada máxima com movimentação livre -->
 <div class="fp-lightbox-modal" id="detailLightboxModal" style="display:none">
   <div class="fp-lightbox-overlay" id="lightboxOverlay"></div>
   <div class="fp-lightbox-content">
-    <button type="button" class="fp-lightbox-close" id="lightboxClose" aria-label="Fechar">✕</button>
-    <div class="fp-lightbox-img-wrap" id="lightboxImgWrap">
-      <img id="lightboxImg" src="" alt="Visualização máxima" />
+    <div class="fp-lightbox-header">
+      <div class="fp-lb-title-wrap">
+        <strong id="lightboxTitle">Inspeção em Tela Cheia</strong>
+        <span class="lightbox-hint">🖐️ Toque e arraste para os cantos que preferir • Zoom ajustável</span>
+      </div>
+      <div class="fp-lb-actions">
+        <button type="button" class="fp-lb-btn" id="lbZoomOut" title="Diminuir Zoom">−</button>
+        <span id="lbZoomLevel">2.0x</span>
+        <button type="button" class="fp-lb-btn" id="lbZoomIn" title="Aumentar Zoom">+</button>
+        <button type="button" class="fp-lb-btn" id="lbResetPan" title="Centralizar">Centralizar</button>
+        <button type="button" class="fp-lightbox-close" id="lightboxClose" aria-label="Fechar">✕ Fechar</button>
+      </div>
     </div>
-    <div class="fp-lightbox-footer">
-      <span id="lightboxTitle">Peça</span>
-      <span class="lightbox-hint">Arraste para mover • Duplo clique para alternar zoom</span>
+    <div class="fp-lightbox-viewport" id="lightboxViewport">
+      <img id="lightboxImg" src="" alt="Visualização máxima da peça" draggable="false" />
     </div>
   </div>
 </div>

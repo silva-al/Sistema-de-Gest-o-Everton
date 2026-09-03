@@ -713,11 +713,12 @@ select option {
 }
 
 .fp-viewer-stage {
+  width: 100%;
   height: 420px;
   position: relative;
   overflow: hidden;
   border-radius: 14px;
-  background: radial-gradient(circle at center, #1b1e25 0%, #0a0b0e 100%);
+  background: #090a0d;
   border: 1px solid #262a33;
   cursor: crosshair;
   perspective: 1200px;
@@ -728,8 +729,19 @@ select option {
 }
 
 @media (max-width: 600px) {
+  .product-detail-screen {
+    padding: 0 0 24px;
+  }
+  .fp-viewer-card {
+    padding: 10px;
+    border-radius: 12px;
+  }
   .fp-viewer-stage {
-    height: 310px;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    max-height: 88vw;
+    border-radius: 10px;
   }
 }
 
@@ -750,13 +762,14 @@ select option {
 }
 
 #detailMainImg {
-  max-width: 82%;
-  max-height: 82%;
-  object-fit: contain;
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
   user-select: none;
   pointer-events: none;
   transform-origin: center center;
-  filter: drop-shadow(0 16px 30px rgba(0, 0, 0, 0.8));
   will-change: transform, transform-origin;
   transition: transform .05s ease-out;
 }
@@ -1163,73 +1176,118 @@ select option {
 }
 
 /* Lightbox Modal */
+/* Lightbox Modal para Tela Cheia com Arrasto Livre */
 .fp-lightbox-modal {
   position: fixed;
   inset: 0;
   z-index: 999999;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  background: rgba(3, 4, 6, 0.97);
+  backdrop-filter: blur(12px);
+  user-select: none;
 }
 .fp-lightbox-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(5, 6, 8, 0.92);
-  backdrop-filter: blur(8px);
 }
 .fp-lightbox-content {
   position: relative;
   z-index: 2;
-  max-width: 92vw;
-  max-height: 90vh;
+  width: 100vw;
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
 }
-.fp-lightbox-close {
-  position: absolute;
-  top: -45px;
-  right: 0;
-  background: #1e2229;
-  border: 1px solid #3c424d;
-  color: #ffffff;
-  font-size: 20px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
+.fp-lightbox-header {
+  background: rgba(14, 17, 23, 0.96);
+  border-bottom: 1px solid #282c35;
+  padding: 10px 16px;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.fp-lb-title-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.fp-lb-title-wrap strong {
+  font-size: 14px;
+  color: #ffffff;
+}
+.lightbox-hint {
+  font-size: 11.5px;
+  color: #9da2aa;
+}
+.fp-lb-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fp-lb-btn {
+  background: #1e222a;
+  border: 1px solid #363b46;
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .15s;
+}
+.fp-lb-btn:hover {
+  background: #2a303c;
+  border-color: #ed1c24;
+}
+#lbZoomLevel {
+  font-family: monospace;
+  font-size: 12.5px;
+  color: #3fb950;
+  font-weight: 800;
+  min-width: 36px;
+  text-align: center;
+}
+.fp-lightbox-close {
+  background: #ed1c24;
+  border: none;
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
   transition: background .15s;
 }
 .fp-lightbox-close:hover {
-  background: #ed1c24;
+  background: #ff2a32;
 }
-.fp-lightbox-img-wrap {
+.fp-lightbox-viewport {
+  flex: 1;
+  width: 100vw;
+  height: calc(100vh - 65px);
   overflow: hidden;
-  max-height: 80vh;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #0e1014;
-  border-radius: 14px;
-  border: 1px solid #282b32;
-  padding: 20px;
+  cursor: grab;
+  touch-action: none;
 }
-.fp-lightbox-img-wrap img {
-  max-width: 85vw;
-  max-height: 75vh;
+.fp-lightbox-viewport.is-dragging {
+  cursor: grabbing;
+}
+#lightboxImg {
+  max-width: none;
+  max-height: none;
+  width: 82vw;
+  max-width: 860px;
   object-fit: contain;
-  transition: transform .2s ease;
-  cursor: zoom-in;
-}
-.fp-lightbox-footer {
-  margin-top: 10px;
-  color: #9da2aa;
-  font-size: 13px;
-  display: flex;
-  gap: 16px;
+  transform-origin: center center;
+  transition: transform .05s ease-out;
+  pointer-events: none;
+  filter: drop-shadow(0 10px 40px rgba(0, 0, 0, 0.95));
 }
 
 

@@ -704,10 +704,14 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
   const fullDesc = document.getElementById('detailFullDescription');
   if (fullDesc) {
     fullDesc.innerHTML = `
-      <p>A peça <strong>${product.name}</strong> é desenvolvida atendendo aos mais rigorosos padrões de qualidade e especificações técnicas de montadoras automotivas.</p>
-      <p style="margin-top:10px">${product.description ? product.description : 'Item essencial para o funcionamento correto e duradouro do sistema mecânico/elétrico do seu veículo. Proporciona alto rendimento, durabilidade prolongada e encaixe preciso sem necessidade de adaptações.'}</p>
-      <div style="margin-top:16px;padding:12px;background:#15181f;border-left:3px solid #ed1c24;border-radius:6px">
-        <strong>Recomendação de instalação:</strong> Para garantir a segurança e a validade da garantia de 90 dias, a instalação deve ser realizada por um mecânico ou centro automotivo especializado.
+      <p style="font-size:15px;line-height:1.6;color:#e1e4ea">
+        ${product.description ? product.description : `A peça <strong>${product.name}</strong> é desenvolvida atendendo aos mais rigorosos padrões de qualidade e especificações técnicas de montadoras automotivas.`}
+      </p>
+      <p style="margin-top:12px;color:#9da2aa;line-height:1.5">
+        Item essencial para o correto funcionamento e durabilidade do veículo. Proporciona alto rendimento, durabilidade prolongada e encaixe preciso de fábrica sem necessidade de adaptações.
+      </p>
+      <div style="margin-top:16px;padding:12px 14px;background:#14171e;border-left:3px solid #ed1c24;border-radius:6px;font-size:13.5px;color:#cbd0d8">
+        <strong style="color:#fff">⚠️ Recomendação de Instalação:</strong> Para garantir a segurança e a validade da garantia de 90 dias com Nota Fiscal, a instalação deve ser realizada por um profissional ou centro automotivo especializado.
       </div>
     `;
   }
@@ -721,12 +725,57 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
   if (specCat) specCat.textContent = product.category || 'Geral';
   if (specStock) specStock.textContent = inStock ? `${stockQty} unidades em estoque` : 'Esgotado';
 
+  // Aplicação e Compatibilidade Veicular Detalhada
   const compatBody = document.getElementById('detailCompatibility');
   if (compatBody) {
+    const hasCustomCompat = Boolean(product.compatibility && product.compatibility.trim());
     compatBody.innerHTML = `
-      <p>Compatibilidade certificada para veículos que utilizam a referência <strong>${product.code || product.name}</strong>.</p>
-      <p style="margin-top:10px;color:#9da2aa">Categoria: <strong>${product.category || 'Peças Automotivas'}</strong>.</p>
-      <p style="margin-top:12px">Para confirmar se esta peça é compatível com o chassi, motorização ou ano exato do seu veículo, clique no botão de WhatsApp para atendimento direto com nossa equipe técnica.</p>
+      <div class="fp-compat-header" style="margin-bottom:18px">
+        <h3 style="font-size:17px;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+          <span>🚗</span> Aplicação e Veículos Compatíveis
+        </h3>
+        <p style="color:#9da2aa;font-size:13.5px">
+          ${hasCustomCompat 
+            ? 'Esta peça possui as seguintes aplicações veiculares e modelos compatíveis homologados:'
+            : 'Aplicações compatíveis com as linhas de montadoras que utilizam esta especificação:'}
+        </p>
+      </div>
+
+      <div class="fp-compat-detail-box" style="background:#111319;border:1px solid #292d37;border-radius:12px;padding:18px;margin-bottom:18px">
+        ${hasCustomCompat ? `
+          <div style="white-space:pre-line;color:#f0f2f5;font-size:14.5px;line-height:1.7;font-weight:500">
+            ${product.compatibility.trim()}
+          </div>
+        ` : `
+          <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px">
+            <div>
+              <span style="color:#8e949c;font-size:11.5px;text-transform:uppercase;display:block">Referência / Código:</span>
+              <strong style="color:#fff;font-size:14.5px">${product.code || ('FP-00' + product.id)}</strong>
+            </div>
+            <div>
+              <span style="color:#8e949c;font-size:11.5px;text-transform:uppercase;display:block">Sistema do Veículo:</span>
+              <strong style="color:#fff;font-size:14.5px">${product.category || 'Peças Automotivas'}</strong>
+            </div>
+            <div>
+              <span style="color:#8e949c;font-size:11.5px;text-transform:uppercase;display:block">Padrão de Fabricação:</span>
+              <strong style="color:#3fb950;font-size:14.5px">Encaixe Original 100% Plug & Play</strong>
+            </div>
+          </div>
+          <p style="margin-top:14px;color:#a0a5ae;font-size:13px;border-top:1px solid #20242e;padding-top:12px">
+            Peça de primeira linha compatível com montadoras que adotam este padrão. Ao cadastrar novas peças ou atualizá-las no painel administrativo, os detalhes de modelos, motorizações e anos compatíveis serão listados aqui.
+          </p>
+        `}
+      </div>
+
+      <div class="fp-compat-cta" style="background:#141720;border-left:4px solid #ed1c24;border-radius:8px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+        <div>
+          <strong style="color:#fff;font-size:14px;display:block">Dúvida sobre o chassi, motor ou ano do seu carro?</strong>
+          <span style="color:#9da2aa;font-size:12.5px">Nossa equipe confirma na hora pelo catálogo técnico da montadora.</span>
+        </div>
+        <a href="https://wa.me/5519989932064?text=${encodeURIComponent('Olá! Gostaria de confirmar a compatibilidade da peça ' + product.name + ' (Código: ' + (product.code || product.id) + ') com o modelo do meu carro.')}" target="_blank" rel="noopener" style="background:#238636;color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .15s">
+          <span>💬</span> Confirmar no WhatsApp
+        </a>
+      </div>
     `;
   }
 
@@ -885,31 +934,122 @@ function initProductViewer() {
     setActiveBtn('ctrlMaxZoom');
   });
 
-  // Lightbox Modal para tela cheia
+  // Lightbox Modal para tela cheia com movimentação livre por toque ou mouse
   const modal = document.getElementById('detailLightboxModal');
   const lbOverlay = document.getElementById('lightboxOverlay');
   const lbClose = document.getElementById('lightboxClose');
   const lbImg = document.getElementById('lightboxImg');
+  const lbViewport = document.getElementById('lightboxViewport');
+  const lbZoomIn = document.getElementById('lbZoomIn');
+  const lbZoomOut = document.getElementById('lbZoomOut');
+  const lbResetPan = document.getElementById('lbResetPan');
+  const lbZoomLevel = document.getElementById('lbZoomLevel');
+
+  let lbScale = 2.0;
+  let lbPanX = 0;
+  let lbPanY = 0;
+  let lbDragging = false;
+  let lbStartX = 0;
+  let lbStartY = 0;
+
+  function updateLbTransform() {
+    if (lbImg) {
+      lbImg.style.transform = `translate3d(${lbPanX}px, ${lbPanY}px, 0px) scale(${lbScale})`;
+    }
+    if (lbZoomLevel) {
+      lbZoomLevel.textContent = `${lbScale.toFixed(1)}x`;
+    }
+  }
 
   function openLightbox() {
-    if (modal) modal.style.display = 'flex';
-  }
-  function closeLightbox() {
-    if (modal) modal.style.display = 'none';
-    if (lbImg) lbImg.style.transform = 'scale(1)';
+    if (modal) {
+      modal.style.display = 'flex';
+      lbScale = 2.0;
+      lbPanX = 0;
+      lbPanY = 0;
+      updateLbTransform();
+    }
   }
 
+  function closeLightbox() {
+    if (modal) modal.style.display = 'none';
+    lbDragging = false;
+    lbViewport?.classList.remove('is-dragging');
+  }
+
+  // Abre tela cheia exclusivamente pelo botão "Tela Cheia" (sem duplo clique acidental)
   document.getElementById('ctrlFullscreen')?.addEventListener('click', openLightbox);
-  stage.addEventListener('dblclick', openLightbox);
   lbOverlay?.addEventListener('click', closeLightbox);
   lbClose?.addEventListener('click', closeLightbox);
 
-  let lbZoomed = false;
-  lbImg?.addEventListener('dblclick', () => {
-    lbZoomed = !lbZoomed;
-    lbImg.style.transform = lbZoomed ? 'scale(2.2)' : 'scale(1)';
-    lbImg.style.cursor = lbZoomed ? 'zoom-out' : 'zoom-in';
+  // Controles de Zoom
+  lbZoomIn?.addEventListener('click', () => {
+    if (lbScale < 4.5) {
+      lbScale = Math.min(4.5, lbScale + 0.5);
+      updateLbTransform();
+    }
   });
+
+  lbZoomOut?.addEventListener('click', () => {
+    if (lbScale > 1.0) {
+      lbScale = Math.max(1.0, lbScale - 0.5);
+      updateLbTransform();
+    }
+  });
+
+  lbResetPan?.addEventListener('click', () => {
+    lbScale = 2.0;
+    lbPanX = 0;
+    lbPanY = 0;
+    updateLbTransform();
+  });
+
+  // Movimentação livre com Mouse (Desktop)
+  if (lbViewport) {
+    lbViewport.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      lbDragging = true;
+      lbStartX = e.clientX - lbPanX;
+      lbStartY = e.clientY - lbPanY;
+      lbViewport.classList.add('is-dragging');
+    });
+
+    window.addEventListener('mousemove', (e) => {
+      if (!lbDragging) return;
+      lbPanX = e.clientX - lbStartX;
+      lbPanY = e.clientY - lbStartY;
+      updateLbTransform();
+    });
+
+    window.addEventListener('mouseup', () => {
+      if (lbDragging) {
+        lbDragging = false;
+        lbViewport.classList.remove('is-dragging');
+      }
+    });
+
+    // Movimentação livre com a Mão / Toque (Mobile & Tablet)
+    lbViewport.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 1) {
+        lbDragging = true;
+        lbStartX = e.touches[0].clientX - lbPanX;
+        lbStartY = e.touches[0].clientY - lbPanY;
+        lbViewport.classList.add('is-dragging');
+      }
+    }, { passive: true });
+
+    lbViewport.addEventListener('touchmove', (e) => {
+      if (!lbDragging || e.touches.length !== 1) return;
+      lbPanX = e.touches[0].clientX - lbStartX;
+      lbPanY = e.touches[0].clientY - lbStartY;
+      updateLbTransform();
+    }, { passive: true });
+
+    lbViewport.addEventListener('touchend', () => {
+      lbDragging = false;
+      lbViewport.classList.remove('is-dragging');
+    });
+  }
 
   // Navegação por Abas
   document.querySelectorAll('.fp-tab-btn').forEach(btn => {
