@@ -55,8 +55,8 @@
 <section class="screen" id="placa"><div class="plate-box"><div class="panel">
 <div class="kicker">CONSULTA DE VEÍCULO</div><h2>Identifique seu veículo</h2><p style="color:#9da2aa">Digite a placa para encontrar as peças corretas.</p>
 <div class="plate-row"><input id="plate" maxlength="8" placeholder="ABC1D23"/><button class="btn" id="consult">CONSULTAR</button></div>
-<div class="vehicle" id="vehicle"><div class="ok">✓ Veículo identificado</div><h2 style="margin:7px 0">Volkswagen T-Cross</h2><div class="chips"><span class="chip">2022</span><span class="chip">1.4 TSI</span><span class="chip">Flex</span></div>
-<div class="search"><input id="partSearch" placeholder="Qual peça você procura?"/></div></div>
+<div class="vehicle" id="vehicle" style="display:none"><div class="ok">✓ Veículo identificado</div><h2 id="vehicleTitle" style="margin:7px 0"></h2><div class="chips" id="vehicleChips"></div><div id="vehicleCategorySuggestions" style="margin:14px 0 10px"></div>
+<div class="search"><input id="partSearch" placeholder="Qual peça você procura para este veículo?"/></div></div>
 </div></div></section>
 <section class="screen" id="pecas"><div class="section"><div class="kicker">FAHREN PARTS</div><h2>Encontre sua peça</h2><div class="search"><input id="catalogSearch" placeholder="Pesquisar peça, código ou categoria..."/></div>
 <div class="catalog-filters" id="catalogFilters">

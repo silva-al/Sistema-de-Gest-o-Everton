@@ -11,8 +11,8 @@ const adminAuthRoutes = require('./routes/admin-auth');
 const productRoutes = require('./routes/products');
 const orderRoutes = require('./routes/orders');
 const addressRoutes = require('./routes/addresses');
-const paymentRoutes = require('./routes/payments');
 const vehicleRoutes = require('./routes/vehicles');
+const paymentRoutes = require('./routes/payments');
 const uploadRoutes = require('./routes/uploads');
 
 const app = express();
@@ -27,19 +27,20 @@ app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/addresses', addressRoutes);
-app.use('/api/payments', paymentRoutes);
 app.use('/api/vehicles', vehicleRoutes);
+app.use('/api/payments', paymentRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/admin/upload', uploadRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
-// Front-end estático: loja do cliente na raiz, painel de gestão em /admin
+// Arquivos estáticos:
+// 1. Fotos de peças enviadas no painel
+app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
+
+// 2. Loja do cliente na raiz, painel de gestão em /admin
 app.use(express.static(path.join(__dirname, '..', 'public', 'loja')));
 app.use('/admin', express.static(path.join(__dirname, '..', 'public', 'admin')));
-// Fotos de peças enviadas pelo painel (POST /api/uploads gera URLs /uploads/products/...).
-// ATENÇÃO: no plano grátis do Render o disco é temporário — as imagens somem a cada
-// deploy/restart. Para produção, trocar por um storage externo (ex.: Supabase Storage).
-app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
 
 // Sempre que o servidor liga, garante que o banco de dados tem todas as
 // tabelas/colunas mais recentes (comandos "CREATE TABLE IF NOT EXISTS" e

@@ -195,7 +195,8 @@ async function createPixPayment(order, customer) {
 }
 
 async function processCardPayment(order, cardData, requestedInstallments, customer) {
-  const installmentsCount = Math.min(12, Math.max(1, parseInt(requestedInstallments, 10) || 1));
+  const cardToken = cardData?.token || cardData?.cardToken;
+  const installmentsCount = Math.min(12, Math.max(1, parseInt(cardData?.installments || requestedInstallments, 10) || 1));
   const totalWithInterest = Number((Math.round(order.total_cents) / 100).toFixed(2));
   const installmentValue = Number((totalWithInterest / installmentsCount).toFixed(2));
   const installmentAmountCents = Math.round(installmentValue * 100);
@@ -205,13 +206,40 @@ async function processCardPayment(order, cardData, requestedInstallments, custom
   // do próprio Brick quando existirem; o detectCardBrand fica como fallback dos
   // fluxos antigos que ainda mandavam o número.
   const cleanNumber = (cardData?.cardNumber || '').replace(/\D/g, '');
-  let lastFour = cardData?.lastFour || cleanNumber.slice(-4) || '1234';
-  let brand = cardData?.cardBrand || (cleanNumber ? detectCardBrand(cleanNumber) : 'Cartão');
+  let brand = cardData?.cardBrand || cardData?.payment_method_id || cardData?.paymentMethodId || (cleanNumber ? detectCardBrand(cleanNumber) : 'Cartão');
+  if (brand && typeof brand === 'string') brand = brand.charAt(0).toUpperCase() + brand.slice(1);
+  let lastFour = cardData?.lastFour || cardData?.last_four_digits || (cleanNumber ? cleanNumber.slice(-4) : '1234');
+
+  const identificationNumber = (
+    cardData?.payer?.identification?.number ||
+    cardData?.cpf ||
+    (customer?.cpf_cnpj || '')
+  ).replace(/\D/g, '') || '00000000000';
+  const identificationType = cardData?.payer?.identification?.type || (identificationNumber.length > 11 ? 'CNPJ' : 'CPF');
+  const payerEmail = cardData?.payer?.email || customer?.email || 'cliente@fahrenparts.com.br';
 
   const token = process.env.MERCADOPAGO_ACCESS_TOKEN;
 
-  if (token && cardData?.cardToken) {
+  if (token && cardToken) {
     try {
+      const mpBody = {
+        transaction_amount: totalWithInterest,
+        token: cardToken,
+        description: `Pedido #${order.id} - Fahren Parts (${installmentsCount}x sem juros)`,
+        installments: installmentsCount,
+        payment_method_id: (cardData?.payment_method_id || cardData?.paymentMethodId || brand || 'visa').toLowerCase(),
+        payer: {
+          email: payerEmail,
+          identification: {
+            type: identificationType,
+            number: identificationNumber,
+          },
+        },
+      };
+      if (cardData?.issuer_id || cardData?.issuerId) {
+        mpBody.issuer_id = String(cardData.issuer_id || cardData.issuerId);
+      }
+
       const response = await fetch('https://api.mercadopago.com/v1/payments', {
         method: 'POST',
         headers: {
@@ -219,31 +247,16 @@ async function processCardPayment(order, cardData, requestedInstallments, custom
           'Content-Type': 'application/json',
           'X-Idempotency-Key': `card-order-${order.id}-${Date.now()}`,
         },
-        body: JSON.stringify({
-          transaction_amount: totalWithInterest,
-          token: cardData.cardToken,
-          description: `Pedido #${order.id} - Fahren Parts (${installmentsCount}x sem juros)`,
-          installments: installmentsCount,
-          // O Brick já informa o payment_method_id correto ("visa", "master", "elo"…).
-          payment_method_id: cardData.paymentMethodId || brand.toLowerCase(),
-          ...(cardData.issuerId ? { issuer_id: String(cardData.issuerId) } : {}),
-          payer: {
-            email: customer.email,
-            identification: {
-              type: 'CPF',
-              number: (cardData.cpf || '').replace(/\D/g, ''),
-            },
-          },
-        }),
+        body: JSON.stringify(mpBody),
       });
 
       const data = await response.json();
 
       if (response.ok && data.status === 'rejected') {
-        // Cartão recusado pelo emissor: não altera o pedido, devolve o motivo.
         return {
           paymentId: String(data.id || ''),
           status: 'recusado',
+          mpStatus: 'rejected',
           rejectionDetail: data.status_detail || null,
           installments: installmentsCount,
           installmentValue,
@@ -253,7 +266,7 @@ async function processCardPayment(order, cardData, requestedInstallments, custom
         };
       }
 
-      if (response.ok && (data.status === 'approved' || data.status === 'in_process')) {
+      if (response.ok && (data.status === 'approved' || data.status === 'in_process' || data.status === 'pending')) {
         const paymentId = String(data.id);
         if (data.payment_method_id) brand = data.payment_method_id;
         if (data.card && data.card.last_four_digits) lastFour = data.card.last_four_digits;
@@ -289,6 +302,7 @@ async function processCardPayment(order, cardData, requestedInstallments, custom
         return {
           paymentId,
           status: paymentStatus,
+          mpStatus: data.status,
           installments: installmentsCount,
           installmentValue,
           totalAmount: totalWithInterest,
@@ -296,9 +310,12 @@ async function processCardPayment(order, cardData, requestedInstallments, custom
           cardLastFour: lastFour,
           isSandbox: false,
         };
+      } else {
+        console.error('[PaymentService] Resposta negativa Mercado Pago:', data);
       }
     } catch (err) {
       console.error('[PaymentService] Erro chamada cartão Mercado Pago:', err.message);
+      throw err;
     }
   }
 

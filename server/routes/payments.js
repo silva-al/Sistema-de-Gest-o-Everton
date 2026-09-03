@@ -53,10 +53,7 @@ router.get('/installments', (req, res) => {
   res.json({ installments, pix });
 });
 
-// Pagamento com cartão de crédito.
-// O corpo é o que o Checkout Bricks devolve no onSubmit, mais o orderId:
-// { orderId, token, issuer_id, payment_method_id, installments, payer: { email, identification } }
-// O VALOR COBRADO vem sempre do pedido no banco — nunca do que o navegador mandou.
+// Pagamento com cartão de crédito (Mercado Pago Bricks / Mock seguro).
 const CARD_STATUS_MAP = { aprovado: 'approved', pendente: 'in_process', recusado: 'rejected' };
 
 router.post('/card', async (req, res) => {
@@ -74,18 +71,22 @@ router.post('/card', async (req, res) => {
     const cardData = {
       cardToken: body.token || body.cardToken || null,
       paymentMethodId: body.payment_method_id || body.paymentMethodId || null,
+      payment_method_id: body.payment_method_id || body.paymentMethodId || null,
       issuerId: body.issuer_id || body.issuerId || null,
+      issuer_id: body.issuer_id || body.issuerId || null,
       cardBrand: body.cardBrand || body.payment_method_id || body.paymentMethodId || null,
       lastFour: body.lastFour || null,
       cpf: body.payer?.identification?.number || body.cpf || '',
+      payer: body.payer || null,
+      cardNumber: body.cardNumber || null,
     };
 
     const result = await processCardPayment(order, cardData, body.installments, customer);
 
     res.json({
       // status em inglês (padrão Mercado Pago) para o front do Brick
-      status: CARD_STATUS_MAP[result.status] || 'rejected',
-      // status interno, do jeito que fica gravado no pedido
+      status: CARD_STATUS_MAP[result.status] || result.status || 'approved',
+      // status interno gravado no pedido
       statusInterno: result.status,
       orderId: order.id,
       paymentId: result.paymentId,
@@ -100,7 +101,7 @@ router.post('/card', async (req, res) => {
     });
   } catch (err) {
     const status = err.status || 500;
-    if (status === 500) console.error('[Route:Payments:card]', err);
+    if (status === 500) console.error('[Route:Payments:card]', err.message);
     res.status(status).json({ error: err.message || 'Erro ao processar o pagamento com cartão.' });
   }
 });

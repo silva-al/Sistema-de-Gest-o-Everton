@@ -52,36 +52,34 @@ CREATE TABLE IF NOT EXISTS customer_addresses (
 );
 
 CREATE TABLE IF NOT EXISTS orders (
-  id             SERIAL PRIMARY KEY,
-  customer_id    INTEGER NOT NULL REFERENCES customers(id),
-  status         TEXT NOT NULL DEFAULT 'novo'
-                 CHECK (status IN ('novo','em_preparacao','pronto','entregue','cancelado')),
-  address_snapshot JSONB,
-  total_cents    INTEGER NOT NULL DEFAULT 0,
-  payment_method TEXT DEFAULT 'pix',
-  discount_cents INTEGER NOT NULL DEFAULT 0,
-  -- Pagamento (Pix e cartão) — ver server/migrations/001 e 002
-  payment_status TEXT DEFAULT 'pendente',
-  payment_id     TEXT,
-  pix_copia_cola TEXT,
-  pix_qr_code_base64 TEXT,
-  installments   INTEGER DEFAULT 1,
+  id                      SERIAL PRIMARY KEY,
+  customer_id             INTEGER NOT NULL REFERENCES customers(id),
+  status                  TEXT NOT NULL DEFAULT 'novo'
+                          CHECK (status IN ('novo','em_preparacao','pronto','entregue','cancelado')),
+  address_snapshot        JSONB,
+  total_cents             INTEGER NOT NULL DEFAULT 0,
+  payment_method          TEXT DEFAULT 'pix',
+  payment_status          TEXT DEFAULT 'pendente',
+  payment_id              TEXT,
+  pix_copia_cola          TEXT,
+  pix_qr_code_base64      TEXT,
+  discount_cents          INTEGER NOT NULL DEFAULT 0,
+  installments            INTEGER NOT NULL DEFAULT 1,
   installment_amount_cents INTEGER,
-  card_brand     TEXT,
-  card_last_four TEXT,
-  created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
+  card_brand              TEXT,
+  card_last_four          TEXT,
+  created_at              TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at              TIMESTAMPTZ NOT NULL DEFAULT now()
 );
--- Garante as colunas também em bancos que já existiam antes da forma de pagamento ser criada.
--- (Estas linhas repetem o conteúdo de server/migrations/001 e 002 para que o deploy
---  no Render aplique tudo sozinho no boot, sem rodar migração manual.)
+
+-- Garante as colunas também em bancos que já existiam antes
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT DEFAULT 'pix';
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_cents INTEGER NOT NULL DEFAULT 0;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT DEFAULT 'pendente';
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_id TEXT;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS pix_copia_cola TEXT;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS pix_qr_code_base64 TEXT;
-ALTER TABLE orders ADD COLUMN IF NOT EXISTS installments INTEGER DEFAULT 1;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount_cents INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS installments INTEGER NOT NULL DEFAULT 1;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS installment_amount_cents INTEGER;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS card_brand TEXT;
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS card_last_four TEXT;

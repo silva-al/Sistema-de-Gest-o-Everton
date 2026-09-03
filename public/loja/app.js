@@ -802,13 +802,97 @@ async function loadMyOrders() {
   }
 }
 
-// ---------- Consulta por placa (visual — aguardando integração com a API da oficina) ----------
-document.getElementById('consult')?.addEventListener('click', () => {
-  const p = document.getElementById('plate').value.trim();
-  if (p.length < 7) { alert('Digite uma placa válida.'); return; }
-  document.getElementById('vehicle').classList.add('show');
+// ---------- Consulta por placa conectada ao backend ----------
+let currentConsultedVehicle = null;
+
+async function handlePlateConsult() {
+  const input = document.getElementById('plate');
+  const vehicleBox = document.getElementById('vehicle');
+  const btn = document.getElementById('consult');
+  if (!input || !vehicleBox) return;
+
+  const raw = input.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (raw.length < 7) {
+    alert('Digite uma placa completa (7 caracteres, ex: ABC1D23 ou ABC1234).');
+    return;
+  }
+
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'CONSULTANDO...'; btn.disabled = true; }
+
+  try {
+    const { vehicle } = await api('/api/vehicles/plate/' + encodeURIComponent(raw));
+    currentConsultedVehicle = vehicle;
+
+    const titleEl = document.getElementById('vehicleTitle');
+    const chipsEl = document.getElementById('vehicleChips');
+    const suggestionsEl = document.getElementById('vehicleCategorySuggestions');
+
+    if (titleEl) {
+      titleEl.textContent = `${vehicle.brand || ''} ${vehicle.model || ''}`.trim() || 'Veículo identificado';
+    }
+
+    if (chipsEl) {
+      const chips = [];
+      if (vehicle.modelYear) chips.push(`<span class="chip">Ano ${vehicle.modelYear}</span>`);
+      if (vehicle.engine) chips.push(`<span class="chip">${vehicle.engine}</span>`);
+      if (vehicle.fuel) chips.push(`<span class="chip">${vehicle.fuel}</span>`);
+      if (vehicle.color) chips.push(`<span class="chip">Cor: ${vehicle.color}</span>`);
+      if (vehicle.plate) chips.push(`<span class="chip">Placa: ${vehicle.plate}</span>`);
+      if (vehicle.city && vehicle.state) chips.push(`<span class="chip">${vehicle.city}/${vehicle.state}</span>`);
+      chipsEl.innerHTML = chips.join('');
+    }
+
+    if (suggestionsEl && Array.isArray(vehicle.categoryHints) && vehicle.categoryHints.length > 0) {
+      suggestionsEl.innerHTML = `
+        <div style="font-size:12px;color:#9da2aa;margin-bottom:6px;font-weight:700">CATEGORIAS RECOMENDADAS PARA ESTE VEÍCULO:</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${vehicle.categoryHints.map(cat => `<button type="button" class="btn small secondary vehicle-cat-btn" data-cat="${cat}">${cat}</button>`).join('')}
+        </div>
+      `;
+      suggestionsEl.querySelectorAll('.vehicle-cat-btn').forEach(b => {
+        b.onclick = () => {
+          const category = b.dataset.cat;
+          const filterSel = document.getElementById('filterCategory');
+          if (filterSel) filterSel.value = category;
+          const searchInp = document.getElementById('catalogSearch');
+          if (searchInp) searchInp.value = '';
+          show('pecas');
+          loadCatalog();
+        };
+      });
+    } else if (suggestionsEl) {
+      suggestionsEl.innerHTML = '';
+    }
+
+    vehicleBox.style.display = 'block';
+    vehicleBox.classList.add('show');
+  } catch (err) {
+    alert(err.message || 'Erro ao consultar veículo.');
+    vehicleBox.style.display = 'none';
+    vehicleBox.classList.remove('show');
+  } finally {
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
+  }
+}
+
+document.getElementById('consult')?.addEventListener('click', handlePlateConsult);
+document.getElementById('plate')?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') handlePlateConsult();
 });
-document.getElementById('plate')?.addEventListener('input', e => { e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); });
+document.getElementById('plate')?.addEventListener('input', e => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+document.getElementById('partSearch')?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const q = e.target.value.trim();
+    const searchInp = document.getElementById('catalogSearch');
+    if (searchInp) searchInp.value = q;
+    show('pecas');
+    loadCatalog();
+  }
+});
 
 // ---------- Inicialização ----------
 async function init() {
