@@ -71,7 +71,6 @@ main nav, main .nav, main .bottom-nav, main .legacy-nav, main .duplicate-nav { d
 /* ===== STYLE BLOCK ===== */
 
 /* Navegação por estado: visitante x cliente logado */
-body:not(.logged-in) .nav button[data-screen="placa"],
 body:not(.logged-in) .nav button[data-screen="perfil"],
 body:not(.logged-in) .nav button[data-screen="carrinho"]{display:none !important;}
 body.logged-in .nav button[data-screen="cadastro"]{display:none !important;}

@@ -57,21 +57,22 @@ function updateNav() {
   nav.forEach(b => {
     const id = b.dataset.screen;
     let visible = true;
-    if (!authenticated && (id === 'placa' || id === 'perfil' || id === 'carrinho')) visible = false;
+    if (!authenticated && (id === 'perfil' || id === 'carrinho')) visible = false;
     if (authenticated && id === 'cadastro') visible = false;
     b.style.display = visible ? '' : 'none';
   });
 }
 
 // ---------- Botão Voltar + histórico do navegador ----------
-// Cada tela visitada vira uma entrada no histórico do navegador, então o botão
-// "Voltar" do site e o botão Voltar do próprio navegador sempre te devolvem
-// para a tela anterior dentro do site, em vez de sair da página.
+// O botão Voltar aparece apenas quando o usuário NÃO está na página inicial (inicio ou welcome).
 const backBtn = document.getElementById('backBtn');
 let navDepth = 0;
+let currentScreenId = 'inicio';
 
-function updateBackBtn() {
-  if (backBtn) backBtn.classList.toggle('show', navDepth > 0);
+function updateBackBtn(screenId = currentScreenId) {
+  if (!backBtn) return;
+  const isHome = (!screenId || screenId === 'inicio' || screenId === 'welcome');
+  backBtn.classList.toggle('show', !isHome);
 }
 
 if (!(window.history.state && typeof window.history.state.depth === 'number')) {
@@ -97,6 +98,7 @@ function show(id, opts = {}) {
     show('inicio');
     return;
   }
+  currentScreenId = id;
   screens.forEach(s => s.classList.toggle('active', s.id === id));
   nav.forEach(b => b.classList.toggle('active', b.dataset.screen === id));
   document.body.classList.toggle('visitor-inicio', !authenticated && id === 'inicio');
@@ -111,7 +113,7 @@ function show(id, opts = {}) {
     window.history.pushState({ screen: id, depth }, '');
     navDepth = depth;
   }
-  updateBackBtn();
+  updateBackBtn(id);
 }
 
 nav.forEach(b => b.onclick = () => show(b.dataset.screen));
@@ -1049,98 +1051,6 @@ async function loadMyOrders() {
     el.innerHTML = `<p style="color:#e06a6a">${err.message}</p>`;
   }
 }
-
-// ---------- Consulta por placa conectada ao backend ----------
-let currentConsultedVehicle = null;
-
-async function handlePlateConsult() {
-  const input = document.getElementById('plate');
-  const vehicleBox = document.getElementById('vehicle');
-  const btn = document.getElementById('consult');
-  if (!input || !vehicleBox) return;
-
-  const raw = input.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-  if (raw.length < 7) {
-    alert('Digite uma placa completa (7 caracteres, ex: ABC1D23 ou ABC1234).');
-    return;
-  }
-
-  const origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = 'CONSULTANDO...'; btn.disabled = true; }
-
-  try {
-    const { vehicle } = await api('/api/vehicles/plate/' + encodeURIComponent(raw));
-    currentConsultedVehicle = vehicle;
-
-    const titleEl = document.getElementById('vehicleTitle');
-    const chipsEl = document.getElementById('vehicleChips');
-    const suggestionsEl = document.getElementById('vehicleCategorySuggestions');
-
-    if (titleEl) {
-      titleEl.textContent = `${vehicle.brand || ''} ${vehicle.model || ''}`.trim() || 'Veículo identificado';
-    }
-
-    if (chipsEl) {
-      const chips = [];
-      if (vehicle.modelYear) chips.push(`<span class="chip">Ano ${vehicle.modelYear}</span>`);
-      if (vehicle.engine) chips.push(`<span class="chip">${vehicle.engine}</span>`);
-      if (vehicle.fuel) chips.push(`<span class="chip">${vehicle.fuel}</span>`);
-      if (vehicle.color) chips.push(`<span class="chip">Cor: ${vehicle.color}</span>`);
-      if (vehicle.plate) chips.push(`<span class="chip">Placa: ${vehicle.plate}</span>`);
-      if (vehicle.city && vehicle.state) chips.push(`<span class="chip">${vehicle.city}/${vehicle.state}</span>`);
-      chipsEl.innerHTML = chips.join('');
-    }
-
-    if (suggestionsEl && Array.isArray(vehicle.categoryHints) && vehicle.categoryHints.length > 0) {
-      suggestionsEl.innerHTML = `
-        <div style="font-size:12px;color:#9da2aa;margin-bottom:6px;font-weight:700">CATEGORIAS RECOMENDADAS PARA ESTE VEÍCULO:</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          ${vehicle.categoryHints.map(cat => `<button type="button" class="btn small secondary vehicle-cat-btn" data-cat="${cat}">${cat}</button>`).join('')}
-        </div>
-      `;
-      suggestionsEl.querySelectorAll('.vehicle-cat-btn').forEach(b => {
-        b.onclick = () => {
-          const category = b.dataset.cat;
-          const filterSel = document.getElementById('filterCategory');
-          if (filterSel) filterSel.value = category;
-          const searchInp = document.getElementById('catalogSearch');
-          if (searchInp) searchInp.value = '';
-          show('pecas');
-          loadCatalog();
-        };
-      });
-    } else if (suggestionsEl) {
-      suggestionsEl.innerHTML = '';
-    }
-
-    vehicleBox.style.display = 'block';
-    vehicleBox.classList.add('show');
-  } catch (err) {
-    alert(err.message || 'Erro ao consultar veículo.');
-    vehicleBox.style.display = 'none';
-    vehicleBox.classList.remove('show');
-  } finally {
-    if (btn) { btn.textContent = origText; btn.disabled = false; }
-  }
-}
-
-document.getElementById('consult')?.addEventListener('click', handlePlateConsult);
-document.getElementById('plate')?.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') handlePlateConsult();
-});
-document.getElementById('plate')?.addEventListener('input', e => {
-  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-});
-
-document.getElementById('partSearch')?.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    const q = e.target.value.trim();
-    const searchInp = document.getElementById('catalogSearch');
-    if (searchInp) searchInp.value = q;
-    show('pecas');
-    loadCatalog();
-  }
-});
 
 // ---------- Inicialização ----------
 async function init() {
