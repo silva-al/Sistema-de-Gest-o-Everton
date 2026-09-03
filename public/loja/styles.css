@@ -466,6 +466,116 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
   box-shadow: 0 4px 14px rgba(237, 28, 36, 0.5);
 }
 
+/* ===== STYLE BLOCK — peças recomendadas da mesma categoria na tela de produto ===== */
+.fp-recommended-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.fp-rec-card {
+  background: #11141a;
+  border: 1px solid #232730;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.fp-rec-card:hover {
+  transform: translateY(-4px);
+  border-color: #ed1c24;
+  box-shadow: 0 8px 24px rgba(237, 28, 36, 0.25);
+}
+
+.fp-rec-card-img-wrap {
+  width: 100%;
+  height: 140px;
+  background: #08090c;
+  overflow: hidden;
+  position: relative;
+}
+
+.fp-rec-card-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.fp-rec-card:hover .fp-rec-card-img-wrap img {
+  transform: scale(1.06);
+}
+
+.fp-rec-card-body {
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.fp-rec-card-cat {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8f949c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.fp-rec-card-name {
+  font-size: 13.5px;
+  color: #ffffff;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
+}
+
+.fp-rec-card-price {
+  font-size: 15px;
+  font-weight: 800;
+  color: #ed1c24;
+}
+
+@media (max-width: 900px) {
+  .fp-recommended-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .fp-rec-card-img-wrap {
+    height: 125px;
+  }
+}
+
+@media (max-width: 480px) {
+  .fp-recommended-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .fp-rec-card-img-wrap {
+    height: 110px;
+  }
+  .fp-rec-card-body {
+    padding: 10px 10px 12px;
+  }
+  .fp-rec-card-name {
+    font-size: 12.5px;
+  }
+  .fp-rec-card-price {
+    font-size: 14px;
+  }
+}
+
 
 /* ===== STYLE BLOCK — filtro de categoria modernizado, sem preço/estoque min-max ===== */
 

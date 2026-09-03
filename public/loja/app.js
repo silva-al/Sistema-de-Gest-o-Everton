@@ -447,12 +447,11 @@ async function loadCategories() {
   }
 }
 
-// ---------- Carrossel automático infinito de todas as peças ----------
+// ---------- Carrossel automático infinito de todas as peças (exclusivo da tela Início) ----------
 async function loadCategoryCarousel() {
   const wrap = document.getElementById('categoryCarousel');
   const track = document.getElementById('categoryCarouselTrack');
-  const relTrack = document.getElementById('detailRelatedCarouselTrack');
-  if (!track && !relTrack) return;
+  if (!track) return;
   try {
     const res = await api('/api/products/categories/featured');
     const items = res.products || res.categories || [];
@@ -494,29 +493,102 @@ async function loadCategoryCarousel() {
     const htmlContent = baseList.map(c => cardHtml(c, false)).join('') + cardAllHtml(false)
                       + baseList.map(c => cardHtml(c, true)).join('') + cardAllHtml(true);
 
-    const attachEvents = (t) => {
-      if (!t) return;
-      t.innerHTML = htmlContent;
-      t.querySelectorAll('.cat-card:not(.cat-card-all)').forEach(el => {
-        el.onclick = () => {
-          const prodId = el.dataset.productId;
-          if (prodId) {
-            const prodObj = items.find(p => String(p.id) === String(prodId));
-            openProductDetails(prodId, prodObj);
-          } else {
-            goToCategory(el.dataset.category);
-          }
-        };
-      });
-      t.querySelectorAll('.cat-card-all').forEach(el => {
-        el.onclick = () => show('pecas');
-      });
-    };
-
-    attachEvents(track);
-    attachEvents(relTrack);
+    track.innerHTML = htmlContent;
+    track.querySelectorAll('.cat-card:not(.cat-card-all)').forEach(el => {
+      el.onclick = () => {
+        const prodId = el.dataset.productId;
+        if (prodId) {
+          const prodObj = items.find(p => String(p.id) === String(prodId));
+          openProductDetails(prodId, prodObj);
+        } else {
+          goToCategory(el.dataset.category);
+        }
+      };
+    });
+    track.querySelectorAll('.cat-card-all').forEach(el => {
+      el.onclick = () => show('pecas');
+    });
   } catch (err) {
     console.error('Erro ao carregar carrossel:', err);
+  }
+}
+
+// ---------- Peças Recomendadas da Mesma Categoria (Grid estático, sem carrossel) ----------
+async function loadRecommendedProducts(product) {
+  const section = document.getElementById('detailRelatedSection');
+  const grid = document.getElementById('detailRecommendedGrid');
+  const catNameEl = document.getElementById('detailRelatedCategoryName');
+  const seeCatBtn = document.getElementById('detailRelatedSeeCategoryBtn');
+
+  if (!section || !grid) return;
+
+  const categoryName = product?.category || '';
+  if (catNameEl) catNameEl.textContent = categoryName || 'Peças Automotivas';
+  if (seeCatBtn) {
+    seeCatBtn.onclick = () => goToCategory(categoryName);
+  }
+
+  grid.innerHTML = '<p style="color:#9da2aa;grid-column:1/-1;padding:20px 0">Buscando peças recomendadas...</p>';
+
+  try {
+    let items = [];
+    if (categoryName) {
+      const res = await api('/api/products?category=' + encodeURIComponent(categoryName));
+      items = (res.products || []).filter(p => String(p.id) !== String(product.id));
+    }
+
+    // Se a mesma categoria tiver poucas opções, busca itens gerais para complementar
+    if (items.length < 4) {
+      try {
+        const altRes = await api('/api/products/categories/featured');
+        const alts = (altRes.products || altRes.categories || []).filter(
+          p => String(p.id) !== String(product.id) && !items.some(i => String(i.id) === String(p.id))
+        );
+        items = items.concat(alts);
+      } catch (_) {}
+    }
+
+    const recommended = items.slice(0, 4);
+
+    if (!recommended.length) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = 'block';
+    grid.innerHTML = recommended.map(p => {
+      const photo = p.photoUrl || CATEGORY_IMAGES[p.category] || 'images/categorias/filtros.jpg';
+      const priceVal = typeof p.price === 'number' ? p.price : (p.price_cents ? p.price_cents / 100 : 0);
+      return `
+        <div class="fp-rec-card" data-rec-id="${p.id}" role="button" tabindex="0">
+          <div class="fp-rec-card-img-wrap">
+            <img src="${photo}" alt="${p.name}" loading="lazy" />
+          </div>
+          <div class="fp-rec-card-body">
+            <span class="fp-rec-card-cat">${p.category || 'Peça'}</span>
+            <strong class="fp-rec-card-name" title="${p.name}">${p.name}</strong>
+            <div class="fp-rec-card-price">${priceVal > 0 ? money(priceVal) : 'Disponível'}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    grid.querySelectorAll('.fp-rec-card').forEach(card => {
+      card.onclick = () => {
+        const id = card.dataset.recId;
+        const target = recommended.find(p => String(p.id) === String(id));
+        if (target) openProductDetails(id, target);
+      };
+      card.onkeydown = (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          card.click();
+        }
+      };
+    });
+  } catch (err) {
+    console.error('Erro ao carregar peças recomendadas:', err);
+    section.style.display = 'none';
   }
 }
 
@@ -655,20 +727,9 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
   if (lbImg) lbImg.src = img;
   if (lbTitle) lbTitle.textContent = `${product.name} - Inspeção em Alta Resolução`;
 
-  // Estoque e Disponibilidade
-  const stockIndicator = document.getElementById('detailStockIndicator');
-  const stockDesc = document.getElementById('detailStockDesc');
+  // Ações de Botões e Estoque
   const addCartBtn = document.getElementById('detailAddCartBtn');
   const buyNowBtn = document.getElementById('detailBuyNowBtn');
-  if (stockIndicator) {
-    stockIndicator.className = `fp-stock-indicator ${inStock ? '' : 'out-of-stock'}`;
-    stockIndicator.textContent = inStock ? `● Em estoque (${stockQty} un. disponíveis para envio imediato)` : '○ Fora de estoque no momento';
-  }
-  if (stockDesc) {
-    stockDesc.textContent = inStock
-      ? 'Peça disponível para entrega rápida ou retirada presencial imediata em nossa loja.'
-      : 'Este item está temporariamente sem estoque em nossa loja física.';
-  }
   if (addCartBtn) {
     addCartBtn.disabled = !inStock;
     addCartBtn.style.opacity = inStock ? '1' : '.5';
@@ -769,7 +830,7 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
   if (specName) specName.textContent = product.name;
   if (specCode) specCode.textContent = product.code || `#FP-${product.id}`;
   if (specCat) specCat.textContent = product.category || 'Geral';
-  if (specStock) specStock.textContent = inStock ? `${stockQty} unidades em estoque` : 'Esgotado';
+  if (specStock) specStock.textContent = inStock ? 'Disponível para pronta entrega' : 'Sob consulta';
 
   // Aplicação e Compatibilidade Veicular Detalhada
   const compatBody = document.getElementById('detailCompatibility');
@@ -835,7 +896,7 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
   if (push) {
     window.history.replaceState({ screen: 'produto', depth: navDepth, productId: product.id }, '');
   }
-  loadCategoryCarousel();
+  loadRecommendedProducts(product);
 }
 
 // Inicializador dos Efeitos Interativos de Hiper Zoom e Ângulos 3D

@@ -122,10 +122,6 @@
         <h1 class="fp-detail-title" id="detailTitle">Nome da Peça</h1>
         <div class="fp-detail-subtitle" id="detailSubtitle">Aplicação compatível e procedência certificada</div>
 
-        <div class="fp-stock-status-box" id="detailStockBox">
-          <div class="fp-stock-indicator" id="detailStockIndicator">● Em estoque</div>
-          <div class="fp-stock-desc" id="detailStockDesc">Peça disponível para entrega ou retirada imediata.</div>
-        </div>
 
         <div class="fp-price-box">
           <div class="fp-pix-badge">⚡ PAGAMENTO NO PIX COM 4% DE DESCONTO</div>
@@ -219,20 +215,21 @@
       </div>
     </div>
 
-    <!-- Carrossel de Mais Peças Automático na Tela de Produto -->
-    <div class="fp-detail-related-section" style="margin-top:28px">
+    <!-- Peças Recomendadas da Mesma Categoria (Grid Estático) -->
+    <div class="fp-detail-related-section" id="detailRelatedSection" style="margin-top:36px">
       <div class="section-head">
-        <h3 style="margin:0;font-size:18px;color:#fff">Outras Peças do Catálogo</h3>
-        <button class="ver-todas" data-go="pecas" type="button">
+        <div>
+          <h3 id="detailRelatedTitle" style="margin:0;font-size:18px;color:#fff">Peças Recomendadas</h3>
+          <small id="detailRelatedSubtitle" style="color:#9da2aa;font-size:12px">Mais opções na categoria de <span id="detailRelatedCategoryName" style="color:#fff;font-weight:600"></span></small>
+        </div>
+        <button class="ver-todas" id="detailRelatedSeeCategoryBtn" type="button">
           <span>VER TODAS</span>
           <span class="ver-todas-arrow">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </span>
         </button>
       </div>
-      <div class="carousel" id="detailRelatedCarousel">
-        <div class="carousel-track" id="detailRelatedCarouselTrack"></div>
-      </div>
+      <div class="fp-recommended-grid" id="detailRecommendedGrid"></div>
     </div>
   </div>
 </section>
