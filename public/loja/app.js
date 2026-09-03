@@ -431,10 +431,9 @@ async function loadCategories() {
     select.innerHTML = '<option value="">Todas as categorias</option>';
     list.forEach(item => {
       const name = typeof item === 'string' ? item : item.name;
-      const count = typeof item === 'object' && item.count ? ` (${item.count} ${item.count === 1 ? 'peça' : 'peças'})` : '';
       const opt = document.createElement('option');
       opt.value = name;
-      opt.textContent = `${name}${count}`;
+      opt.textContent = name;
       select.appendChild(opt);
     });
     if (currentVal) select.value = currentVal;
