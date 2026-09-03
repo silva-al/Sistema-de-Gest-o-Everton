@@ -8,8 +8,12 @@ if (!process.env.DATABASE_URL) {
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  // Supabase exige SSL; em desenvolvimento local sem SSL isso não atrapalha.
-  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('supabase')
+  // Provedores em nuvem (Neon, Supabase, Render) exigem SSL com certificado flexível
+  ssl: process.env.DATABASE_URL && (
+    process.env.DATABASE_URL.includes('neon.tech') ||
+    process.env.DATABASE_URL.includes('supabase') ||
+    process.env.DATABASE_URL.includes('sslmode=require')
+  )
     ? { rejectUnauthorized: false }
     : false,
 });

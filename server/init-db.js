@@ -40,7 +40,96 @@ async function main() {
     const hash = await bcrypt.hash(password, 12);
     await db.query('INSERT INTO admins (name, email, password_hash) VALUES ($1, $2, $3)', [name, email, hash]);
     // A senha não é impressa: o log do Render fica gravado e pode ser lido depois.
-    console.log(`Admin criado: ${email} (use a senha que você definiu em ADMIN_PASSWORD).`);
+    console.log(`Admin criado com sucesso: ${email} (use a senha definida no ADMIN_PASSWORD).`);
+  }
+
+  // Popula catálogo inicial se estiver vazio
+  const prodCheck = await db.query('SELECT COUNT(*) AS total FROM products');
+  if (parseInt(prodCheck.rows[0].total, 10) === 0) {
+    console.log('Catálogo vazio detectado. Cadastrando peças iniciais de demonstração...');
+    const initialProducts = [
+      {
+        name: 'Jogo de Pastilhas de Freio Dianteiras Bosch Cerâmica',
+        code: 'BOSCH-0986-BR',
+        category: 'Freios',
+        description: 'Pastilhas de freio dianteiras de alta durabilidade e frenagem silenciosa. Compatível com linha Gol, Voyage e Fox.',
+        price_cents: 14990,
+        stock_qty: 15,
+        photo_url: '',
+      },
+      {
+        name: 'Par de Discos de Freio Ventilados Dianteiros Fremax',
+        code: 'BD-5290-FRE',
+        category: 'Freios',
+        description: 'Discos ventilados com acabamento anticorrosão e alta resistência térmica.',
+        price_cents: 28900,
+        stock_qty: 8,
+        photo_url: '',
+      },
+      {
+        name: 'Amortecedor Dianteiro Monroe Pressurizado a Gás',
+        code: 'MON-SP089',
+        category: 'Suspensão',
+        description: 'Amortecedor pressurizado a gás OESpectrum, maior estabilidade e conforto em todas as pistas.',
+        price_cents: 32000,
+        stock_qty: 10,
+        photo_url: '',
+      },
+      {
+        name: 'Kit de Correia Dentada e Tensor Gates',
+        code: 'GATES-KS104',
+        category: 'Motor',
+        description: 'Kit de distribuição completo com correia dentada e tensor mecânico.',
+        price_cents: 19550,
+        stock_qty: 12,
+        photo_url: '',
+      },
+      {
+        name: 'Filtro de Óleo Lubrificante Mann-Filter',
+        code: 'MANN-W712',
+        category: 'Filtros',
+        description: 'Filtro de óleo blindado de alta retenção de impurezas para máxima proteção do motor.',
+        price_cents: 4890,
+        stock_qty: 30,
+        photo_url: '',
+      },
+      {
+        name: 'Óleo de Motor Sintético 5W-30 API SP 1 Litro Motul',
+        code: 'MOTUL-8100-5W30',
+        category: 'Lubrificantes',
+        description: 'Lubrificante 100% sintético para motores flex e gasolina. Economia de combustível e proteção.',
+        price_cents: 6500,
+        stock_qty: 40,
+        photo_url: '',
+      },
+      {
+        name: 'Jogo de 4 Velas de Ignição Iridium NGK',
+        code: 'NGK-BKR6EIX',
+        category: 'Motor',
+        description: 'Eletrodo ultrafino de Iridium para faísca mais potente, partida rápida e resposta do acelerador.',
+        price_cents: 22000,
+        stock_qty: 14,
+        photo_url: '',
+      },
+      {
+        name: 'Bomba d Água de Arrefecimento Urba com Junta',
+        code: 'URBA-UB0622',
+        category: 'Arrefecimento',
+        description: 'Bomba d água automotiva fabricada em alumínio com rotor de alta eficiência e vedação de alta durabilidade.',
+        price_cents: 17500,
+        stock_qty: 6,
+        photo_url: '',
+      }
+    ];
+
+    for (const p of initialProducts) {
+      await db.query(
+        `INSERT INTO products (name, code, category, description, price_cents, stock_qty, photo_url, active)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, true)`,
+        [p.name, p.code, p.category, p.description, p.price_cents, p.stock_qty, p.photo_url]
+      );
+    }
+    console.log(`Sucesso: ${initialProducts.length} peças cadastradas no catálogo!`);
   }
 
   await db.pool.end();
