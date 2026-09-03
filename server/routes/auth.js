@@ -3,12 +3,29 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../db');
 const { setAuthCookie, clearAuthCookie, requireRole } = require('../middleware/auth');
+const { rateLimit } = require('../middleware/rate-limit');
 
 const router = express.Router();
 
 const EMAIL_RE = /^\S+@\S+\.\S+$/;
 
-router.post('/register', async (req, res) => {
+// Trava de força bruta: 8 tentativas de login erradas a cada 15 min por IP.
+// Login certo não gasta tentativa, então quem sabe a própria senha nunca esbarra.
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 8,
+  countOnlyFailures: true,
+  message: 'Muitas tentativas de login. Aguarde alguns minutos e tente de novo.',
+});
+
+// Cadastro é mais folgado, mas ainda limitado para não virar máquina de criar contas.
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  message: 'Muitos cadastros a partir desta conexão. Tente novamente mais tarde.',
+});
+
+router.post('/register', registerLimiter, async (req, res) => {
   try {
     const { name, phone, email, password, cpfCnpj } = req.body || {};
     if (!name || !phone || !email || !password) {
@@ -41,7 +58,7 @@ router.post('/register', async (req, res) => {
   }
 });
 
-router.post('/login', async (req, res) => {
+router.post('/login', loginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body || {};
     if (!email || !password) {
@@ -83,15 +100,40 @@ router.get('/me', requireRole('customer'), async (req, res) => {
 router.put('/me', requireRole('customer'), async (req, res) => {
   try {
     const { name, email, cpfCnpj } = req.body || {};
+
+    // O e-mail é a identidade de login do cliente. Antes dava para gravar
+    // qualquer texto aqui (inclusive um e-mail já usado por outra conta, o que
+    // estourava erro 500 e deixava o cliente sem conseguir entrar).
+    let novoEmail = null;
+    if (email !== undefined && email !== null && String(email).trim() !== '') {
+      novoEmail = String(email).trim().toLowerCase();
+      if (!EMAIL_RE.test(novoEmail)) {
+        return res.status(400).json({ error: 'Digite um e-mail válido.' });
+      }
+      const emUso = await db.query('SELECT id FROM customers WHERE email = $1 AND id <> $2', [
+        novoEmail,
+        req.user.sub,
+      ]);
+      if (emUso.rows.length) {
+        return res.status(409).json({ error: 'Este e-mail já está em uso por outra conta.' });
+      }
+    }
+
     const result = await db.query(
       `UPDATE customers SET
          name = COALESCE($1, name),
          email = COALESCE($2, email),
          cpf_cnpj = COALESCE($3, cpf_cnpj)
        WHERE id = $4 RETURNING id, name, email, phone, cpf_cnpj`,
-      [name?.trim(), email?.trim().toLowerCase(), cpfCnpj?.trim(), req.user.sub]
+      [name?.trim() || null, novoEmail, cpfCnpj?.trim() || null, req.user.sub]
     );
     const c = result.rows[0];
+    if (!c) return res.status(404).json({ error: 'Cadastro não encontrado.' });
+
+    // O nome e o e-mail também ficam gravados dentro do cookie de sessão;
+    // sem renovar, o cliente continuaria a sessão com os dados antigos.
+    setAuthCookie(res, { sub: c.id, role: 'customer', name: c.name, email: c.email });
+
     res.json({ customer: { id: c.id, name: c.name, email: c.email, phone: c.phone, cpfCnpj: c.cpf_cnpj } });
   } catch (err) {
     console.error('[Auth:updateMe]', err);

@@ -4,10 +4,20 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const db = require('../db');
 const { setAuthCookie, clearAuthCookie, requireRole } = require('../middleware/auth');
+const { rateLimit } = require('../middleware/rate-limit');
 
 const router = express.Router();
 
-router.post('/login', async (req, res) => {
+// O painel dá acesso aos dados de TODOS os clientes, então a trava aqui é mais
+// apertada que a da loja: 5 erros a cada 15 minutos por IP.
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  countOnlyFailures: true,
+  message: 'Muitas tentativas de login. Aguarde alguns minutos e tente de novo.',
+});
+
+router.post('/login', adminLoginLimiter, async (req, res) => {
   try {
     const { email, password } = req.body || {};
     if (!email || !password) {

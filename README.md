@@ -132,3 +132,24 @@ Com o token de um provedor (WDAPI2, APIBrasil ou compatível) ela passa a trazer
 - Sessão de login usa cookie `httpOnly` (não pode ser lido/roubado por JavaScript malicioso).
 - Rotas de cadastro/edição de peças e de gestão de pedidos exigem login de admin; rotas do
   cliente exigem login de cliente. Um tipo de usuário não acessa as rotas do outro.
+- **Limite de tentativas de login**: 8 erros por IP a cada 15 min na loja, 5 no painel —
+  trava ataque de força bruta contra a conta de um cliente ou da equipe. Login certo não
+  gasta tentativa.
+- **CORS fechado**: só os endereços listados em `CORS_ORIGINS` podem chamar a API de outro
+  domínio. Vazio (o padrão) = só a própria loja.
+- **`JWT_SECRET` obrigatório**: em produção o servidor não sobe com segredo vazio ou com
+  menos de 32 caracteres.
+- **Criação do admin exige senha forte**: `server/init-db.js` recusa rodar sem
+  `ADMIN_PASSWORD` (mínimo 10 caracteres) e não imprime a senha no log.
+- Erros inesperados devolvem só uma mensagem curta — nunca o rastro do código.
+
+### O que ainda dá para melhorar (não está feito)
+
+- **CPF/CNPJ é gravado em texto puro** no banco. É dado pessoal (LGPD): se um dia o banco
+  vazar, vaza junto. Só colete se realmente precisar emitir nota.
+- **`rejectUnauthorized: false` na conexão do Supabase** (`server/db.js`) desliga a
+  conferência do certificado do banco. Funciona, mas é menos seguro que validar a cadeia.
+- **Não há troca de senha nem "esqueci minha senha"** para o cliente.
+- **Webhook do Mercado Pago sem conferência de assinatura** — hoje é seguro porque o código
+  reconsulta o pagamento na API do MP antes de aprovar, mas vale assinar quando for para
+  produção com volume.

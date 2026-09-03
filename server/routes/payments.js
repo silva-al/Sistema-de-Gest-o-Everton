@@ -84,8 +84,11 @@ router.post('/card', async (req, res) => {
     const result = await processCardPayment(order, cardData, body.installments, customer);
 
     res.json({
-      // status em inglês (padrão Mercado Pago) para o front do Brick
-      status: CARD_STATUS_MAP[result.status] || result.status || 'approved',
+      // Status em inglês (padrão Mercado Pago) para o front do Brick.
+      // O padrão é 'rejected' de propósito: se um dia o serviço devolver um
+      // status que não conhecemos, o certo é NÃO dizer ao cliente que o
+      // pagamento passou. Falhar fechado, nunca aberto.
+      status: CARD_STATUS_MAP[result.status] || 'rejected',
       // status interno gravado no pedido
       statusInterno: result.status,
       orderId: order.id,
