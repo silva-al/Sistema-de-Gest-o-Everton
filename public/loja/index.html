@@ -70,25 +70,43 @@
 <main>
 <section class="screen active" id="inicio">
   <div class="hero-clean">
-    <div class="hero-clean-tag">
-      <span class="pulse-dot"></span> CATÁLOGO DE PEÇAS OFICIAL
+    <div class="hero-clean-grid">
+      <div class="hero-clean-text">
+        <div class="hero-clean-tag">
+          <span class="pulse-dot"></span> CATÁLOGO DE PEÇAS OFICIAL
+        </div>
+        <h1 class="hero-clean-title">
+          A peça certa<br /><span>para o seu carro.</span>
+        </h1>
+        <p class="hero-clean-sub">
+          Componentes automotivos de alta durabilidade com pronta entrega e garantia de fábrica.
+        </p>
+
+        <!-- Busca oculta que o restante do site ainda usa internamente -->
+        <input type="search" id="homeSearchInput" name="q_catalogo_pecas" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" tabindex="-1" aria-hidden="true"/>
+        <button type="button" id="homeSearchBtn" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" tabindex="-1" aria-hidden="true"></button>
+
+        <!-- Benefícios rápidos -->
+        <div class="hero-clean-perks">
+          <div class="hero-perk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg> Qualidade Garantida</div>
+          <div class="hero-perk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="11" rx="1.5"/><path d="M15 10h4l3 3v4h-7z"/><circle cx="6" cy="19" r="2"/><circle cx="17.5" cy="19" r="2"/></svg> Envio Rápido</div>
+          <div class="hero-perk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg> Garantia de Fábrica</div>
+        </div>
+      </div>
+
+      <!-- Colagem de fotos reais das peças (mesmas fotos usadas nas categorias) -->
+      <div class="hero-clean-visual" aria-hidden="true">
+        <div class="hero-photo-collage">
+          <div class="hpc-glow"></div>
+          <img class="hpc-img hpc-main" src="images/categorias/filtros.jpg" alt=""/>
+          <img class="hpc-img hpc-secondary" src="images/categorias/eletrica.jpg" alt=""/>
+          <img class="hpc-img hpc-tertiary" src="images/categorias/freios.jpg" alt=""/>
+        </div>
+      </div>
     </div>
-    <h1 class="hero-clean-title">
-      A peça certa<br /><span>para o seu carro.</span>
-    </h1>
-    <p class="hero-clean-sub">
-      Componentes automotivos de alta durabilidade com pronta entrega e garantia de fábrica.
-    </p>
 
-    <!-- Busca oculta que o restante do site ainda usa internamente -->
-    <input type="search" id="homeSearchInput" name="q_catalogo_pecas" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" tabindex="-1" aria-hidden="true"/>
-    <button type="button" id="homeSearchBtn" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" tabindex="-1" aria-hidden="true"></button>
-
-    <!-- Benefícios rápidos -->
-    <div class="hero-clean-perks">
-      <div class="hero-perk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.4 8 11 4.6-2.6 8-6 8-11V5l-8-3Z"/><path d="m9 12 2 2 4-4"/></svg> Qualidade Garantida</div>
-      <div class="hero-perk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="6" width="14" height="11" rx="1.5"/><path d="M15 10h4l3 3v4h-7z"/><circle cx="6" cy="19" r="2"/><circle cx="17.5" cy="19" r="2"/></svg> Envio Rápido</div>
-      <div class="hero-perk"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/></svg> Garantia de Fábrica</div>
+    <div class="hero-dots">
+      <span class="active"></span><span></span><span></span><span></span>
     </div>
   </div>
 

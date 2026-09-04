@@ -2655,3 +2655,45 @@ html, body {
   /* Sobe o botão flutuante do WhatsApp para não ficar em cima da barra inferior */
   .fp-whatsapp-float{bottom:78px !important}
 }
+
+/* ==========================================================================
+   HERO — colagem de fotos reais das peças + pontos decorativos
+   ========================================================================== */
+.hero-clean-grid{display:block}
+.hero-clean-text{position:relative}
+
+.hero-clean-visual{display:flex;align-items:center;justify-content:center;margin-top:34px}
+.hero-photo-collage{position:relative;width:260px;height:260px;max-width:78vw;max-height:78vw}
+.hpc-glow{position:absolute;inset:-30px;background:radial-gradient(circle,rgba(237,28,36,.35) 0%,rgba(237,28,36,.12) 45%,rgba(237,28,36,0) 72%);filter:blur(6px);pointer-events:none}
+.hpc-img{position:absolute;object-fit:cover;border-radius:50%;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06)}
+.hpc-main{width:66%;height:66%;top:0;right:0;z-index:3}
+.hpc-secondary{width:46%;height:46%;left:0;bottom:8%;z-index:2;box-shadow:0 14px 30px rgba(0,0,0,.5),0 0 0 4px #0d0f14}
+.hpc-tertiary{width:34%;height:34%;left:8%;top:6%;z-index:1;object-position:20% 20%;box-shadow:0 10px 22px rgba(0,0,0,.5),0 0 0 4px #0d0f14}
+
+.hero-dots{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:26px}
+.hero-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.18)}
+.hero-dots span.active{width:20px;border-radius:4px;background:#ed1c24}
+
+@media(min-width:900px){
+  .hero-clean{text-align:left}
+  .hero-clean-grid{display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:46px;max-width:1180px;margin:0 auto}
+  .hero-clean-tag{margin-left:0}
+  .hero-clean-title,.hero-clean-sub{margin-left:0;margin-right:0;max-width:560px}
+  .hero-clean-perks{justify-content:flex-start}
+  .hero-clean-visual{margin-top:0}
+  .hero-photo-collage{width:340px;height:340px}
+  .hero-dots{justify-content:center}
+}
+
+/* ==========================================================================
+   CARDS DE PEÇAS EM DESTAQUE — parcela e botão de adicionar ao carrinho
+   ========================================================================== */
+.carousel .cat-card{position:relative}
+.cat-card-installment{color:#8b9199;font-size:11px;margin-top:2px}
+.cat-card-cart-btn{position:absolute;right:10px;bottom:10px;width:32px;height:32px;border-radius:50%;background:#ed1c24;color:#fff;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 6px 16px rgba(237,28,36,.4);transition:transform .15s ease,background .15s ease}
+.cat-card-cart-btn:hover{background:#ff2a32;transform:scale(1.08)}
+.cat-card-cart-btn.added-feedback{width:auto;border-radius:14px;padding:0 10px;font-size:10px;font-weight:800;white-space:nowrap}
+
+@media(max-width:760px){
+  .hero-photo-collage{width:200px;height:200px}
+}

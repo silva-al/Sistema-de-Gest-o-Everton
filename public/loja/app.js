@@ -516,6 +516,7 @@ async function loadCategoryCarousel() {
       const photo = c.photoUrl || CATEGORY_IMAGES[c.category] || 'images/categorias/filtros.jpg';
       const priceVal = typeof c.price === 'number' ? c.price : (c.price_cents ? c.price_cents / 100 : 0);
       const pixVal = priceVal > 0 ? (priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04))) : 0;
+      const installmentVal = priceVal > 0 ? priceVal / 6 : 0;
       return `<div class="card cat-card" data-product-id="${c.id || ''}" data-category="${c.category || ''}"${hidden ? ' aria-hidden="true"' : ''}>
         <div class="cat-card-img-wrap">
           <img alt="${hidden ? '' : c.name}" loading="lazy" src="${photo}">
@@ -525,7 +526,12 @@ async function loadCategoryCarousel() {
         <div class="cat-card-price-block">
           <div class="cat-card-pix">${priceVal > 0 ? money(pixVal) : 'Disponível'} <span class="pix-micro-tag">no Pix</span></div>
           ${priceVal > 0 ? `<div class="cat-card-alt">ou ${money(priceVal)}</div>` : ''}
+          ${priceVal > 0 ? `<div class="cat-card-installment">Em até 6x de ${money(installmentVal)}</div>` : ''}
         </div>
+        ${c.inStock !== false && priceVal > 0 ? `
+        <button type="button" class="cat-card-cart-btn" data-cart-id="${c.id || ''}" aria-label="Adicionar ao carrinho" title="Adicionar ao carrinho">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        </button>` : ''}
       </div>`;
     };
 
@@ -562,6 +568,13 @@ async function loadCategoryCarousel() {
     });
     track.querySelectorAll('.cat-card-all').forEach(el => {
       el.onclick = () => show('pecas');
+    });
+    track.querySelectorAll('.cat-card-cart-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const prodId = btn.dataset.cartId;
+        if (prodId) addToCart(prodId, items, 1, btn);
+      });
     });
   } catch (err) {
     console.error('Erro ao carregar carrossel:', err);
