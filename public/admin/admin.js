@@ -131,6 +131,7 @@ function switchTab(tabId, pushHistory = true, resetScroll = true) {
 
   // Persiste a aba atual para que F5 ou atualização mantenha o usuário exatamente aqui
   try {
+    document.documentElement.setAttribute('data-active-tab', tabId);
     localStorage.setItem('fm_admin_active_tab', tabId);
     if (window.location.hash !== `#${tabId}`) {
       history.replaceState(null, '', `#${tabId}`);
@@ -227,6 +228,29 @@ function showToast(msg = 'Sistema atualizado com sucesso!') {
     toast.classList.remove('show');
   }, 2400);
 }
+
+// Copia chave de acesso da NF-e para a área de transferência
+window.copyAccessKey = async (btn, key) => {
+  try {
+    await navigator.clipboard.writeText(key);
+    const svg = btn.querySelector('svg');
+    if (svg) {
+      const original = svg.innerHTML;
+      svg.innerHTML = '<polyline points="20 6 9 17 4 12"></polyline>';
+      svg.style.color = 'var(--accent-green)';
+      btn.style.color = 'var(--accent-green)';
+      setTimeout(() => {
+        svg.innerHTML = original;
+        svg.style.color = '';
+        btn.style.color = 'var(--text-muted)';
+      }, 1500);
+    }
+    showToast('Chave de acesso copiada!');
+  } catch {
+    showToast('Não foi possível copiar.');
+  }
+};
+
 
 const refreshBtn = document.getElementById('refreshBtn');
 if (refreshBtn) {
@@ -1130,6 +1154,7 @@ function renderFiscalTable() {
           </td>
           <td style="font-family:var(--font-mono);font-size:11px;color:${isIssued ? 'var(--accent-red-light)' : 'var(--text-muted)'}">
             ${accessKey}
+            ${isIssued ? `<button onclick="copyAccessKey(this, '${accessKey.replace(/\s+/g, '')}')" title="Copiar chave de acesso" style="background:none;border:none;cursor:pointer;padding:2px 4px;margin-left:4px;vertical-align:middle;color:var(--text-muted);transition:color .2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-muted)'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>` : ''}
           </td>
           <td><strong style="color:#fff">Pedido #${o.id}</strong></td>
           <td>${o.customerName || 'Consumidor Final'}</td>

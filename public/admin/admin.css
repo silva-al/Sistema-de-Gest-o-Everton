@@ -452,6 +452,46 @@ body {
   display: block;
 }
 
+/* Ativação instantânea no F5: o script inline no <head> seta data-active-tab
+   ANTES do CSS carregar, então a aba correta aparece desde o primeiro frame */
+html[data-active-tab="dashboard"] #pane-dashboard,
+html[data-active-tab="estoque"] #pane-estoque,
+html[data-active-tab="pedidos"] #pane-pedidos,
+html[data-active-tab="expedicao"] #pane-expedicao,
+html[data-active-tab="financeiro"] #pane-financeiro,
+html[data-active-tab="notas-fiscais"] #pane-notas-fiscais {
+  display: block !important;
+}
+
+html[data-active-tab="dashboard"] .sidebar-nav button[data-tab="dashboard"],
+html[data-active-tab="estoque"] .sidebar-nav button[data-tab="estoque"],
+html[data-active-tab="pedidos"] .sidebar-nav button[data-tab="pedidos"],
+html[data-active-tab="expedicao"] .sidebar-nav button[data-tab="expedicao"],
+html[data-active-tab="financeiro"] .sidebar-nav button[data-tab="financeiro"],
+html[data-active-tab="notas-fiscais"] .sidebar-nav button[data-tab="notas-fiscais"] {
+  background: rgba(237, 28, 36, 0.12) !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+  border: 1px solid rgba(237, 28, 36, 0.22) !important;
+}
+
+html[data-active-tab="dashboard"] .sidebar-nav button[data-tab="dashboard"]::before,
+html[data-active-tab="estoque"] .sidebar-nav button[data-tab="estoque"]::before,
+html[data-active-tab="pedidos"] .sidebar-nav button[data-tab="pedidos"]::before,
+html[data-active-tab="expedicao"] .sidebar-nav button[data-tab="expedicao"]::before,
+html[data-active-tab="financeiro"] .sidebar-nav button[data-tab="financeiro"]::before,
+html[data-active-tab="notas-fiscais"] .sidebar-nav button[data-tab="notas-fiscais"]::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 4px;
+  background: var(--accent-red);
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 0 10px var(--accent-red);
+}
+
 /* CABEÇALHO DA PÁGINA */
 .page-head {
   display: flex;

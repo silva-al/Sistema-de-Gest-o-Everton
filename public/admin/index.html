@@ -13,12 +13,17 @@
     if (localStorage.getItem('fm_admin_session')) {
       document.documentElement.classList.add('has-admin-session');
     }
+    var _vt = ['dashboard','estoque','pedidos','expedicao','financeiro','notas-fiscais'];
+    var _h = (window.location.hash || '').replace('#','').trim();
+    var _s = localStorage.getItem('fm_admin_active_tab') || 'dashboard';
+    var _t = _vt.indexOf(_h) !== -1 ? _h : (_vt.indexOf(_s) !== -1 ? _s : 'dashboard');
+    document.documentElement.setAttribute('data-active-tab', _t);
   } catch (e) {}
 </script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
-<link href="admin.css?v=20260904e" rel="stylesheet"/>
+<link href="admin.css?v=20260904p" rel="stylesheet"/>
 </head>
 <body>
 
@@ -63,7 +68,7 @@
 
     <nav class="sidebar-nav">
       <div class="nav-section-label">PRINCIPAL</div>
-      <button class="nav-item active" data-tab="dashboard">
+      <button class="nav-item" data-tab="dashboard">
         <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
         <span>Dashboard</span>
       </button>
@@ -142,7 +147,7 @@
       <!-- ====================================================
            1. DASHBOARD
            ==================================================== -->
-      <section class="tab-pane active" id="pane-dashboard">
+      <section class="tab-pane" id="pane-dashboard">
         <div class="page-head">
           <div class="page-title-wrap">
             <h1 class="page-title">
@@ -856,6 +861,6 @@
   <span id="wmsToastMsg">Sistema atualizado com sucesso!</span>
 </div>
 
-<script src="admin.js?v=20260904n"></script>
+<script src="admin.js?v=20260904p"></script>
 </body>
 </html>
