@@ -1005,7 +1005,7 @@ input:checked + .slider:before {
   backdrop-filter: blur(5px);
   z-index: 99999;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   padding: 20px;
   overflow-y: auto;
@@ -1013,14 +1013,14 @@ input:checked + .slider:before {
 
 .modal-danfe-container {
   width: 100%;
-  max-width: 860px;
+  max-width: 820px;
   background: #1e2638;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
   display: flex;
   flex-direction: column;
-  max-height: 94vh;
+  margin: 20px 0;
 }
 
 .modal-danfe-actions {
@@ -1030,6 +1030,7 @@ input:checked + .slider:before {
   padding: 14px 20px;
   background: #131a28;
   border-bottom: 1px solid var(--panel-border);
+  flex-shrink: 0;
 }
 
 .modal-danfe-title {
@@ -1041,142 +1042,243 @@ input:checked + .slider:before {
   font-size: 14px;
 }
 
-/* FOLHA OFICIAL DO DANFE (ESTILO A4) */
+/* ===================================================================
+   FOLHA OFICIAL DO DANFE — LAYOUT NFe PADRÃO BRASILEIRO
+   =================================================================== */
 .danfe-sheet {
   background: #ffffff;
   color: #000000;
   font-family: Arial, Helvetica, sans-serif;
-  padding: 25px;
-  margin: 15px;
-  border-radius: 6px;
+  padding: 18px;
+  margin: 12px;
+  border-radius: 4px;
   overflow-y: auto;
-  font-size: 11px;
-  line-height: 1.25;
+  font-size: 9px;
+  line-height: 1.2;
 }
 
-.danfe-header-box {
+/* LINHAS & CÉLULAS (GRID FLEXÍVEL COM BORDAS) */
+.nf-row {
+  display: flex;
   border: 1px solid #000;
-  padding: 8px;
-  display: grid;
-  grid-template-columns: 2.2fr 1fr 2fr;
-  gap: 8px;
-  margin-bottom: 8px;
 }
 
-.danfe-emitente strong {
-  font-size: 14px;
+.nf-cell {
+  flex: 1;
+  padding: 2px 4px;
+  min-height: 18px;
+  font-size: 8.5px;
+}
+
+.nf-label {
   display: block;
+  font-size: 6.5px;
+  font-weight: bold;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  line-height: 1.1;
+  margin-bottom: 0px;
 }
 
-.danfe-doc-title {
+.nf-section-title {
+  background: #e8e8e8;
+  font-weight: bold;
+  font-size: 7.5px;
+  padding: 2px 5px;
+  border: 1px solid #000;
+  border-bottom: none;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+/* CABEÇALHO PRINCIPAL DO DANFE (3 COLUNAS) */
+.nf-header-main {
+  display: grid;
+  grid-template-columns: 2.2fr 0.8fr 2fr;
+  border: 1px solid #000;
+  margin-top: 4px;
+}
+
+.nf-header-emitente {
+  padding: 5px 6px;
+  font-size: 8px;
+  line-height: 1.3;
+}
+
+.nf-header-danfe {
   border-left: 1px solid #000;
   border-right: 1px solid #000;
   text-align: center;
-  padding: 0 6px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-.danfe-doc-title h4 {
-  font-size: 14px;
-  margin: 2px 0;
-}
-
-.danfe-barcode-area {
+  padding: 4px 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.nf-header-barcode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 6px;
   text-align: center;
 }
 
 .danfe-barcode-mock {
   width: 100%;
-  height: 38px;
-  background: repeating-linear-gradient(90deg, #000 0px, #000 2px, #fff 2px, #fff 4px, #000 4px, #000 7px, #fff 7px, #fff 9px);
-  margin-bottom: 4px;
+  height: 32px;
+  background: repeating-linear-gradient(90deg, #000 0px, #000 2px, #fff 2px, #fff 3.5px, #000 3.5px, #000 5px, #fff 5px, #fff 7px, #000 7px, #000 8px, #fff 8px, #fff 10px);
+  margin-bottom: 3px;
 }
 
-.danfe-key-text {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.5px;
-}
-
-.danfe-sec-box {
-  border: 1px solid #000;
-  margin-bottom: 8px;
-}
-
-.danfe-sec-title {
-  background: #f0f0f0;
+.nf-key-text {
+  font-family: 'Courier New', monospace;
+  font-size: 7.5px;
+  letter-spacing: 0.3px;
   font-weight: bold;
-  font-size: 9.5px;
-  padding: 3px 6px;
-  border-bottom: 1px solid #000;
-  text-transform: uppercase;
 }
 
-.danfe-sec-content {
-  padding: 6px;
+/* TOPO RECEBEDOR */
+.nf-top-receiver {
+  min-height: 22px;
+  font-size: 7.5px;
 }
 
-.danfe-items-table {
+/* IMPOSTO: LINHAS COM FLEX AUTOMÁTICO */
+.nf-imposto-row .nf-cell {
+  flex: 1;
+  text-align: center;
+}
+
+/* TABELA DE PRODUTOS */
+.nf-products-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 10px;
+  font-size: 7.5px;
+  border: 1px solid #000;
+  border-top: none;
 }
 
-.danfe-items-table th {
-  background: #f0f0f0;
+.nf-products-table th {
+  background: #e8e8e8;
   border-bottom: 1px solid #000;
-  padding: 4px 5px;
-  text-align: left;
-  font-size: 9px;
+  border-right: 1px solid #ddd;
+  padding: 2px 3px;
+  text-align: center;
+  font-size: 6.5px;
+  font-weight: bold;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.danfe-items-table td {
-  padding: 4px 5px;
-  border-bottom: 1px dotted #ccc;
+.nf-products-table th:last-child { border-right: none; }
+
+.nf-products-table td {
+  padding: 2px 3px;
+  border-bottom: 1px dotted #bbb;
+  border-right: 1px solid #eee;
+  text-align: center;
+  font-size: 7.5px;
+}
+
+.nf-products-table td:nth-child(2) { text-align: left; }
+.nf-products-table td:last-child { border-right: none; }
+
+/* DADOS ADICIONAIS */
+.nf-dados-adicionais .nf-cell {
+  font-size: 7px;
+  line-height: 1.3;
+}
+
+/* RODAPÉ */
+.nf-footer {
+  text-align: center;
+  font-size: 6.5px;
+  color: #666;
+  padding: 4px;
+  border: 1px solid #000;
+  border-top: 0;
+  margin-bottom: 0;
 }
 
 /* ===================================================================
-   REGRAS DE IMPRESSÃO (@media print)
+   REGRAS DE IMPRESSÃO (@media print) — 1 PÁGINA A4
    =================================================================== */
 @media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 6mm;
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   body {
     background: #fff !important;
     color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 9px !important;
   }
 
+  /* Esconde TUDO que não é o DANFE */
+  .wms-layout,
+  .login-wrap,
   .wms-sidebar,
   .wms-topbar,
+  .wms-main,
   .page-head,
   .no-print,
-  .modal-overlay:not(#danfeModal),
   .modal-danfe-actions {
     display: none !important;
   }
 
+  /* Mostra apenas o modal do DANFE */
   .modal-overlay {
     position: static !important;
     background: transparent !important;
     padding: 0 !important;
     backdrop-filter: none !important;
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  .modal-overlay.hidden {
+    display: none !important;
   }
 
   .modal-danfe-container {
     max-width: 100% !important;
+    width: 100% !important;
     border: none !important;
     box-shadow: none !important;
     background: transparent !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    max-height: none !important;
   }
 
   .danfe-sheet {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    font-size: 8.5px !important;
+    page-break-inside: avoid !important;
+  }
+
+  .nf-row,
+  .nf-header-main,
+  .nf-section-title,
+  .nf-products-table,
+  .nf-footer {
+    page-break-inside: avoid !important;
   }
 }
 

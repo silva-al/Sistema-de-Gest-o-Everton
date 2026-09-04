@@ -716,11 +716,20 @@ document.getElementById('emitAllPendingNfBtn')?.addEventListener('click', () => 
 });
 
 // ---------- MODAL DE IMPRESSÃO DO DANFE OFICIAL ----------
+// Fechar modal com ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('danfeModal');
+    if (modal && !modal.classList.contains('hidden')) {
+      closeDanfeModal();
+    }
+  }
+});
+
 window.openDanfeForOrder = (orderId) => {
   const order = allOrders.find(o => String(o.id) === String(orderId));
   if (!order) return;
 
-  // Garante que exista registro fiscal
   markNfAsIssued(orderId);
   const nfsMap = getIssuedNfsMap();
   const nf = nfsMap[orderId] || {
@@ -735,135 +744,266 @@ window.openDanfeForOrder = (orderId) => {
   const addr = order.address || {};
   const destName = order.customerName || 'Consumidor Final';
   const destPhone = order.customerPhone || '(Sem telefone)';
-  const destAddress = addr.street ? `${addr.street}, ${addr.number} ${addr.complement || ''} - ${addr.neighborhood}, ${addr.city}/${addr.state} - CEP: ${addr.cep}` : 'Retirada no Balcão da Oficina Fahren Motors';
+  const destCep = addr.cep || '';
+  const destCity = addr.city || FISCAL_CONFIG.cidade;
+  const destUf = addr.state || FISCAL_CONFIG.uf;
+  const destBairro = addr.neighborhood || '';
+  const destRua = addr.street ? `${addr.street}, ${addr.number} ${addr.complement || ''}` : 'Retirada no Balcão';
 
   const items = order.items || [];
   const totalProdutos = items.reduce((acc, i) => acc + ((Number(i.unitPrice) || 0) * (Number(i.quantity) || 1)), 0);
-  const valorTotalNota = order.total;
+  const valorTotalNota = Number(order.total) || 0;
+  const valorIcms = valorTotalNota * 0.18;
+  const emissaoDate = formatDate(nf.issuedAt).slice(0, 10);
+  const emissaoFull = formatDate(nf.issuedAt);
+  const nfNum = String(nf.nfNumber).padStart(6, '0');
+  const protocolo = `135${String(26).padStart(2,'0')}0098${String(nf.nfNumber).padStart(6,'0')}`;
 
   sheet.innerHTML = `
-    <!-- CABEÇALHO DANFE -->
-    <div class="danfe-header-box">
-      <div class="danfe-emitente">
-        <strong>${FISCAL_CONFIG.razaoSocial}</strong>
-        <div>${FISCAL_CONFIG.logradouro}</div>
-        <div>${FISCAL_CONFIG.cidade} - ${FISCAL_CONFIG.uf} - CEP: ${FISCAL_CONFIG.cep}</div>
-        <div>TEL: ${FISCAL_CONFIG.telefone}</div>
+    <!-- TOPO: RECEBEMOS DE... -->
+    <div class="nf-row nf-top-receiver">
+      <div class="nf-cell" style="flex:3">
+        <span class="nf-label">RECEBEMOS DE <strong>${FISCAL_CONFIG.razaoSocial}</strong> OS PRODUTOS/SERVIÇOS CONSTANTES DA NOTA FISCAL INDICADA AO LADO</span>
       </div>
-      <div class="danfe-doc-title">
-        <h4>DANFE</h4>
-        <div style="font-size:9px">Documento Auxiliar da Nota Fiscal Eletrônica</div>
-        <div style="font-size:10px;margin-top:4px">0 - ENTRADA<br/><strong>1 - SAÍDA</strong></div>
-        <div style="margin-top:4px;font-weight:bold">Nº 000.${String(nf.nfNumber).padStart(6, '0')}</div>
-        <div>SÉRIE: 1</div>
+      <div class="nf-cell" style="flex:1;text-align:center;border-left:1px solid #000">
+        <span class="nf-label">NF-e</span><br/>
+        <strong style="font-size:12px">Nº ${nfNum}</strong><br/>
+        <span class="nf-label">Série 1</span>
       </div>
-      <div class="danfe-barcode-area">
-        <div class="danfe-barcode-mock"></div>
-        <div style="font-size:9px;font-weight:bold;margin-bottom:2px">CHAVE DE ACESSO NFE</div>
-        <div class="danfe-key-text">${nf.accessKey}</div>
-        <div style="font-size:8px;color:#444;margin-top:3px">Consulta de autenticidade no portal nacional da NF-e</div>
+    </div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:2">
+        <span class="nf-label">DATA DE RECEBIMENTO</span>
+      </div>
+      <div class="nf-cell" style="flex:3;border-left:1px solid #000">
+        <span class="nf-label">IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR</span>
       </div>
     </div>
 
-    <!-- DADOS DO EMITENTE & PROTOCOLO -->
-    <div class="danfe-sec-box">
-      <div class="danfe-sec-content" style="display:flex;justify-content:space-between">
-        <div><strong>CNPJ DO EMITENTE:</strong> ${FISCAL_CONFIG.cnpj}</div>
-        <div><strong>INSCRIÇÃO ESTADUAL:</strong> ${FISCAL_CONFIG.ie}</div>
-        <div><strong>PROTOCOLO DE AUTORIZAÇÃO:</strong> 135260098412849 - ${formatDate(nf.issuedAt)}</div>
+    <!-- CABEÇALHO PRINCIPAL -->
+    <div class="nf-header-main">
+      <div class="nf-header-emitente">
+        <strong style="font-size:11px;display:block;margin-bottom:2px">${FISCAL_CONFIG.razaoSocial}</strong>
+        <div>${FISCAL_CONFIG.logradouro}</div>
+        <div>${FISCAL_CONFIG.cidade} - ${FISCAL_CONFIG.uf} - CEP: ${FISCAL_CONFIG.cep}</div>
+        <div>TEL: ${FISCAL_CONFIG.telefone}</div>
+        <div style="margin-top:2px">www.fahrenmotors.com.br</div>
+      </div>
+      <div class="nf-header-danfe">
+        <strong style="font-size:14px;display:block">DANFE</strong>
+        <div style="font-size:7.5px;line-height:1.2">Documento Auxiliar<br/>da Nota Fiscal Eletrônica</div>
+        <div style="margin-top:3px;font-size:9px">0 - ENTRADA<br/><strong>1 - SAÍDA</strong></div>
+        <div style="margin-top:3px"><strong style="font-size:11px">Nº ${nfNum}</strong></div>
+        <div style="font-size:8px">Série 1&nbsp;&nbsp;Página 1 de 1</div>
+      </div>
+      <div class="nf-header-barcode">
+        <div class="danfe-barcode-mock"></div>
+        <div class="nf-key-text">${nf.accessKey}</div>
+        <div style="font-size:7px;color:#555;margin-top:2px">Consulta de autenticidade no portal nacional da NF-e<br/>www.nfe.fazenda.gov.br/portal</div>
+      </div>
+    </div>
+
+    <!-- NATUREZA DA OPERAÇÃO + PROTOCOLO -->
+    <div class="nf-row">
+      <div class="nf-cell" style="flex:3">
+        <span class="nf-label">NATUREZA DA OPERAÇÃO</span><br/>
+        <strong>Venda de mercadorias</strong>
+      </div>
+      <div class="nf-cell" style="flex:2;border-left:1px solid #000">
+        <span class="nf-label">PROTOCOLO DE AUTORIZAÇÃO DE USO DA NF-e</span><br/>
+        <strong>${protocolo} - ${emissaoFull}</strong>
+      </div>
+    </div>
+
+    <!-- INSCRIÇÃO ESTADUAL / CNPJ -->
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:1">
+        <span class="nf-label">INSCRIÇÃO ESTADUAL</span><br/>${FISCAL_CONFIG.ie}
+      </div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
+        <span class="nf-label">INSCRIÇÃO ESTADUAL DO SUBST. TRIB.</span><br/>&nbsp;
+      </div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
+        <span class="nf-label">CNPJ</span><br/>${FISCAL_CONFIG.cnpj}
       </div>
     </div>
 
     <!-- DESTINATÁRIO / REMETENTE -->
-    <div class="danfe-sec-box">
-      <div class="danfe-sec-title">DESTINATÁRIO / REMETENTE</div>
-      <div class="danfe-sec-content">
-        <div style="display:grid;grid-template-columns:2.5fr 1.5fr 1fr;gap:6px;margin-bottom:4px">
-          <div><strong>NOME / RAZÃO SOCIAL:</strong> ${destName}</div>
-          <div><strong>CNPJ / CPF:</strong> Consumidor Final</div>
-          <div><strong>DATA DA EMISSÃO:</strong> ${formatDate(nf.issuedAt).slice(0, 10)}</div>
-        </div>
-        <div style="display:grid;grid-template-columns:3fr 1fr;gap:6px">
-          <div><strong>ENDEREÇO DE ENTREGA:</strong> ${destAddress}</div>
-          <div><strong>TELEFONE:</strong> ${destPhone}</div>
-        </div>
+    <div class="nf-section-title">DESTINATÁRIO / REMETENTE</div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:3">
+        <span class="nf-label">NOME / RAZÃO SOCIAL</span><br/><strong>${destName}</strong>
+      </div>
+      <div class="nf-cell" style="flex:1.2;border-left:1px solid #000">
+        <span class="nf-label">CNPJ/CPF</span><br/>Consumidor Final
+      </div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000">
+        <span class="nf-label">DATA DA EMISSÃO</span><br/>${emissaoDate}
+      </div>
+    </div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:2.5">
+        <span class="nf-label">ENDEREÇO</span><br/>${destRua}
+      </div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
+        <span class="nf-label">BAIRRO / DISTRITO</span><br/>${destBairro}
+      </div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000">
+        <span class="nf-label">CEP</span><br/>${destCep}
+      </div>
+      <div class="nf-cell" style="flex:0.5;border-left:1px solid #000">
+        <span class="nf-label">DATA SAÍDA</span><br/>${emissaoDate}
+      </div>
+    </div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:2">
+        <span class="nf-label">MUNICÍPIO</span><br/>${destCity}
+      </div>
+      <div class="nf-cell" style="flex:0.5;border-left:1px solid #000">
+        <span class="nf-label">FONE/FAX</span><br/>${destPhone}
+      </div>
+      <div class="nf-cell" style="flex:0.3;border-left:1px solid #000">
+        <span class="nf-label">UF</span><br/>${destUf}
+      </div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
+        <span class="nf-label">INSCRIÇÃO ESTADUAL</span><br/>&nbsp;
+      </div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000">
+        <span class="nf-label">HORA DA SAÍDA</span><br/>${formatDate(nf.issuedAt).slice(11)}
       </div>
     </div>
 
-    <!-- FATURA / DUPLICATAS -->
-    <div class="danfe-sec-box">
-      <div class="danfe-sec-title">DADOS DA FATURA & COBRANÇA</div>
-      <div class="danfe-sec-content" style="display:flex;justify-content:space-between">
-        <div><strong>FORMA DE PAGAMENTO:</strong> ${order.paymentMethodLabel}</div>
-        <div><strong>VENCIMENTO:</strong> À Vista</div>
-        <div><strong>VALOR ORIGINAL:</strong> ${money(totalProdutos)}</div>
-        <div><strong>DESCONTO:</strong> ${money(order.discount || 0)}</div>
-        <div><strong>VALOR LÍQUIDO A PAGAR:</strong> ${money(valorTotalNota)}</div>
+    <!-- FATURA -->
+    <div class="nf-section-title">FATURA</div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:1">
+        <span class="nf-label">NÚMERO</span><br/>${nfNum}
+      </div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
+        <span class="nf-label">VALOR ORIGINAL</span><br/>${money(totalProdutos)}
+      </div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
+        <span class="nf-label">DESCONTO</span><br/>${money(order.discount || 0)}
+      </div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
+        <span class="nf-label">VALOR LÍQUIDO</span><br/><strong>${money(valorTotalNota)}</strong>
       </div>
     </div>
 
     <!-- CÁLCULO DO IMPOSTO -->
-    <div class="danfe-sec-box">
-      <div class="danfe-sec-title">CÁLCULO DO IMPOSTO</div>
-      <div class="danfe-sec-content" style="display:grid;grid-template-columns:repeat(5, 1fr);gap:6px;text-align:center">
-        <div><small style="display:block;font-size:8.5px">BASE DE CÁLCULO DO ICMS</small><strong>${money(valorTotalNota)}</strong></div>
-        <div><small style="display:block;font-size:8.5px">VALOR DO ICMS (18%)</small><strong>${money(valorTotalNota * 0.18)}</strong></div>
-        <div><small style="display:block;font-size:8.5px">VALOR DO FRETE</small><strong>R$ 0,00</strong></div>
-        <div><small style="display:block;font-size:8.5px">VALOR DOS PRODUTOS</small><strong>${money(totalProdutos)}</strong></div>
-        <div><small style="display:block;font-size:8.5px">VALOR TOTAL DA NOTA</small><strong style="font-size:13px">${money(valorTotalNota)}</strong></div>
-      </div>
+    <div class="nf-section-title">CÁLCULO DO IMPOSTO</div>
+    <div class="nf-row nf-imposto-row" style="border-top:0">
+      <div class="nf-cell"><span class="nf-label">BASE DE CÁLC. ICMS</span><br/>${money(valorTotalNota)}</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO ICMS</span><br/>${money(valorIcms)}</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">BC ICMS S.T.</span><br/>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">V. ICMS SUBST.</span><br/>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">V. IMP. IMPORT.</span><br/>0,00</div>
+    </div>
+    <div class="nf-row nf-imposto-row" style="border-top:0">
+      <div class="nf-cell"><span class="nf-label">VALOR DO FRETE</span><br/>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO SEGURO</span><br/>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">DESCONTO</span><br/>${money(order.discount || 0)}</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">OUTRAS DESP.</span><br/>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR TOTAL DOS PRODUTOS</span><br/>${money(totalProdutos)}</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label"><strong>VALOR TOTAL DA NOTA</strong></span><br/><strong>${money(valorTotalNota)}</strong></div>
     </div>
 
-    <!-- DADOS DOS PRODUTOS / SERVIÇOS -->
-    <div class="danfe-sec-box">
-      <div class="danfe-sec-title">DADOS DOS PRODUTOS / PEÇAS AUTOMOTIVAS</div>
-      <table class="danfe-items-table">
-        <thead>
-          <tr>
-            <th>CÓDIGO</th>
-            <th>DESCRIÇÃO DA PEÇA AUTOMOTIVA</th>
-            <th>NCM/SH</th>
-            <th>CST</th>
-            <th>CFOP</th>
-            <th>UN</th>
-            <th>QTD</th>
-            <th>VALOR UNIT.</th>
-            <th>VALOR TOTAL</th>
-            <th>BC ICMS</th>
-            <th>ALIQ. ICMS</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${items.map(i => {
-            const qtd = Number(i.quantity) || 1;
-            const unit = Number(i.unitPrice) || 0;
-            const tot = qtd * unit;
-            return `
-              <tr>
-                <td>PECA-${i.productId}</td>
-                <td><strong>${i.name}</strong> - Peça Automotiva Fahren</td>
-                <td>8708.29.99</td>
-                <td>0102</td>
-                <td>5.102</td>
-                <td>UN</td>
-                <td>${qtd}</td>
-                <td>${money(unit)}</td>
-                <td><strong>${money(tot)}</strong></td>
-                <td>${money(tot)}</td>
-                <td>18%</td>
-              </tr>
-            `;
-          }).join('')}
-        </tbody>
-      </table>
+    <!-- TRANSPORTADOR / VOLUMES TRANSPORTADOS -->
+    <div class="nf-section-title">TRANSPORTADOR / VOLUMES TRANSPORTADOS</div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:2"><span class="nf-label">RAZÃO SOCIAL</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">FRETE POR CONTA</span><br/>1 - Emitente</div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">CÓDIGO ANTT</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">PLACA DO VEÍCULO</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.3;border-left:1px solid #000"><span class="nf-label">UF</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">CNPJ/CPF</span><br/>&nbsp;</div>
+    </div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:2"><span class="nf-label">ENDEREÇO</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">MUNICÍPIO</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.3;border-left:1px solid #000"><span class="nf-label">UF</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">INSCRIÇÃO ESTADUAL</span><br/>&nbsp;</div>
+    </div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell"><span class="nf-label">QUANTIDADE</span><br/>${items.reduce((a,i)=>a+(Number(i.quantity)||1),0)}</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">ESPÉCIE</span><br/>Caixa</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">MARCA</span><br/>Fahren</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">NUMERAÇÃO</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">PESO BRUTO</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">PESO LÍQUIDO</span><br/>&nbsp;</div>
+    </div>
+
+    <!-- DADOS DOS PRODUTOS -->
+    <div class="nf-section-title">DADOS DOS PRODUTOS / SERVIÇOS</div>
+    <table class="nf-products-table">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descrição do Produto/Serviço</th>
+          <th>NCM/SH</th>
+          <th>CST</th>
+          <th>CFOP</th>
+          <th>UN</th>
+          <th>Quant.</th>
+          <th>Valor Unit.</th>
+          <th>Valor Total</th>
+          <th>BC ICMS</th>
+          <th>Vl. ICMS</th>
+          <th>Vl. IPI</th>
+          <th>Alíq. ICMS</th>
+          <th>Alíq. IPI</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${items.map(i => {
+          const qtd = Number(i.quantity) || 1;
+          const unit = Number(i.unitPrice) || 0;
+          const tot = qtd * unit;
+          const icmsItem = tot * 0.18;
+          return `<tr>
+            <td>PECA-${i.productId}</td>
+            <td><strong>${i.name}</strong></td>
+            <td>8708.29.99</td>
+            <td>010</td>
+            <td>5.102</td>
+            <td>UN</td>
+            <td>${qtd}</td>
+            <td>${money(unit)}</td>
+            <td>${money(tot)}</td>
+            <td>${money(tot)}</td>
+            <td>${money(icmsItem)}</td>
+            <td>0,00</td>
+            <td>18%</td>
+            <td>0%</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+
+    <!-- CÁLCULO DO ISSQN -->
+    <div class="nf-section-title">CÁLCULO DO ISSQN</div>
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell"><span class="nf-label">INSCRIÇÃO MUNICIPAL</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR TOTAL DOS SERVIÇOS</span><br/>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">BASE DE CÁLCULO DO ISSQN</span><br/>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO ISSQN</span><br/>0,00</div>
     </div>
 
     <!-- DADOS ADICIONAIS -->
-    <div class="danfe-sec-box">
-      <div class="danfe-sec-title">DADOS ADICIONAIS & OBSERVAÇÕES FISCAIS</div>
-      <div class="danfe-sec-content" style="font-size:9.5px;color:#333;line-height:1.4">
-        <strong>INFORMAÇÕES COMPLEMENTARES:</strong> Pedido #${order.id} emitido através da plataforma de e-commerce e gestão Fahren Motors. Documento fiscal referente à venda de autopeças ao consumidor. Regime Tributário: Simples Nacional. Permite o aproveitamento de crédito correspondente à alíquota aplicável. Mercadoria destinada a uso/consumo ou reposição veicular.
+    <div class="nf-section-title">DADOS ADICIONAIS</div>
+    <div class="nf-row nf-dados-adicionais" style="border-top:0">
+      <div class="nf-cell" style="flex:1;min-height:50px">
+        <span class="nf-label">INFORMAÇÕES COMPLEMENTARES</span><br/>
+        <span style="font-size:7.5px">Pedido #${order.id} — ${order.paymentMethodLabel}. Regime Tributário: Simples Nacional. Permite o aproveitamento de crédito de ICMS correspondente à alíquota aplicável. Mercadoria destinada a uso/consumo ou reposição veicular.</span>
       </div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000;min-height:50px">
+        <span class="nf-label">RESERVADO AO FISCO</span><br/>&nbsp;
+      </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="nf-footer">
+      Documento emitido por sistema de gestão Fahren Motors &nbsp;|&nbsp; Ambiente de <strong>HOMOLOGAÇÃO</strong> - documento sem valor fiscal &nbsp;|&nbsp; ${emissaoFull}
     </div>
   `;
 
