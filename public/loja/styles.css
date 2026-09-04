@@ -2697,3 +2697,66 @@ html, body {
 @media(max-width:760px){
   .hero-photo-collage{width:200px;height:200px}
 }
+
+/* ==========================================================================
+   CORREÇÃO DO CABEÇALHO MOBILE — logo em uma linha só (badge + nome),
+   botão de categorias como ícone à esquerda e carrinho visível à direita,
+   sobrescrevendo o bloco antigo (@media max-width:768px) que deixava
+   o nome "FAHREN MOTORS" empilhado/torto e escondia o carrinho.
+   ========================================================================== */
+@media(max-width:760px){
+  header.header .logo{
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 7px !important;
+    font-size: 15px !important;
+    line-height: 1.1 !important;
+    color: #fff !important;
+    letter-spacing: 0.2px !important;
+    margin: 0 !important;
+    order: 2 !important;
+    flex: 1 !important;
+    min-width: 0 !important;
+  }
+  header.header .logo-text{display:flex !important;align-items:baseline !important;gap:3px !important}
+  header.header .logo span{
+    display: inline !important;
+    font-size: inherit !important;
+    letter-spacing: 0.2px !important;
+    color: #ed1c24 !important;
+    margin-top: 0 !important;
+    font-style: normal !important;
+  }
+  header.header .logo-badge{width:30px !important;height:30px !important}
+  header.header .logo-badge-inner{font-size:10.5px !important}
+
+  /* Botão de categorias vira um ícone de menu (hambúrguer) à esquerda */
+  header.header .header-cat-btn{
+    display: flex !important;
+    background: rgba(255,255,255,.05) !important;
+    border: 1px solid rgba(255,255,255,.09) !important;
+    width: 36px !important;
+    height: 36px !important;
+    padding: 0 !important;
+    border-radius: 9px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex-shrink: 0 !important;
+    order: 1 !important;
+  }
+  header.header .header-cat-label,
+  header.header .header-cat-chevron{display:none !important}
+
+  /* Carrinho continua visível, sozinho, no canto superior direito */
+  header.header nav.nav{
+    display: flex !important;
+    margin-left: 0 !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+    order: 3 !important;
+  }
+  header.header nav.nav button:not(.nav-cart-btn){display:none !important}
+  header.header nav.nav .nav-cart-btn{display:inline-flex !important}
+}
