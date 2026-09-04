@@ -646,9 +646,11 @@ function renderProducts(container, products) {
     return `
     <div class="product" data-product-id="${p.id}">
       <div class="part-photo">${img ? `<img src="${img}" alt="${p.name}" loading="lazy">` : '🔩'}</div>
-      <b>${p.name}</b>
-      <small>${p.description || p.category || 'Aplicação compatível'}</small>
-      <div class="stock">${p.inStock ? '● Disponível' : '○ Fora de estoque'}</div>
+      <div class="product-info-wrap">
+        <b class="product-name" title="${p.name}">${p.name}</b>
+        <small class="product-meta">${p.description || p.category || 'Aplicação compatível'}</small>
+        <div class="stock">${p.inStock ? '● Disponível' : '○ Fora de estoque'}</div>
+      </div>
       <div class="product-price-block">
         <div class="product-pix-row">
           <span class="product-pix-price">${priceVal > 0 ? money(pixVal) : 'Sob Consulta'}</span>
@@ -664,19 +666,21 @@ function renderProducts(container, products) {
           <div class="product-alt-price">ou <strong>${money(priceVal)}</strong> em até 12x no cartão</div>
         ` : ''}
       </div>
-      ${p.inStock ? `
-        <div class="product-qty-row">
-          <label class="qty-label">Quantidade:</label>
-          <div class="qty-control">
-            <button type="button" class="btn-qty-btn p-minus" data-id="${p.id}" aria-label="Diminuir quantidade">−</button>
-            <input type="number" class="product-qty-val" data-id="${p.id}" value="1" min="1" max="${maxQty}" readonly />
-            <button type="button" class="btn-qty-btn p-plus" data-id="${p.id}" aria-label="Aumentar quantidade">+</button>
+      <div class="product-bottom-actions">
+        ${p.inStock ? `
+          <div class="product-qty-row">
+            <label class="qty-label">Quantidade:</label>
+            <div class="qty-control">
+              <button type="button" class="btn-qty-btn p-minus" data-id="${p.id}" aria-label="Diminuir quantidade">−</button>
+              <input type="number" class="product-qty-val" data-id="${p.id}" value="1" min="1" max="${maxQty}" readonly />
+              <button type="button" class="btn-qty-btn p-plus" data-id="${p.id}" aria-label="Aumentar quantidade">+</button>
+            </div>
           </div>
-        </div>
-        <button class="btn add-cart-btn" data-id="${p.id}">COLOCAR NO CARRINHO</button>
-      ` : `
-        <button class="btn" disabled style="opacity:.5;cursor:not-allowed;margin-top:12px;width:100%">FORA DE ESTOQUE</button>
-      `}
+          <button class="btn add-cart-btn" data-id="${p.id}">COLOCAR NO CARRINHO</button>
+        ` : `
+          <button class="btn" disabled style="opacity:.5;cursor:not-allowed;width:100%">FORA DE ESTOQUE</button>
+        `}
+      </div>
     </div>`;
   }).join('');
 
@@ -1836,8 +1840,21 @@ async function loadMyOrders() {
   }
 }
 
+// ---------- Controle da Tela de Carregamento (Splash Screen) ----------
+function hideSplashScreen() {
+  const splash = document.getElementById('splashScreen');
+  if (!splash || splash.classList.contains('hidden')) return;
+  splash.classList.add('hidden');
+  setTimeout(() => {
+    splash.style.display = 'none';
+  }, 450);
+}
+
 // ---------- Inicialização ----------
 async function init() {
+  // Timeout de segurança para nunca travar a tela caso a conexão caia
+  const safetyTimer = setTimeout(hideSplashScreen, 1800);
+
   try {
     const { customer } = await api('/api/auth/me');
     applyUser(customer);
@@ -1848,7 +1865,21 @@ async function init() {
   updateCartBadge();
   show('inicio', { push: false });
   loadAddress();
-  loadCategoryCarousel();
+  
+  // Pré-carrega carrossel da home e catálogo de peças em paralelo para velocidade máxima
+  try {
+    await Promise.allSettled([
+      loadCategoryCarousel(),
+      loadCatalog()
+    ]);
+  } catch (err) {
+    console.error('Erro no pré-carregamento:', err);
+  }
+
   initProductViewer();
+
+  clearTimeout(safetyTimer);
+  // Transição suave para revelar a página 100% pronta
+  setTimeout(hideSplashScreen, 200);
 }
 init();
