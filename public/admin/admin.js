@@ -894,7 +894,7 @@ window.openDanfeForOrder = (orderId) => {
       </div>
       <div class="nf-header-barcode">
         <div class="nf-barcode-svg-wrap">
-          ${generateCode128Svg(rawKey, 38)}
+          ${generateCode128Svg(rawKey, 46)}
         </div>
         <div class="nf-key-label">CHAVE DE ACESSO</div>
         <div class="nf-key-text">${nf.accessKey}</div>
@@ -1065,7 +1065,7 @@ window.openDanfeForOrder = (orderId) => {
             return `
               <tr class="nf-item-row">
                 <td>${String(i.productId || '01').padStart(2, '0')}</td>
-                <td style="text-align:left"><strong>${i.name}</strong></td>
+                <td style="text-align:center"><strong>${i.name}</strong></td>
                 <td>8708.29.99</td>
                 <td>0102</td>
                 <td>5.102</td>
