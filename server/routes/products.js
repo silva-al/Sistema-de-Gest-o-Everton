@@ -174,10 +174,20 @@ router.put('/:id', requireRole('admin'), async (req, res) => {
 });
 
 router.delete('/:id', requireRole('admin'), async (req, res) => {
-  // Em vez de apagar de vez, marca como inativa (mantém histórico de pedidos íntegro).
-  const result = await db.query('UPDATE products SET active = false WHERE id = $1 RETURNING id', [req.params.id]);
-  if (!result.rows.length) return res.status(404).json({ error: 'Peça não encontrada.' });
-  res.json({ ok: true });
+  try {
+    try {
+      const del = await db.query('DELETE FROM products WHERE id = $1 RETURNING id', [req.params.id]);
+      if (del.rows.length) return res.json({ ok: true, deleted: true });
+    } catch (e) {
+      // Se estiver vinculado a pedidos, desativa para preservar histórico contábil
+      const result = await db.query('UPDATE products SET active = false WHERE id = $1 RETURNING id', [req.params.id]);
+      if (result.rows.length) return res.json({ ok: true, deactivated: true });
+    }
+    res.status(404).json({ error: 'Peça não encontrada.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao excluir peça.' });
+  }
 });
 
 module.exports = router;

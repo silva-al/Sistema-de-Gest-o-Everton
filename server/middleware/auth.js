@@ -3,6 +3,7 @@
 const jwt = require('jsonwebtoken');
 
 const COOKIE_NAME = 'fp_token';
+const ADMIN_COOKIE_NAME = 'fp_admin_token';
 const SECRET = process.env.JWT_SECRET;
 
 // Sem segredo (ou com um segredo curto e adivinhável) qualquer pessoa consegue
@@ -35,18 +36,26 @@ function signToken(payload) {
 
 function setAuthCookie(res, payload) {
   const token = signToken(payload);
-  res.cookie(COOKIE_NAME, token, {
+  const cookieName = payload.role === 'admin' ? ADMIN_COOKIE_NAME : COOKIE_NAME;
+  res.cookie(cookieName, token, {
     ...COOKIE_OPTIONS,
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
+  if (payload.role === 'admin') {
+    res.cookie(COOKIE_NAME, token, {
+      ...COOKIE_OPTIONS,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+  }
 }
 
 function clearAuthCookie(res) {
   res.clearCookie(COOKIE_NAME, COOKIE_OPTIONS);
+  res.clearCookie(ADMIN_COOKIE_NAME, COOKIE_OPTIONS);
 }
 
 function readToken(req) {
-  const token = req.cookies && req.cookies[COOKIE_NAME];
+  const token = req.cookies && (req.cookies[ADMIN_COOKIE_NAME] || req.cookies[COOKIE_NAME]);
   if (!token) return null;
   try {
     return jwt.verify(token, SECRET);
@@ -57,12 +66,25 @@ function readToken(req) {
 
 function requireRole(role) {
   return (req, res, next) => {
-    const decoded = readToken(req);
-    if (!decoded || decoded.role !== role) {
+    let token = null;
+    if (role === 'admin') {
+      token = req.cookies && (req.cookies[ADMIN_COOKIE_NAME] || req.cookies[COOKIE_NAME]);
+    } else {
+      token = req.cookies && (req.cookies[COOKIE_NAME] || req.cookies[ADMIN_COOKIE_NAME]);
+    }
+    if (!token) {
       return res.status(401).json({ error: 'Não autenticado.' });
     }
-    req.user = decoded;
-    next();
+    try {
+      const decoded = jwt.verify(token, SECRET);
+      if (!decoded || (decoded.role !== role && decoded.role !== 'admin')) {
+        return res.status(401).json({ error: 'Não autenticado.' });
+      }
+      req.user = decoded;
+      next();
+    } catch {
+      return res.status(401).json({ error: 'Não autenticado.' });
+    }
   };
 }
 
@@ -71,4 +93,4 @@ function attachUser(req, _res, next) {
   next();
 }
 
-module.exports = { signToken, setAuthCookie, clearAuthCookie, readToken, requireRole, attachUser };
+module.exports = { signToken, setAuthCookie, clearAuthCookie, readToken, requireRole, attachUser, ADMIN_COOKIE_NAME, COOKIE_NAME };

@@ -46,12 +46,18 @@ function formatDate(isoStr) {
 
 // ---------- Controle de Telas (Login vs Main) ----------
 function showLogin() {
+  document.documentElement.classList.remove('has-admin-session');
+  try { localStorage.removeItem('fm_admin_session'); } catch {}
   document.getElementById('loginScreen').classList.remove('hidden');
   document.getElementById('mainScreen').classList.add('hidden');
 }
 
 function showMain(admin) {
   currentAdmin = admin;
+  document.documentElement.classList.add('has-admin-session');
+  try {
+    localStorage.setItem('fm_admin_session', JSON.stringify(admin));
+  } catch (e) {}
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('mainScreen').classList.remove('hidden');
   const nameEl = document.getElementById('adminName');
@@ -140,9 +146,36 @@ async function refreshAllData() {
   }
 }
 
-document.getElementById('refreshBtn')?.addEventListener('click', () => {
-  refreshAllData();
-});
+// Notificação toast elegante e moderna
+function showToast(msg = 'Sistema atualizado com sucesso!') {
+  const toast = document.getElementById('wmsToast');
+  const msgEl = document.getElementById('wmsToastMsg');
+  if (!toast) return;
+  if (msgEl) msgEl.textContent = msg;
+  toast.classList.add('show');
+  clearTimeout(window._toastTimeout);
+  window._toastTimeout = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2400);
+}
+
+const refreshBtn = document.getElementById('refreshBtn');
+if (refreshBtn) {
+  refreshBtn.addEventListener('click', async () => {
+    refreshBtn.classList.add('is-refreshing');
+    try {
+      await refreshAllData();
+      showToast('Sistema e dados atualizados com sucesso!');
+    } catch (err) {
+      console.error('Erro ao atualizar dados:', err);
+      showToast('Erro ao atualizar dados.');
+    } finally {
+      setTimeout(() => {
+        refreshBtn.classList.remove('is-refreshing');
+      }, 600);
+    }
+  });
+}
 
 // ---------- 1. DASHBOARD WMS ----------
 function updateDashboardMetrics() {
@@ -163,10 +196,33 @@ function updateDashboardMetrics() {
   if (todayOrdersEl) todayOrdersEl.textContent = todayOrders.length;
 
   // Receita total de pedidos válidos
-  const totalRev = allOrders
-    .filter(o => o.status !== 'cancelado')
-    .reduce((acc, o) => acc + (Number(o.total) || 0), 0);
+  const validOrders = allOrders.filter(o => o.status !== 'cancelado');
+  const totalRev = validOrders.reduce((acc, o) => acc + (Number(o.total) || 0), 0);
   if (totalRevenueEl) totalRevenueEl.textContent = money(totalRev);
+
+  // Métrica Financeira de Descontos no PIX (4% OFF)
+  const pixDiscountEl = document.getElementById('dashTotalPixDiscount');
+  const pixOrdersCountEl = document.getElementById('dashPixOrdersCount');
+  const pixImpactBadgeEl = document.getElementById('dashPixImpactBadge');
+
+  const pixOrders = validOrders.filter(o => (o.paymentMethod || '').toLowerCase() === 'pix');
+  const totalPixDiscount = pixOrders.reduce((acc, o) => {
+    const paid = Number(o.total) || 0;
+    // O valor pago corresponde a 96% do valor regular (4% de desconto no Pix)
+    const disc = (paid / 0.96) * 0.04;
+    return acc + disc;
+  }, 0);
+
+  if (pixDiscountEl) pixDiscountEl.textContent = money(totalPixDiscount);
+  if (pixOrdersCountEl) pixOrdersCountEl.textContent = `${pixOrders.length} venda(s) via PIX`;
+  if (pixImpactBadgeEl) {
+    if (totalRev > 0 && totalPixDiscount > 0) {
+      const pct = ((totalPixDiscount / (totalRev + totalPixDiscount)) * 100).toFixed(1);
+      pixImpactBadgeEl.textContent = `Impacto de ${pct}% na margem bruta (Fluxo Caixa Imediato)`;
+    } else {
+      pixImpactBadgeEl.textContent = 'Métrica de impacto na margem';
+    }
+  }
 
   renderBarChart();
   renderRecentOrders();
@@ -238,24 +294,31 @@ function renderProductsTable(products) {
     return `
       <tr>
         <td style="width:50px">
-          <img src="${photo}" alt="" style="width:40px;height:40px;border-radius:8px;object-fit:cover;background:#000;display:block"/>
+          <img src="${photo}" alt="" style="width:42px;height:42px;border-radius:8px;object-fit:cover;background:#000;display:block;border:1px solid #282b30"/>
         </td>
         <td>
           <strong style="color:#fff;display:block">${p.name}</strong>
           <small style="color:var(--text-muted);font-family:var(--font-mono)">${p.code || 'S/CÓD'}</small>
         </td>
-        <td><span class="status-badge" style="background:#1e2638;color:#94a1b2">${p.category || 'Geral'}</span></td>
+        <td><span class="status-badge" style="background:#191b1f;border:1px solid #282b30;color:#c7c9cd">${p.category || 'Geral'}</span></td>
         <td style="color:var(--accent-green);font-weight:700">${money(pixVal)}</td>
         <td style="color:var(--text-secondary)">${money(priceVal)}</td>
         <td>
-          <strong style="color:${p.stockQty > 0 ? '#fff' : '#ff5e65'}">${p.stockQty} un</strong>
+          <div style="display:flex;align-items:center;gap:4px">
+            <div class="stock-control-cell">
+              <button type="button" class="btn-stock-qty" data-stock-step="-1" data-id="${p.id}" title="Subtrair 1 un">−</button>
+              <input type="number" class="stock-num-input" value="${p.stockQty}" data-id="${p.id}" min="0" title="Altere e aperte Enter para salvar"/>
+              <button type="button" class="btn-stock-qty" data-stock-step="1" data-id="${p.id}" title="Adicionar 1 un">+</button>
+            </div>
+            <button type="button" class="btn-stock-adjust" data-open-stock="${p.id}" title="Ajuste rápido (+5, +10, +50)">⚡</button>
+          </div>
         </td>
         <td>
           ${p.inStock ? '<span class="status-badge pronto">● Em Estoque</span>' : '<span class="status-badge cancelado">○ Esgotado</span>'}
         </td>
         <td style="text-align:right;white-space:nowrap">
-          <button class="btn btn-secondary btn-sm" data-edit="${p.id}">Editar</button>
-          <button class="btn btn-sm" style="background:rgba(237,28,36,0.15);color:#ff5e65;border:1px solid rgba(237,28,36,0.3)" data-remove="${p.id}">Excluir</button>
+          <button class="btn btn-secondary btn-sm" data-edit="${p.id}" title="Editar dados da peça">Editar</button>
+          <button class="btn btn-sm" style="background:rgba(237,28,36,0.15);color:#ff5e65;border:1px solid rgba(237,28,36,0.3);margin-left:4px" data-remove="${p.id}" title="Excluir peça do catálogo">Excluir</button>
         </td>
       </tr>
     `;
@@ -263,7 +326,88 @@ function renderProductsTable(products) {
 
   tbody.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => startEdit(b.dataset.edit));
   tbody.querySelectorAll('[data-remove]').forEach(b => b.onclick = () => removeProduct(b.dataset.remove));
+  tbody.querySelectorAll('[data-open-stock]').forEach(b => b.onclick = () => openStockModal(b.dataset.openStock));
+
+  // Cliques nos botões de + / -
+  tbody.querySelectorAll('[data-stock-step]').forEach(b => {
+    b.onclick = () => {
+      const id = b.dataset.id;
+      const step = parseInt(b.dataset.stockStep, 10);
+      const prod = allProducts.find(x => String(x.id) === String(id));
+      if (!prod) return;
+      const current = Number(prod.stockQty) || 0;
+      quickUpdateStock(id, Math.max(0, current + step));
+    };
+  });
+
+  // Alteração direta no input numérico de estoque
+  tbody.querySelectorAll('.stock-num-input').forEach(inp => {
+    const saveVal = () => {
+      const id = inp.dataset.id;
+      const val = Math.max(0, parseInt(inp.value, 10) || 0);
+      quickUpdateStock(id, val);
+    };
+    inp.onchange = saveVal;
+    inp.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        inp.blur();
+      }
+    };
+  });
 }
+
+// Atualização rápida de estoque via API
+async function quickUpdateStock(id, newQty) {
+  const prod = allProducts.find(x => String(x.id) === String(id));
+  if (!prod) return;
+  const qty = Math.max(0, parseInt(newQty, 10) || 0);
+  try {
+    await api(`/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ stockQty: qty, inStock: qty > 0 })
+    });
+    prod.stockQty = qty;
+    prod.inStock = qty > 0;
+    renderProductsTable(allProducts);
+    updateDashboardMetrics();
+    showToast(`Estoque de "${prod.name}" atualizado para ${qty} un.`);
+  } catch (err) {
+    console.error('Erro ao atualizar estoque:', err);
+    showToast(err.message || 'Erro ao atualizar estoque');
+  }
+}
+
+// Modal de ajuste de estoque
+function openStockModal(id) {
+  const p = allProducts.find(item => String(item.id) === String(id));
+  if (!p) return;
+  document.getElementById('stockModalProdId').value = p.id;
+  document.getElementById('stockModalProdName').textContent = p.name;
+  document.getElementById('stockModalProdCode').textContent = `Código SKU: ${p.code || 'S/CÓD'} | Categoria: ${p.category || 'Geral'}`;
+  document.getElementById('stockModalQty').value = p.stockQty || 0;
+  document.getElementById('stockModal').classList.remove('hidden');
+}
+
+function closeStockModal() {
+  document.getElementById('stockModal').classList.add('hidden');
+}
+
+function stepStockQty(delta) {
+  const input = document.getElementById('stockModalQty');
+  if (!input) return;
+  const current = parseInt(input.value, 10) || 0;
+  input.value = Math.max(0, current + delta);
+}
+
+document.getElementById('btnStockMinus')?.addEventListener('click', () => stepStockQty(-1));
+document.getElementById('btnStockPlus')?.addEventListener('click', () => stepStockQty(1));
+
+document.getElementById('btnSaveStockModal')?.addEventListener('click', async () => {
+  const id = document.getElementById('stockModalProdId').value;
+  const qty = parseInt(document.getElementById('stockModalQty').value, 10) || 0;
+  await quickUpdateStock(id, qty);
+  closeStockModal();
+});
 
 function fillCategoryList(products) {
   const list = document.getElementById('categoryList');
@@ -298,7 +442,20 @@ function startEdit(id) {
   document.getElementById('pCategory').value = p.category || '';
   document.getElementById('pPrice').value = String(p.price || '').replace('.', ',');
   document.getElementById('pStock').value = p.stockQty || 0;
-  document.getElementById('pPhoto').value = p.photoUrl || '';
+  
+  const photoVal = p.photoUrl || '';
+  document.getElementById('pPhoto').value = photoVal;
+  const previewWrap = document.getElementById('pPhotoPreviewWrap');
+  const previewImg = document.getElementById('pPhotoPreview');
+  const previewName = document.getElementById('pPhotoPreviewName');
+  if (photoVal) {
+    if (previewImg) previewImg.src = photoVal;
+    if (previewName) previewName.textContent = photoVal.split('/').pop().split('?')[0] || 'Foto da Peça';
+    if (previewWrap) previewWrap.classList.remove('hidden');
+  } else {
+    if (previewWrap) previewWrap.classList.add('hidden');
+  }
+
   document.getElementById('pDescription').value = p.description || '';
   document.getElementById('pCompatibility').value = p.compatibility || '';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
@@ -313,6 +470,14 @@ function resetProductForm() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  
+  const fileInput = document.getElementById('pPhotoFile');
+  if (fileInput) fileInput.value = '';
+  const previewWrap = document.getElementById('pPhotoPreviewWrap');
+  if (previewWrap) previewWrap.classList.add('hidden');
+  const previewImg = document.getElementById('pPhotoPreview');
+  if (previewImg) previewImg.src = '';
+
   document.getElementById('cancelEditBtn').classList.add('hidden');
   document.getElementById('saveProductBtn').textContent = 'SALVAR PEÇA NO SISTEMA';
   document.getElementById('productFormError').classList.add('hidden');
@@ -320,6 +485,87 @@ function resetProductForm() {
 }
 
 document.getElementById('cancelEditBtn')?.addEventListener('click', resetProductForm);
+
+// Upload e Anexo de Foto do Produto (Upload de Arquivo Local)
+document.getElementById('pPhotoFile')?.addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const btnText = document.getElementById('btnAttachPhotoText');
+  const btnLabel = document.getElementById('btnAttachPhoto');
+  const originalText = btnText ? btnText.textContent : 'Anexar';
+
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('A imagem deve ter no máximo 5MB.');
+    e.target.value = '';
+    return;
+  }
+
+  try {
+    if (btnText) btnText.textContent = 'Enviando...';
+    if (btnLabel) btnLabel.classList.add('is-uploading');
+
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const res = await fetch('/api/uploads', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.error || 'Falha no envio da imagem');
+    }
+
+    const photoInput = document.getElementById('pPhoto');
+    if (photoInput) photoInput.value = data.url;
+
+    const previewWrap = document.getElementById('pPhotoPreviewWrap');
+    const previewImg = document.getElementById('pPhotoPreview');
+    const previewName = document.getElementById('pPhotoPreviewName');
+    if (previewImg) previewImg.src = data.url;
+    if (previewName) previewName.textContent = file.name;
+    if (previewWrap) previewWrap.classList.remove('hidden');
+
+    showToast('Imagem anexada com sucesso!');
+  } catch (err) {
+    console.error('Erro no upload de foto:', err);
+    showToast(err.message || 'Erro ao enviar imagem');
+  } finally {
+    if (btnText) btnText.textContent = originalText;
+    if (btnLabel) btnLabel.classList.remove('is-uploading');
+    e.target.value = '';
+  }
+});
+
+// Atualização de prévia ao colar ou digitar a URL da imagem
+document.getElementById('pPhoto')?.addEventListener('input', (e) => {
+  const val = e.target.value.trim();
+  const previewWrap = document.getElementById('pPhotoPreviewWrap');
+  const previewImg = document.getElementById('pPhotoPreview');
+  const previewName = document.getElementById('pPhotoPreviewName');
+  if (val) {
+    if (previewImg) previewImg.src = val;
+    if (previewName) previewName.textContent = val.split('/').pop().split('?')[0] || 'Imagem via Link URL';
+    if (previewWrap) previewWrap.classList.remove('hidden');
+  } else {
+    if (previewWrap) previewWrap.classList.add('hidden');
+  }
+});
+
+// Botão para remover a imagem da peça
+document.getElementById('btnRemovePhoto')?.addEventListener('click', () => {
+  const photoInput = document.getElementById('pPhoto');
+  if (photoInput) photoInput.value = '';
+  const fileInput = document.getElementById('pPhotoFile');
+  if (fileInput) fileInput.value = '';
+  const previewWrap = document.getElementById('pPhotoPreviewWrap');
+  if (previewWrap) previewWrap.classList.add('hidden');
+  const previewImg = document.getElementById('pPhotoPreview');
+  if (previewImg) previewImg.src = '';
+  showToast('Imagem removida do cadastro.');
+});
 
 document.getElementById('saveProductBtn')?.addEventListener('click', async () => {
   const errEl = document.getElementById('productFormError');
@@ -348,9 +594,11 @@ document.getElementById('saveProductBtn')?.addEventListener('click', async () =>
     if (editingProductId) {
       await api('/products/' + editingProductId, { method: 'PUT', body: JSON.stringify(payload) });
       msgEl.textContent = 'Peça atualizada com sucesso!';
+      showToast('Peça atualizada com sucesso!');
     } else {
       await api('/products', { method: 'POST', body: JSON.stringify(payload) });
       msgEl.textContent = 'Peça cadastrada com sucesso!';
+      showToast('Nova peça cadastrada com sucesso!');
     }
     msgEl.classList.remove('hidden');
     resetProductForm();
@@ -362,12 +610,15 @@ document.getElementById('saveProductBtn')?.addEventListener('click', async () =>
 });
 
 async function removeProduct(id) {
-  if (!confirm('Tem certeza que deseja remover esta peça?')) return;
+  const p = allProducts.find(item => String(item.id) === String(id));
+  const name = p ? p.name : 'esta peça';
+  if (!confirm(`Tem certeza que deseja excluir "${name}" do catálogo?\n\nEsta operação removerá o item do sistema.`)) return;
   try {
     await api('/products/' + id, { method: 'DELETE' });
+    showToast(`Peça "${name}" excluída com sucesso!`);
     await refreshAllData();
   } catch (err) {
-    alert(err.message);
+    showToast(err.message || 'Erro ao excluir peça');
   }
 }
 
@@ -394,7 +645,7 @@ function renderOrdersTable(orders) {
     return `
       <tr>
         <td>
-          <strong style="color:var(--accent-cyan)">#${o.id}</strong>
+          <strong style="color:var(--accent-red-light)">#${o.id}</strong>
         </td>
         <td>
           <strong style="color:#fff;display:block">${o.customerName || 'Cliente'}</strong>
@@ -404,7 +655,7 @@ function renderOrdersTable(orders) {
           ${itemsText}
         </td>
         <td>
-          <span class="status-badge" style="background:#192233;color:#fff">${o.paymentMethodLabel}</span>
+          <span class="status-badge" style="background:#191b1f;border:1px solid #282b30;color:#c7c9cd">${o.paymentMethodLabel}</span>
         </td>
         <td>
           <strong style="color:var(--accent-green);font-size:14px">${money(o.total)}</strong>
@@ -451,11 +702,31 @@ function renderOrdersTable(orders) {
   });
 }
 
-document.getElementById('orderStatusFilter')?.addEventListener('change', (e) => {
-  const st = e.target.value;
-  const filtered = st ? allOrders.filter(o => o.status === st) : allOrders;
-  renderOrdersTable(filtered);
-});
+function setupOrderStatusFilter() {
+  const select = document.getElementById('orderStatusFilter');
+  const pills = document.querySelectorAll('#orderStatusPills .filter-pill');
+
+  function applyFilter(status) {
+    pills.forEach(p => {
+      p.classList.toggle('active', (p.dataset.status || '') === (status || ''));
+    });
+    if (select && select.value !== (status || '')) {
+      select.value = status || '';
+    }
+    const filtered = status ? allOrders.filter(o => o.status === status) : allOrders;
+    renderOrdersTable(filtered);
+  }
+
+  pills.forEach(pill => {
+    pill.onclick = () => applyFilter(pill.dataset.status || '');
+  });
+
+  if (select) {
+    select.onchange = (e) => applyFilter(e.target.value || '');
+  }
+}
+setupOrderStatusFilter();
+
 
 // ---------- 4. EXPEDIÇÃO ----------
 function renderExpedicao() {
@@ -476,7 +747,7 @@ function renderExpedicao() {
       <div class="expedicao-card" style="background:var(--bg-dark);border:1px solid var(--panel-border);border-radius:14px;padding:18px;margin-bottom:14px">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
           <div>
-            <strong style="color:var(--accent-cyan);font-size:16px">Pacote #${o.id}</strong>
+            <strong style="color:var(--accent-red-light);font-size:16px">Pacote #${o.id}</strong>
             <div style="color:#fff;font-weight:700;margin-top:2px">${o.customerName || 'Cliente'}</div>
             <div style="font-size:12px;color:var(--text-muted)">📍 ${addressStr}</div>
           </div>
@@ -554,9 +825,9 @@ function renderFinances() {
       <tr>
         <td><strong>#${o.id}</strong></td>
         <td style="color:#fff">${o.customerName || 'Cliente'}</td>
-        <td><span class="status-badge" style="background:#192233;color:#fff">${o.paymentMethodLabel}</span></td>
+        <td><span class="status-badge" style="background:#191b1f;border:1px solid #282b30;color:#c7c9cd">${o.paymentMethodLabel}</span></td>
         <td style="font-size:12px;color:var(--text-muted)">${formatDate(o.createdAt)}</td>
-        <td style="color:${isPix ? 'var(--accent-cyan)' : 'var(--text-muted)'}">${isPix ? money(disc) : '-'}</td>
+        <td style="color:${isPix ? 'var(--accent-green)' : 'var(--text-muted)'}">${isPix ? money(disc) : '-'}</td>
         <td>${money(bruto)}</td>
         <td style="font-weight:800;color:${isCancelled ? '#ff5e65' : 'var(--accent-green)'}">${money(o.total)}</td>
         <td>
@@ -675,7 +946,7 @@ function renderFiscalTable() {
         <td>
           <strong style="color:${isIssued ? '#fff' : 'var(--text-muted)'}">${nfNumFormatted}</strong>
         </td>
-        <td style="font-family:var(--font-mono);font-size:11px;color:${isIssued ? 'var(--accent-cyan)' : 'var(--text-muted)'}">
+        <td style="font-family:var(--font-mono);font-size:11px;color:${isIssued ? 'var(--accent-red-light)' : 'var(--text-muted)'}">
           ${accessKey}
         </td>
         <td><strong style="color:#fff">Pedido #${o.id}</strong></td>
@@ -685,10 +956,13 @@ function renderFiscalTable() {
         <td>
           ${isIssued ? '<span class="status-badge nf-emitida">✓ Autorizada</span>' : '<span class="status-badge nf-pendente">⏳ Pendente</span>'}
         </td>
-        <td style="text-align:right">
+        <td style="text-align:right;white-space:nowrap">
           ${isIssued ? `
-            <button class="btn btn-primary btn-sm" onclick="openDanfeForOrder(${o.id})">
-              🖨️ IMPRIMIR DANFE
+            <button class="btn btn-primary btn-sm" onclick="openDanfeForOrder(${o.id})" title="Imprimir Documento Fiscal">
+              🖨️ DANFE
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="openEditNfModal(${o.id})" title="Editar campos da DANFE / NFe" style="margin-left:4px">
+              ✏️ Editar NF
             </button>
           ` : `
             <button class="btn btn-secondary btn-sm" onclick="manualEmitNf(${o.id})">
@@ -706,6 +980,69 @@ window.manualEmitNf = (orderId) => {
   renderFiscalTable();
   openDanfeForOrder(orderId);
 };
+
+// Modal de edição da DANFE / NFe
+window.openEditNfModal = (orderId) => {
+  const order = allOrders.find(o => String(o.id) === String(orderId));
+  if (!order) return;
+
+  markNfAsIssued(orderId);
+  const nfsMap = getIssuedNfsMap();
+  const nf = nfsMap[orderId] || {};
+
+  const addr = order.address || {};
+  const destAddressDefault = addr.street ? `${addr.street}, ${addr.number || 'S/N'} ${addr.complement || ''} - ${addr.neighborhood || 'Centro'}, ${addr.city || FISCAL_CONFIG.cidade}-${addr.state || FISCAL_CONFIG.uf} - CEP ${addr.cep || '13180-000'}` : `${FISCAL_CONFIG.logradouro} - Centro, ${FISCAL_CONFIG.cidade}-${FISCAL_CONFIG.uf}`;
+
+  document.getElementById('editNfOrderId').value = orderId;
+  document.getElementById('editNfNumber').value = nf.nfNumber || (1000 + Number(orderId));
+  document.getElementById('editNfSeries').value = nf.series || '1';
+  document.getElementById('editNfKey').value = nf.accessKey || generateNfAccessKey(orderId);
+  document.getElementById('editNfOperation').value = nf.operation || '6102 - Venda de mercadoria adquirida ou recebida de terceiros';
+  document.getElementById('editNfProtocol').value = nf.protocol || '141200000220788';
+  
+  const dateVal = nf.issuedAt ? new Date(nf.issuedAt).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16);
+  document.getElementById('editNfDate').value = dateVal;
+  
+  document.getElementById('editNfCustomerName').value = nf.customerName || order.customerName || 'Consumidor Final';
+  document.getElementById('editNfCustomerDoc').value = nf.customerDoc || order.customerCpf || '99.999.999/0001-91';
+  document.getElementById('editNfCustomerAddress').value = nf.customerAddress || destAddressDefault;
+  document.getElementById('editNfNotes').value = nf.notes || `Inf. Contribuinte: Pedido #${order.id} - Forma de Pagamento: ${order.paymentMethodLabel || 'PIX'}.\nDocumento emitido por ME ou EPP optante pelo Simples Nacional.\nPermite o aproveitamento de crédito de ICMS correspondente à alíquota de 2,5%, nos termos do art. 23 da LC 123/2006.\nNÃO GERA DIREITO A CRÉDITO FISCAL DE IPI. Destinado a consumidor final.`;
+
+  document.getElementById('editNfModal').classList.remove('hidden');
+};
+
+window.closeEditNfModal = () => {
+  document.getElementById('editNfModal').classList.add('hidden');
+};
+
+document.getElementById('btnSaveEditedNf')?.addEventListener('click', () => {
+  const orderId = document.getElementById('editNfOrderId').value;
+  if (!orderId) return;
+
+  const nfsMap = getIssuedNfsMap();
+  const dateInput = document.getElementById('editNfDate').value;
+  const isoDate = dateInput ? new Date(dateInput).toISOString() : new Date().toISOString();
+
+  nfsMap[orderId] = {
+    ...(nfsMap[orderId] || {}),
+    nfNumber: document.getElementById('editNfNumber').value.trim() || (1000 + Number(orderId)),
+    series: document.getElementById('editNfSeries').value.trim() || '1',
+    accessKey: document.getElementById('editNfKey').value.trim() || generateNfAccessKey(orderId),
+    operation: document.getElementById('editNfOperation').value.trim() || '6102 - Venda de mercadoria adquirida ou recebida de terceiros',
+    protocol: document.getElementById('editNfProtocol').value.trim() || '141200000220788',
+    issuedAt: isoDate,
+    customerName: document.getElementById('editNfCustomerName').value.trim(),
+    customerDoc: document.getElementById('editNfCustomerDoc').value.trim(),
+    customerAddress: document.getElementById('editNfCustomerAddress').value.trim(),
+    notes: document.getElementById('editNfNotes').value.trim(),
+    status: 'AUTORIZADA'
+  };
+
+  localStorage.setItem(NF_STORAGE_KEY, JSON.stringify(nfsMap));
+  closeEditNfModal();
+  renderFiscalTable();
+  showToast('Dados da DANFE / Nota Fiscal salvos com sucesso!');
+});
 
 document.getElementById('emitAllPendingNfBtn')?.addEventListener('click', () => {
   allOrders.forEach(o => {
@@ -817,7 +1154,10 @@ window.openDanfeForOrder = (orderId) => {
   const nfsMap = getIssuedNfsMap();
   const nf = nfsMap[orderId] || {
     nfNumber: 1000 + Number(orderId),
+    series: '1',
     accessKey: generateNfAccessKey(orderId),
+    operation: '6102 - Venda de mercadoria adquirida ou recebida de terceiros',
+    protocol: '141200000220788',
     issuedAt: new Date().toISOString()
   };
 
@@ -825,14 +1165,18 @@ window.openDanfeForOrder = (orderId) => {
   if (!sheet) return;
 
   const addr = order.address || {};
-  const destName = order.customerName || 'NF-E EMITIDA EM AMBIENTE DE HOMOLOGAÇÃO - SEM VALOR FISCAL';
+  const destName = nf.customerName || order.customerName || 'NF-E EMITIDA EM AMBIENTE DE HOMOLOGAÇÃO - SEM VALOR FISCAL';
   const destPhone = order.customerPhone || '(19) 99876-5432';
   const destCep = addr.cep || '13180-000';
   const destCity = addr.city || FISCAL_CONFIG.cidade;
   const destUf = addr.state || FISCAL_CONFIG.uf;
   const destBairro = addr.neighborhood || 'Centro';
-  const destRua = addr.street ? `${addr.street}, ${addr.number || 'S/N'} ${addr.complement || ''}`.trim() : 'Av. Santana, 1420';
-  const destCpfCnpj = order.customerCpf || '99.999.999/0001-91';
+  const destRua = nf.customerAddress || (addr.street ? `${addr.street}, ${addr.number || 'S/N'} ${addr.complement || ''}`.trim() : 'Av. Santana, 1420');
+  const destCpfCnpj = nf.customerDoc || order.customerCpf || '99.999.999/0001-91';
+  const naturezaOperacao = nf.operation || '6102 - Venda de mercadoria adquirida ou recebida de terceiros';
+  const protocolo = nf.protocol || `141200000220788`;
+  const serieNf = nf.series || '001';
+  const infoComplementar = nf.notes || `Inf. Contribuinte: Pedido #${order.id} - Forma de Pagamento: ${order.paymentMethodLabel || 'PIX'}.<br/>Documento emitido por ME ou EPP optante pelo Simples Nacional.<br/>Permite o aproveitamento de crédito de ICMS correspondente à alíquota de 2,5%, nos termos do art. 23 da LC 123/2006.<br/>NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI. Destinado a consumidor final.`;
 
   const items = order.items || [];
   const totalProdutos = items.reduce((acc, i) => acc + ((Number(i.unitPrice) || 0) * (Number(i.quantity) || 1)), 0);
@@ -843,7 +1187,6 @@ window.openDanfeForOrder = (orderId) => {
   const emissaoHora = formatDate(nf.issuedAt).slice(11);
   const nfNumFull = `000.${String(nf.nfNumber).padStart(6, '0')}`;
   const rawKey = nf.accessKey.replace(/\s+/g, '');
-  const protocolo = `141200000220788`;
   const totalQtd = items.reduce((a, i) => a + (Number(i.quantity) || 1), 0);
 
   sheet.innerHTML = `
@@ -865,7 +1208,7 @@ window.openDanfeForOrder = (orderId) => {
       <div class="nf-canhoto-right">
         <div class="nf-canhoto-nfe">NF-e</div>
         <div class="nf-canhoto-num">Nº. ${nfNumFull}</div>
-        <div class="nf-canhoto-serie">Série 001</div>
+        <div class="nf-canhoto-serie">Série ${serieNf}</div>
       </div>
     </div>
     <div class="nf-cut-line"></div>
@@ -889,7 +1232,7 @@ window.openDanfeForOrder = (orderId) => {
           <div class="nf-tp-emis-digit">1</div>
         </div>
         <div class="nf-danfe-num">Nº. ${nfNumFull}</div>
-        <div class="nf-danfe-sub">Série 001</div>
+        <div class="nf-danfe-sub">Série ${serieNf}</div>
         <div class="nf-danfe-sub">Folha 1/1</div>
       </div>
       <div class="nf-header-barcode">
@@ -909,7 +1252,7 @@ window.openDanfeForOrder = (orderId) => {
     <div class="nf-row" style="border-top:0">
       <div class="nf-cell" style="flex:2.2">
         <span class="nf-label">NATUREZA DA OPERAÇÃO</span>
-        <strong>6102 - Venda de mercadoria adquirida ou recebida de terceiros</strong>
+        <strong>${naturezaOperacao}</strong>
       </div>
       <div class="nf-cell" style="flex:1.8;border-left:1px solid #000">
         <span class="nf-label">PROTOCOLO DE AUTORIZAÇÃO DE USO</span>
@@ -1100,10 +1443,7 @@ window.openDanfeForOrder = (orderId) => {
       <div class="nf-cell" style="flex:2.6">
         <span class="nf-label">INFORMAÇÕES COMPLEMENTARES</span>
         <div style="font-size:6.2px;line-height:1.2;margin-top:1px">
-          Inf. Contribuinte: Pedido #${order.id} - Forma de Pagamento: ${order.paymentMethodLabel || 'PIX'}.<br/>
-          Documento emitido por ME ou EPP optante pelo Simples Nacional.<br/>
-          Permite o aproveitamento de crédito de ICMS correspondente à alíquota de 2,5%, nos termos do art. 23 da LC 123/2006.<br/>
-          NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI. Destinado a consumidor final.
+          ${infoComplementar.includes('<br') ? infoComplementar : infoComplementar.replace(/\n/g, '<br/>')}
         </div>
       </div>
       <div class="nf-cell" style="flex:1;border-left:1px solid #000">
