@@ -445,7 +445,6 @@ body {
 
 .tab-pane {
   display: none;
-  animation: fadeIn 0.25s ease-out;
 }
 
 .tab-pane.active {

@@ -1125,12 +1125,24 @@ function renderFiscalTable() {
 
   // Garante que pedidos ativos tenham NF se auto estiver ativado
   if (autoActive) {
+    let hasChanges = false;
     allOrders.forEach(o => {
-      if (o.status !== 'cancelado' && !nfsMap[o.id]) markNfAsIssued(o.id);
+      if (o.status !== 'cancelado' && !nfsMap[o.id]) {
+        nfsMap[o.id] = {
+          nfNumber: 1000 + Number(o.id),
+          accessKey: generateNfAccessKey(o.id),
+          issuedAt: new Date().toISOString(),
+          status: 'AUTORIZADA'
+        };
+        hasChanges = true;
+      }
     });
+    if (hasChanges) {
+      localStorage.setItem(NF_STORAGE_KEY, JSON.stringify(nfsMap));
+    }
   }
 
-  const updatedMap = getIssuedNfsMap();
+  const updatedMap = nfsMap; // Usa o map já atualizado em memória
 
   if (!allOrders.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:25px;color:var(--text-muted)">Nenhuma nota fiscal emitida ainda.</td></tr>';
