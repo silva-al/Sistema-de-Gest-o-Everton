@@ -1940,3 +1940,132 @@ async function init() {
   setTimeout(hideSplashScreen, 200);
 }
 init();
+
+// ================== REDESIGN HOME: cabeçalho, localizador de veículo, categorias e barra inferior mobile ==================
+(function () {
+  // Categorias — botão do cabeçalho (desktop)
+  const catBtn = document.getElementById('headerCatBtn');
+  const catMenu = document.getElementById('headerCatMenu');
+  if (catBtn && catMenu) {
+    catBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const open = catMenu.classList.toggle('open');
+      catBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    document.addEventListener('click', (e) => {
+      if (!catMenu.contains(e.target) && e.target !== catBtn) {
+        catMenu.classList.remove('open');
+        catBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    catMenu.querySelectorAll('.clean-chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        catMenu.classList.remove('open');
+        catBtn.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  // Busca do cabeçalho (desktop e mobile) — reaproveita a busca do catálogo
+  function runHeaderSearch(inputEl) {
+    const q = inputEl?.value?.trim() || '';
+    show('pecas');
+    const catInput = document.getElementById('catalogSearch');
+    if (catInput) {
+      catInput.value = q;
+      if (typeof loadCatalog === 'function') loadCatalog();
+    }
+  }
+  const hSearchIn = document.getElementById('headerSearchInput');
+  const hSearchBtn = document.getElementById('headerSearchBtn');
+  const hSearchInM = document.getElementById('headerSearchInputMobile');
+  const hSearchBtnM = document.getElementById('headerSearchBtnMobile');
+  hSearchBtn?.addEventListener('click', () => runHeaderSearch(hSearchIn));
+  hSearchIn?.addEventListener('keydown', (e) => { if (e.key === 'Enter') runHeaderSearch(hSearchIn); });
+  hSearchBtnM?.addEventListener('click', () => runHeaderSearch(hSearchInM));
+  hSearchInM?.addEventListener('keydown', (e) => { if (e.key === 'Enter') runHeaderSearch(hSearchInM); });
+
+  // Grade de categorias na home
+  document.querySelectorAll('.cat-grid-item[data-cat]').forEach((item) => {
+    item.addEventListener('click', () => {
+      if (typeof goToCategory === 'function') goToCategory(item.dataset.cat || '');
+    });
+  });
+
+  // Quantidade real de peças por categoria (busca no banco de dados, sem número inventado)
+  (async function loadCategoryCounts() {
+    const els = [...document.querySelectorAll('.cat-grid-count[data-count-for]')];
+    if (!els.length) return;
+    try {
+      const res = await fetch('/api/products/categories');
+      const data = await res.json();
+      const counts = {};
+      (data.categories || []).forEach((c) => { counts[c.name] = c.count; });
+      els.forEach((el) => {
+        const cat = el.dataset.countFor;
+        const n = counts[cat] || 0;
+        el.textContent = n === 1 ? '1 item' : `${n} itens`;
+      });
+    } catch (e) {
+      els.forEach((el) => { el.textContent = ''; });
+    }
+  })();
+
+  // Localizador de veículo — ainda não há dados de veículo/compatibilidade no catálogo,
+  // então por enquanto ele leva o cliente para o catálogo já com os termos escolhidos na busca.
+  const vfBtn = document.getElementById('vfBuscarBtn');
+  vfBtn?.addEventListener('click', () => {
+    const vals = ['vfMontadora', 'vfModelo', 'vfAno', 'vfMotor']
+      .map((id) => document.getElementById(id)?.value)
+      .filter(Boolean);
+    show('pecas');
+    const catInput = document.getElementById('catalogSearch');
+    if (catInput) {
+      catInput.value = vals.join(' ');
+      if (typeof loadCatalog === 'function') loadCatalog();
+    }
+  });
+
+  // Barra de navegação inferior (somente mobile)
+  const tabbar = document.getElementById('mobileTabbar');
+  if (tabbar) {
+    const tabButtons = [...tabbar.querySelectorAll('button')];
+    function setActiveTab(id) {
+      tabButtons.forEach((b) => b.classList.toggle('active', b.dataset.tab === id));
+    }
+    tabbar.querySelector('[data-tab="inicio"]')?.addEventListener('click', () => { show('inicio'); setActiveTab('inicio'); });
+    tabbar.querySelector('[data-tab="categorias"]')?.addEventListener('click', () => {
+      show('inicio');
+      setActiveTab('categorias');
+      setTimeout(() => document.querySelector('.cat-grid-wrap')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+    });
+    tabbar.querySelector('[data-tab="buscar"]')?.addEventListener('click', () => {
+      show('inicio');
+      setActiveTab('buscar');
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('headerSearchInputMobile')?.focus();
+      }, 80);
+    });
+    tabbar.querySelector('[data-tab="perfil"]')?.addEventListener('click', () => { show('perfil'); setActiveTab('perfil'); });
+    tabbar.querySelector('[data-tab="carrinho"]')?.addEventListener('click', () => { show('carrinho'); setActiveTab('carrinho'); });
+
+    // Mantém a aba ativa sincronizada quando a tela muda por outro caminho (voltar do navegador, links internos etc.)
+    if (typeof screens !== 'undefined') {
+      const tabbarObserver = new MutationObserver(() => {
+        const activeScreen = document.querySelector('.screen.active')?.id;
+        if (activeScreen && tabButtons.some((b) => b.dataset.tab === activeScreen)) setActiveTab(activeScreen);
+      });
+      screens.forEach((s) => tabbarObserver.observe(s, { attributes: true, attributeFilter: ['class'] }));
+    }
+
+    // Espelha o número do carrinho na barra inferior
+    const badgeSrc = document.getElementById('cartBadge');
+    const badgeDst = document.getElementById('mtbCartBadge');
+    if (badgeSrc && badgeDst) {
+      const syncBadge = () => { badgeDst.textContent = badgeSrc.textContent; };
+      syncBadge();
+      new MutationObserver(syncBadge).observe(badgeSrc, { childList: true, characterData: true, subtree: true });
+    }
+  }
+})();
