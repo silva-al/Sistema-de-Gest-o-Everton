@@ -687,17 +687,19 @@ select option {
   display: inline-flex !important;
   align-items: center !important;
   justify-content: center !important;
-  padding: 8px 12px !important;
+  padding: 8px 10px !important;
   margin-left: 8px;
-  background: rgba(237, 28, 36, 0.08) !important;
-  border: 1px solid rgba(237, 28, 36, 0.35) !important;
-  border-radius: 999px !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   cursor: pointer !important;
-  transition: all .2s ease !important;
+  transition: opacity .2s ease, transform .15s ease !important;
 }
 .nav-cart-btn:hover {
-  background: rgba(237, 28, 36, 0.2) !important;
-  border-color: #ed1c24 !important;
+  background: transparent !important;
+  border: none !important;
+  opacity: 0.85;
+  transform: scale(1.06);
 }
 .cart-icon-wrap {
   position: relative !important;
@@ -1669,11 +1671,10 @@ html, body {
     justify-content: center !important;
     padding: 6px 8px !important;
     margin-left: 3px !important;
-    background: rgba(237, 28, 36, 0.12) !important;
-    border: 1px solid rgba(237, 28, 36, 0.4) !important;
-    border-radius: 999px !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
     cursor: pointer !important;
-    border-left: 1px solid rgba(237, 28, 36, 0.4) !important;
     flex-shrink: 0 !important;
   }
   .cart-icon-wrap {
