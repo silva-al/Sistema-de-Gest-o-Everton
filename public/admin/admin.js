@@ -178,6 +178,33 @@ document.querySelectorAll('.sidebar-nav .nav-item').forEach(btn => {
 // ---------- Carregamento Global de Dados ----------
 async function refreshAllData() {
   const currentY = window.pageYOffset || document.documentElement.scrollTop || 0;
+  
+  // 1. Renderização Otimista: carrega instantaneamente do cache local para não haver tela vazia no F5
+  try {
+    const cachedProducts = localStorage.getItem('fm_cache_products');
+    const cachedOrders = localStorage.getItem('fm_cache_orders');
+    if (cachedProducts) {
+      allProducts = JSON.parse(cachedProducts);
+      renderProductsTable(allProducts);
+      fillCategoryList(allProducts);
+    }
+    if (cachedOrders) {
+      allOrders = JSON.parse(cachedOrders);
+      renderOrdersTable(allOrders);
+      const badge = document.getElementById('ordersCountBadge');
+      if (badge) badge.textContent = allOrders.filter(o => o.status !== 'cancelado').length;
+      const nfBadge = document.getElementById('nfCountBadge');
+      if (nfBadge) nfBadge.textContent = allOrders.length;
+    }
+    if (cachedProducts || cachedOrders) {
+      updateDashboardMetrics();
+      renderFinances();
+      renderFiscalTable();
+      renderExpedicao();
+    }
+  } catch (e) {}
+
+  // 2. Fetch em background para garantir os dados mais recentes do servidor
   try {
     const [productsRes, ordersRes] = await Promise.allSettled([
       api('/products?in_stock='),
@@ -186,16 +213,16 @@ async function refreshAllData() {
 
     if (productsRes.status === 'fulfilled' && productsRes.value) {
       allProducts = productsRes.value.products || [];
+      localStorage.setItem('fm_cache_products', JSON.stringify(allProducts));
       renderProductsTable(allProducts);
       fillCategoryList(allProducts);
     }
     if (ordersRes.status === 'fulfilled' && ordersRes.value) {
       allOrders = ordersRes.value.orders || [];
+      localStorage.setItem('fm_cache_orders', JSON.stringify(allOrders));
       renderOrdersTable(allOrders);
-      // Atualiza badges
       const badge = document.getElementById('ordersCountBadge');
       if (badge) badge.textContent = allOrders.filter(o => o.status !== 'cancelado').length;
-      
       const nfBadge = document.getElementById('nfCountBadge');
       if (nfBadge) nfBadge.textContent = allOrders.length;
     }
