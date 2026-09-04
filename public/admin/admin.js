@@ -876,17 +876,18 @@ window.closeDanfeModal = () => {
 
 // ---------- INICIALIZAÇÃO DO ADMIN ----------
 document.getElementById('adminLoginBtn')?.addEventListener('click', async () => {
-  const email = document.getElementById('adminEmail').value.trim().toLowerCase();
-  const password = document.getElementById('adminPassword').value;
+  const loginInput = document.getElementById('adminLogin') || document.getElementById('adminEmail');
+  const login = (loginInput?.value || '').trim().toLowerCase();
+  const password = (document.getElementById('adminPassword')?.value || '').trim();
   const errEl = document.getElementById('loginError');
   errEl.classList.add('hidden');
-  if (!email || !password) {
-    errEl.textContent = 'Informe seu e-mail e senha de administrador.';
+  if (!login || !password) {
+    errEl.textContent = 'Informe usuário e senha.';
     errEl.classList.remove('hidden');
     return;
   }
   try {
-    const { admin } = await api('/admin/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+    const { admin } = await api('/admin/auth/login', { method: 'POST', body: JSON.stringify({ login, password }) });
     showMain(admin);
   } catch (err) {
     errEl.textContent = err.message;

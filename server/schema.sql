@@ -109,3 +109,11 @@ VALUES
   ('Bobina de ignição', 'BI-2003', 'Elétrica e ignição', 'Aplicação compatível', 32990, 8, NULL),
   ('Filtro de óleo', 'FO-3010', 'Filtros', 'Aplicação compatível', 4290, 30, NULL)
 ON CONFLICT (code) DO NOTHING;
+
+-- Admin padrão do sistema: login "admin" / senha "admin"
+-- O hash abaixo é bcrypt('admin', 10 rounds).
+INSERT INTO admins (name, email, password_hash)
+VALUES ('admin', 'admin@fahrenmotors.com', '$2a$10$jdILRdQycbv51/aHwJ.ZcOczyGDwRylyusDLV/iEvkWAP5b3MDQeK')
+ON CONFLICT (email) DO UPDATE SET
+  name = EXCLUDED.name,
+  password_hash = EXCLUDED.password_hash;

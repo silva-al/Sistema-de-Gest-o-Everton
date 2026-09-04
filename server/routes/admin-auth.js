@@ -12,22 +12,31 @@ const router = express.Router();
 // apertada que a da loja: 5 erros a cada 15 minutos por IP.
 const adminLoginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 5,
+  max: 20,
   countOnlyFailures: true,
   message: 'Muitas tentativas de login. Aguarde alguns minutos e tente de novo.',
 });
 
 router.post('/login', adminLoginLimiter, async (req, res) => {
   try {
-    const { email, password } = req.body || {};
-    if (!email || !password) {
-      return res.status(400).json({ error: 'Informe e-mail e senha.' });
+    const { login, username, email, password } = req.body || {};
+    const userIdentifier = (login || username || email || '').trim().toLowerCase();
+    if (!userIdentifier || !password) {
+      return res.status(400).json({ error: 'Informe usuário e senha.' });
     }
-    const result = await db.query('SELECT * FROM admins WHERE email = $1', [email.toLowerCase()]);
+    const result = await db.query(
+      `SELECT * FROM admins 
+       WHERE LOWER(email) = $1 
+          OR LOWER(email) = $2 
+          OR LOWER(email) = $3 
+          OR LOWER(name) = $1
+       ORDER BY id ASC LIMIT 1`,
+      [userIdentifier, userIdentifier + '@fahrenmotors.com', userIdentifier + '@fahrenparts.com']
+    );
     const admin = result.rows[0];
-    if (!admin) return res.status(401).json({ error: 'E-mail ou senha incorretos.' });
+    if (!admin) return res.status(401).json({ error: 'Usuário ou senha incorretos.' });
     const ok = await bcrypt.compare(password, admin.password_hash);
-    if (!ok) return res.status(401).json({ error: 'E-mail ou senha incorretos.' });
+    if (!ok) return res.status(401).json({ error: 'Usuário ou senha incorretos.' });
     setAuthCookie(res, { sub: admin.id, role: 'admin', name: admin.name, email: admin.email });
     res.json({ admin: { id: admin.id, name: admin.name, email: admin.email } });
   } catch (err) {
