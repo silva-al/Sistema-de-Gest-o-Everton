@@ -153,3 +153,39 @@ Com o token de um provedor (WDAPI2, APIBrasil ou compatível) ela passa a trazer
 - **Webhook do Mercado Pago sem conferência de assinatura** — hoje é seguro porque o código
   reconsulta o pagamento na API do MP antes de aprovar, mas vale assinar quando for para
   produção com volume.
+
+## Publicar no Netlify
+
+No Netlify a loja e o painel são entregues pelo CDN (abrem na hora, sem a espera
+do plano grátis do Render), e tudo que começa com `/api/` é atendido por uma
+função serverless que roda este mesmo Express. A configuração está no
+`netlify.toml`; o ponto de entrada é `netlify/functions/api.js`.
+
+1. No Supabase, crie o bucket de fotos: **Storage → New bucket**, nome `produtos`,
+   marcado como **Public**. Sem isso o upload de foto de peça não funciona no
+   Netlify (lá não existe disco).
+2. No Netlify: **Add new site → Import from Git**, aponte para este repositório.
+   O build e a pasta publicada já vêm do `netlify.toml` — não precisa preencher.
+3. Em **Site settings → Environment variables**, cadastre:
+   - `DATABASE_URL` — a connection string do Supabase
+   - `JWT_SECRET` — texto aleatório com 32+ caracteres
+   - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` — para as fotos
+   - `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_PUBLIC_KEY` — se for cobrar de verdade
+   - **Não** defina `NODE_ENV=production` sem HTTPS; no domínio do Netlify há HTTPS,
+     então pode definir.
+4. Domínio próprio: **Domain management → Add a domain**. O HTTPS é automático.
+
+### Diferenças em relação a rodar como servidor
+
+- **O `schema.sql` não roda sozinho.** Fora do Netlify ele é aplicado quando o
+  servidor liga; lá não existe "ligar". Mudanças de estrutura do banco passam a
+  ser aplicadas à mão, no **SQL Editor** do Supabase, colando o `server/schema.sql`.
+- **O limite de tentativas de login perde força.** O contador vive na memória do
+  processo, e cada requisição pode cair num processo diferente. Continua barrando
+  rajadas, mas não é a mesma proteção de um servidor único.
+- **Cada requisição tem um teto de tempo** (na casa dos 10 segundos). Suficiente
+  para a loja; relatório pesado no painel pode estourar.
+- **As fotos vão para o Supabase Storage**, não para `public/uploads`.
+
+Para rodar na sua máquina nada muda: `npm start` continua subindo o servidor
+completo em `http://localhost:3000`, servindo os arquivos e aplicando o schema.

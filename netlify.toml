@@ -1,0 +1,44 @@
+# Configuração do Netlify para a loja Fahren Motors.
+#
+# Resumo: os arquivos da loja e do painel são entregues pelo CDN (rápido, sem
+# espera), e tudo que começa com /api/ é atendido por uma função serverless que
+# roda o mesmo Express de sempre.
+
+[build]
+  command = "npm run build:netlify"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # O CDN entrega os arquivos estáticos; o Express não deve tentar servi-los.
+  SERVE_STATIC = "false"
+
+# Toda chamada de API vai para a função. O status 200 faz o Netlify entregar a
+# resposta da função sem redirecionar o navegador (a URL continua /api/...).
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api/:splat"
+  status = 200
+  force = true
+
+# O painel é uma página só; qualquer caminho abaixo de /admin abre o index dele.
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
+
+# O painel muda com frequência e não pode ficar preso em cache antigo.
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Cache-Control = "no-store, no-cache, must-revalidate"
+
+# Mesmos cabeçalhos de segurança que o Express aplica na API, agora também nas
+# páginas entregues pelo CDN.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "strict-origin-when-cross-origin"

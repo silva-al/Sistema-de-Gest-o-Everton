@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server/server.js",
     "dev": "node server/server.js",
-    "db:init": "node server/init-db.js"
+    "db:init": "node server/init-db.js",
+    "build:netlify": "node scripts/build-netlify.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -18,6 +19,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.3.0",
     "pg": "^8.11.5",
-    "qrcode": "^1.5.4"
+    "qrcode": "^1.5.4",
+    "serverless-http": "^3.2.0"
   }
 }
