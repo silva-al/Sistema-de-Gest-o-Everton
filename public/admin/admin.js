@@ -1141,7 +1141,7 @@ function renderFiscalTable() {
           </td>
           <td style="text-align:right;white-space:nowrap;vertical-align:middle">
             ${isIssued ? `
-              <div style="display:inline-flex;flex-direction:column;gap:5px;width:105px">
+              <div style="display:inline-flex;flex-direction:column;gap:5px;width:125px">
                 <button class="btn btn-primary btn-sm" onclick="openDanfeForOrder(${o.id})" title="Imprimir Documento Fiscal" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:700">
                   🖨️ DANFE
                 </button>
@@ -1152,8 +1152,8 @@ function renderFiscalTable() {
                   📝 CC-e
                 </button>
                 ${hasCce ? `
-                  <button class="btn btn-secondary btn-sm" onclick="openDacceForOrder(${o.id})" title="Visualizar / Imprimir DACCE da Carta de Correção" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:600;border-color:rgba(57,201,121,0.4);color:var(--accent-green)">
-                    🖨️ DACCE
+                  <button class="btn btn-secondary btn-sm" onclick="openDacceForOrder(${o.id})" title="Visualizar e Imprimir a Carta de Correção" style="justify-content:center;padding:4px 6px;font-size:10.5px;font-weight:700;border-color:rgba(57,201,121,0.4);color:var(--accent-green)">
+                    🖨️ Imprimir Correção
                   </button>
                 ` : ''}
               </div>
