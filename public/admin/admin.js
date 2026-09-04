@@ -1148,8 +1148,9 @@ function renderFiscalTable() {
                 <button class="btn btn-secondary btn-sm" onclick="openEditNfModal(${o.id})" title="Editar campos da DANFE / NFe" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:600">
                   ✏️ Editar NF
                 </button>
-                <button class="btn btn-secondary btn-sm" onclick="openCceModal(${o.id})" title="Carta de Correção Eletrônica (CC-e)" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:600;border-color:rgba(255,183,77,0.4);color:#ffb74d">
-                  📝 CC-e
+                <button class="btn btn-secondary btn-sm" onclick="openCceModal(${o.id})" title="${hasCce ? 'Editar Carta de Correção (CC-e)' : 'Emitir Carta de Correção (CC-e)'}" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:600;border-color:rgba(255,183,77,0.4);color:#ffb74d;display:flex;align-items:center;gap:4px">
+                  <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                  <span>${hasCce ? 'Editar CC-e' : 'CC-e'}</span>
                 </button>
                 ${hasCce ? `
                   <button class="btn btn-secondary btn-sm" onclick="openDacceForOrder(${o.id})" title="Visualizar e Imprimir a Carta de Correção" style="justify-content:center;padding:4px 6px;font-size:10.5px;font-weight:700;border-color:rgba(57,201,121,0.4);color:var(--accent-green)">
