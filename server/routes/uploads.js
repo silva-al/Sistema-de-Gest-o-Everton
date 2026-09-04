@@ -10,6 +10,12 @@
 //    configurado. Serve para testar na sua máquina. NÃO use em produção:
 //    tanto no Render quanto no Netlify o disco é temporário e as fotos somem
 //    no próximo deploy.
+//
+// IMPORTANTE: nada aqui pode tocar no disco enquanto o arquivo é carregado.
+// Em ambiente serverless o sistema de arquivos é somente leitura, e um erro
+// nesse momento derruba a função inteira — não só o upload, mas TODAS as rotas
+// da API. Por isso a pasta só é criada na hora em que alguém envia uma foto, e
+// dentro de try/catch.
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
@@ -44,19 +50,13 @@ const fileFilter = (_req, file, cb) => {
   }
 };
 
-// No Supabase o arquivo passa pela memória; no disco, vai direto para a pasta.
-let upload;
-if (usarSupabase) {
-  upload = multer({ storage: multer.memoryStorage(), fileFilter, limits: { fileSize: TAMANHO_MAXIMO } });
-} else {
-  const uploadDir = path.join(__dirname, '..', '..', 'public', 'uploads', 'products');
-  if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
-  const storage = multer.diskStorage({
-    destination: (_req, _file, cb) => cb(null, uploadDir),
-    filename: (_req, file, cb) => cb(null, nomeDeArquivo(file.originalname)),
-  });
-  upload = multer({ storage, fileFilter, limits: { fileSize: TAMANHO_MAXIMO } });
-}
+// O arquivo sempre passa pela memória. Só depois decidimos onde gravar — assim
+// o multer nunca precisa de uma pasta existindo no carregamento do módulo.
+const upload = multer({
+  storage: multer.memoryStorage(),
+  fileFilter,
+  limits: { fileSize: TAMANHO_MAXIMO },
+});
 
 async function enviarParaSupabase(file) {
   const nome = nomeDeArquivo(file.originalname);
@@ -80,10 +80,23 @@ async function enviarParaSupabase(file) {
     );
   }
 
-  return {
-    url: `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${nome}`,
-    filename: nome,
-  };
+  return `${SUPABASE_URL}/storage/v1/object/public/${SUPABASE_BUCKET}/${nome}`;
+}
+
+function gravarNoDisco(file) {
+  const pasta = path.join(__dirname, '..', '..', 'public', 'uploads', 'products');
+  const nome = nomeDeArquivo(file.originalname);
+  try {
+    fs.mkdirSync(pasta, { recursive: true });
+    fs.writeFileSync(path.join(pasta, nome), file.buffer);
+  } catch (erro) {
+    // Acontece em hospedagem serverless (disco somente leitura).
+    throw new Error(
+      'Não foi possível salvar a imagem: este servidor não tem disco para gravar. ' +
+        'Configure SUPABASE_URL e SUPABASE_SERVICE_KEY para guardar as fotos no Supabase Storage.'
+    );
+  }
+  return `/uploads/products/${nome}`;
 }
 
 router.post('/', requireRole('admin'), (req, res) => {
@@ -98,15 +111,12 @@ router.post('/', requireRole('admin'), (req, res) => {
     if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
 
     try {
-      if (usarSupabase) {
-        const { url, filename } = await enviarParaSupabase(req.file);
-        return res.json({ url, filename, size: req.file.size, storage: 'supabase' });
-      }
+      const url = usarSupabase ? await enviarParaSupabase(req.file) : gravarNoDisco(req.file);
       return res.json({
-        url: `/uploads/products/${req.file.filename}`,
-        filename: req.file.filename,
+        url,
+        filename: path.basename(url),
         size: req.file.size,
-        storage: 'disco-local',
+        storage: usarSupabase ? 'supabase' : 'disco-local',
       });
     } catch (erro) {
       console.error('[Uploads]', erro.message);
