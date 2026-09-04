@@ -57,7 +57,7 @@ main nav, main .nav, main .bottom-nav, main .legacy-nav, main .duplicate-nav { d
 
 .nav button{font-size:17px;padding:0 16px}.nav{flex-wrap:nowrap}
 #welcome .products{grid-template-columns:repeat(3,1fr)}
-@media(max-width:760px){.nav button{font-size:15px;padding:0 9px}.header-inner{overflow-x:auto}.nav{min-width:max-content}.hero{padding:45px 24px 35px}.hero h1{font-size:30px}#welcome .products{grid-template-columns:1fr}}
+@media(max-width:760px){.nav button{font-size:13px;padding:0 7px}.header-inner{overflow:visible;overflow-x:hidden}.nav{min-width:auto}.hero{padding:30px 16px 25px}.hero h1{font-size:26px}#welcome .products{grid-template-columns:1fr}}
 
 
 /* ===== STYLE BLOCK ===== */
@@ -1600,19 +1600,35 @@ html, body {
 }
 
 @media (max-width: 768px) {
+  /* Previne rolagem horizontal acidental no viewport */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+  .app {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
   /* Header compacto e perfeitamente ajustado para mobile */
   .header {
-    height: 58px !important;
+    height: 56px !important;
     position: sticky !important;
     top: 0 !important;
     z-index: 100 !important;
-    border-bottom: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: #08090b !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
   }
   .header-inner {
-    height: 58px !important;
-    padding: 0 10px !important;
-    gap: 6px !important;
+    height: 56px !important;
+    padding: 0 12px !important;
+    gap: 8px !important;
     justify-content: space-between !important;
+    overflow: visible !important;
+    box-sizing: border-box !important;
   }
 
   .back-btn {
@@ -1630,37 +1646,49 @@ html, body {
   }
 
   .logo {
-    font-size: 18px !important;
-    letter-spacing: -0.8px !important;
-    line-height: 0.85 !important;
+    font-size: 19px !important;
+    letter-spacing: -0.5px !important;
+    line-height: 1 !important;
+    color: #ed1c24 !important;
     flex-shrink: 0 !important;
     margin: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
   }
   .logo span {
     font-size: 7.5px !important;
-    letter-spacing: 2.2px !important;
-    margin-top: 2px !important;
+    letter-spacing: 2px !important;
+    color: #fff !important;
+    margin-top: 1px !important;
+    display: block !important;
+    line-height: 1 !important;
+    font-style: normal !important;
   }
 
   .nav {
     display: flex !important;
     align-items: center !important;
-    gap: 2px !important;
+    gap: 4px !important;
     margin-left: auto !important;
     height: 100% !important;
+    flex-shrink: 0 !important;
   }
   .nav button {
-    padding: 0 7px !important;
-    font-size: 11.5px !important;
+    padding: 5px 8px !important;
+    font-size: 12px !important;
     font-weight: 700 !important;
-    height: 100% !important;
     border: none !important;
-    border-left: none !important;
+    border-radius: 6px !important;
+    color: #c2c6cf !important;
     white-space: nowrap !important;
+    transition: all 0.15s ease !important;
+    background: transparent !important;
   }
   .nav button.active {
-    color: #ed1c24 !important;
-    box-shadow: inset 0 -2.5px #ed1c24 !important;
+    color: #ffffff !important;
+    background: rgba(237, 28, 36, 0.18) !important;
+    box-shadow: none !important;
   }
 
   /* Carrinho com quantidade DENTRO / SOBRE o carrinho e não fora */

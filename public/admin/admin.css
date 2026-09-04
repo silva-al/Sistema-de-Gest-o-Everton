@@ -1106,6 +1106,34 @@ input:checked + .slider:before {
   background: #0c0e12;
   border-bottom: 1px solid var(--panel-border);
   flex-shrink: 0;
+  gap: 12px;
+}
+
+.modal-danfe-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.danfe-scroll-viewport {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 12px;
+  box-sizing: border-box;
+  background: #0c0e12;
+}
+
+.danfe-mobile-tip {
+  display: none;
+  background: rgba(237, 28, 36, 0.12);
+  border-bottom: 1px solid rgba(237, 28, 36, 0.25);
+  color: #ff9498;
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 8px 14px;
+  text-align: center;
 }
 
 /* FEEDBACK VISUAL PARA BOTÃO DE ATUALIZAÇÃO E SESSÃO */
@@ -1672,36 +1700,313 @@ html.has-admin-session #mainScreen {
 }
 
 @media (max-width: 768px) {
+  /* Prevenção de rolagem horizontal indevida na janela */
+  html, body {
+    overflow-x: hidden !important;
+    width: 100% !important;
+    max-width: 100vw !important;
+  }
+  
   .wms-layout {
-    flex-direction: column;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
   }
+  
+  .wms-main {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+  }
+
+  /* SIDEBAR E NAVEGAÇÃO SUPERIOR NO MOBILE */
   .wms-sidebar {
-    width: 100%;
-    height: auto;
-    position: static;
+    width: 100% !important;
+    height: auto !important;
+    position: static !important;
+    background: #090a0c !important;
+    border-right: none !important;
+    border-bottom: 1px solid var(--panel-border) !important;
   }
+  
+  .sidebar-brand {
+    padding: 10px 14px !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  }
+  
   .sidebar-nav {
-    flex-direction: row;
-    overflow-x: auto;
-    padding: 10px;
+    display: flex !important;
+    flex-direction: row !important;
+    overflow-x: auto !important;
+    padding: 8px 10px !important;
+    gap: 6px !important;
+    scrollbar-width: none !important;
+    -webkit-overflow-scrolling: touch !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
+  
+  .sidebar-nav::-webkit-scrollbar {
+    display: none !important;
+  }
+  
   .nav-section-label {
-    display: none;
+    display: none !important;
   }
-  .stats-grid {
-    grid-template-columns: 1fr;
+  
+  .nav-item {
+    flex-shrink: 0 !important;
+    padding: 7px 11px !important;
+    font-size: 12px !important;
+    border-radius: 8px !important;
+    width: auto !important;
+    white-space: nowrap !important;
+    gap: 6px !important;
   }
-  .form-grid {
-    grid-template-columns: 1fr;
+  
+  .sidebar-footer {
+    display: none !important;
   }
+
+  /* TOPBAR SUPERIOR NO MOBILE */
   .wms-topbar {
-    padding: 0 16px;
-    flex-direction: column;
-    height: auto;
-    padding-bottom: 12px;
+    padding: 10px 12px !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    height: auto !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 90 !important;
+    background: #090a0c !important;
+    border-bottom: 1px solid var(--panel-border) !important;
   }
+  
+  .topbar-actions {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+  }
+  
   .topbar-search {
-    max-width: 100%;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 7px 12px !important;
+  }
+  
+  .live-clock-badge {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    gap: 6px !important;
+  }
+  
+  .live-date {
+    display: none !important;
+  }
+  
+  .live-time {
+    font-size: 11.5px !important;
+    padding: 2px 5px !important;
+  }
+
+  /* CONTEÚDO PRINCIPAL E CABEÇALHO DAS TELAS */
+  .wms-content {
+    padding: 14px 10px !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+  
+  .page-head {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+  
+  .page-head .btn {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+  
+  .page-title {
+    font-size: 20px !important;
+  }
+  
+  .page-subtitle {
+    font-size: 12px !important;
+  }
+
+  /* GRIDS DE ESTATÍSTICAS E PAINÉIS */
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  
+  .stat-card {
+    padding: 14px !important;
+  }
+  
+  .stat-number {
+    font-size: 22px !important;
+  }
+  
+  .dash-grid-split {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+  
+  .wms-panel {
+    padding: 14px 12px !important;
+    margin-bottom: 14px !important;
+    border-radius: 12px !important;
+  }
+  
+  .panel-header {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 4px !important;
+  }
+
+  /* FORMULÁRIO DE PRODUTOS E FOTOS */
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  
+  .photo-input-wrap {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+    padding: 8px !important;
+  }
+  
+  .photo-input-wrap input {
+    width: 100% !important;
+  }
+  
+  .btn-attach-photo {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 9px 12px !important;
+  }
+  
+  .form-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .form-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 12px !important;
+  }
+
+  /* TABELAS RESPONSIVAS */
+  .table-responsive {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    margin: 8px 0 !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+  }
+  
+  .wms-table th, .wms-table td {
+    padding: 10px 8px !important;
+    font-size: 12px !important;
+    white-space: nowrap !important;
+  }
+
+  /* EXPEDIÇÃO & DESPACHO */
+  .shipment-card {
+    width: 100% !important;
+    padding: 14px 12px !important;
+    margin-bottom: 12px !important;
+    box-sizing: border-box !important;
+  }
+  
+  .shipment-card .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 10px !important;
+  }
+
+  /* MODAL DE NOTA FISCAL (DANFE) E DACCE NO CELULAR */
+  .modal-overlay {
+    padding: 6px !important;
+    align-items: flex-start !important;
+    overflow-y: auto !important;
+  }
+  
+  .modal-danfe-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 6px 0 !important;
+    border-radius: 12px !important;
+  }
+  
+  .modal-danfe-actions {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 10px !important;
+    padding: 12px 14px !important;
+  }
+  
+  .modal-danfe-title {
+    font-size: 13px !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+  
+  .modal-danfe-btn-group {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    width: 100% !important;
+  }
+  
+  .modal-danfe-btn-group .btn {
+    width: 100% !important;
+    justify-content: center !important;
+    padding: 11px 16px !important;
+    font-size: 13px !important;
+  }
+  
+  .danfe-mobile-tip {
+    display: block !important;
+  }
+  
+  .danfe-scroll-viewport {
+    padding: 8px !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  
+  .danfe-sheet {
+    min-width: 760px !important; /* Preserva proporções e texto legível da NFe sem amassar */
+    margin: 0 auto !important;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.5) !important;
+  }
+
+  /* DEMAIS MODAIS DO SISTEMA */
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 16px 12px !important;
+    margin: 8px 0 !important;
+    border-radius: 12px !important;
+    box-sizing: border-box !important;
+  }
+  
+  .modal-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+  
+  .modal-actions .btn {
+    width: 100% !important;
+    justify-content: center !important;
   }
 }
 
