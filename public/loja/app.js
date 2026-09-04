@@ -128,7 +128,6 @@ function show(id, opts = {}) {
   currentScreenId = id;
   screens.forEach(s => s.classList.toggle('active', s.id === id));
   nav.forEach(b => b.classList.toggle('active', b.dataset.screen === id));
-  document.body.classList.toggle('visitor-inicio', !authenticated && id === 'inicio');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 
   if (id === 'pecas') loadCatalog();
@@ -154,6 +153,32 @@ document.querySelectorAll('[data-auth]').forEach(b => b.onclick = () => {
 });
 document.getElementById('showLogin')?.addEventListener('click', openLogin);
 document.getElementById('fpBackRegister')?.addEventListener('click', openRegister);
+
+// ---------- Busca rápida e categorias na tela inicial ----------
+const homeSearchInput = document.getElementById('homeSearchInput');
+const homeSearchBtn = document.getElementById('homeSearchBtn');
+function executeHomeSearch() {
+  const q = homeSearchInput?.value?.trim() || '';
+  show('pecas');
+  const catInput = document.getElementById('catalogSearch');
+  if (catInput) {
+    catInput.value = q;
+    loadCatalog();
+  }
+}
+homeSearchBtn?.addEventListener('click', executeHomeSearch);
+homeSearchInput?.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') executeHomeSearch();
+});
+
+document.querySelectorAll('.clean-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.clean-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    const cat = chip.dataset.cat || '';
+    goToCategory(cat);
+  });
+});
 
 const logoBtn = document.getElementById('logoBtn');
 if (logoBtn) {
@@ -294,7 +319,7 @@ document.getElementById('createAccount')?.addEventListener('click', async () => 
   try {
     const { customer } = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, phone, email, password: pass, cpfCnpj }) });
     applyUser(customer);
-    alert('Cadastro realizado! Bem-vindo à Fahren Parts.');
+    alert('Cadastro realizado! Bem-vindo à Fahren Motors.');
     show('inicio');
   } catch (err) {
     alert(err.message);
@@ -318,7 +343,7 @@ document.getElementById('loginBtn')?.addEventListener('click', async () => {
 });
 
 document.getElementById('forgotPassword')?.addEventListener('click', () => {
-  alert('Para recuperar o acesso, entre em contato com a Fahren Parts. A recuperação por e-mail será conectada quando o servidor de autenticação for configurado.');
+  alert('Para recuperar o acesso, entre em contato com a Fahren Motors. A recuperação por e-mail será conectada quando o servidor de autenticação for configurado.');
 });
 
 document.getElementById('logoutBtn')?.addEventListener('click', async () => {
