@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Download Logo — Fahren Motors</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+    body {
+      background: #060709;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    h1 span { color: #ed1c24; }
+    p.subtitle {
+      color: #9da2aa;
+      font-size: 15px;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 30px;
+      max-width: 900px;
+      width: 100%;
+    }
+    .card {
+      background: #0f1115;
+      border: 1px solid #1f232b;
+      border-radius: 16px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .card h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .card p {
+      font-size: 13px;
+      color: #717782;
+      margin-bottom: 20px;
+    }
+    .preview-box {
+      width: 280px;
+      height: 280px;
+      background: #090a0c;
+      border-radius: 12px;
+      border: 1px solid #1b1e26;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Logo Vertical (Avatar WhatsApp) */
+    .avatar-glow {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ed1c24 0%, #8a0c10 100%);
+      padding: 3px;
+      box-shadow: 0 0 35px rgba(237, 28, 36, 0.55);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    .avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: #090a0c;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 38px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -1.5px;
+    }
+    .brand-text-vert {
+      font-size: 22px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      color: #fff;
+    }
+    .brand-text-vert span { color: #ed1c24; }
+    .brand-sub-vert {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    /* Logo Horizontal (Igual ao WMS) */
+    .preview-box.horiz {
+      height: 160px;
+      flex-direction: row;
+      gap: 16px;
+      padding: 20px;
+    }
+    .avatar-glow.sm {
+      width: 60px;
+      height: 60px;
+      margin-bottom: 0;
+      box-shadow: 0 0 20px rgba(237, 28, 36, 0.45);
+    }
+    .avatar-inner.sm {
+      font-size: 24px;
+    }
+    .brand-info-horiz {
+      text-align: left;
+    }
+    .brand-info-horiz strong {
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
+      display: block;
+      line-height: 1.1;
+    }
+    .brand-info-horiz strong span { color: #ed1c24; }
+    .brand-info-horiz small {
+      font-size: 11px;
+      font-weight: 700;
+      color: #6b7280;
+      letter-spacing: 1.5px;
+    }
+
+    .btn-download {
+      background: #ed1c24;
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all .2s ease;
+      width: 100%;
+      justify-content: center;
+      text-decoration: none;
+    }
+    .btn-download:hover {
+      background: #ff2a32;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(237, 28, 36, 0.4);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>FAHREN<span>MOTORS</span> — Logos Oficiais</h1>
+  <p class="subtitle">Prontas em alta resolução para foto de perfil do WhatsApp e redes sociais.</p>
+
+  <div class="grid">
+    <!-- Card 1: Logo Vertical com Nome (Ideal para Perfil WhatsApp) -->
+    <div class="card">
+      <h2>Foto de Perfil para WhatsApp</h2>
+      <p>Formato quadrado 1:1 com o emblema FM e o nome FAHREN MOTORS.</p>
+      
+      <div class="preview-box" id="boxVertical">
+        <div class="avatar-glow">
+          <div class="avatar-inner">FM</div>
+        </div>
+        <div class="brand-text-vert">FAHREN<span>MOTORS</span></div>
+        <div class="brand-sub-vert">AUTO PEÇAS & WMS</div>
+      </div>
+
+      <button class="btn-download" onclick="downloadCanvas('vert')">
+        📥 BAIXAR FOTO PARA WHATSAPP (PNG)
+      </button>
+    </div>
+
+    <!-- Card 2: Logo Horizontal (Idêntica ao Painel) -->
+    <div class="card">
+      <h2>Logo Horizontal (Painel WMS)</h2>
+      <p>Idêntica ao topo do painel de controle e faturas.</p>
+      
+      <div class="preview-box horiz" id="boxHoriz" style="margin-top:20px;margin-bottom:40px;">
+        <div class="avatar-glow sm">
+          <div class="avatar-inner sm">FM</div>
+        </div>
+        <div class="brand-info-horiz">
+          <strong>FAHREN<span>MOTORS</span></strong>
+          <small>GESTÃO WMS</small>
+        </div>
+      </div>
+
+      <button class="btn-download" onclick="downloadCanvas('horiz')">
+        📥 BAIXAR LOGO HORIZONTAL (PNG)
+      </button>
+    </div>
+  </div>
+
+  <canvas id="exportCanvas" style="display:none"></canvas>
+
+  <script>
+    function downloadCanvas(type) {
+      const canvas = document.getElementById('exportCanvas');
+      const ctx = canvas.getContext('2d');
+      
+      if (type === 'vert') {
+        canvas.width = 1080;
+        canvas.height = 1080;
+        
+        // Fundo Preto
+        ctx.fillStyle = '#090a0c';
+        ctx.fillRect(0, 0, 1080, 1080);
+        
+        // Glow Vermelho
+        const centerX = 540;
+        const centerY = 440;
+        const radius = 220;
+        
+        ctx.save();
+        ctx.shadowColor = '#ed1c24';
+        ctx.shadowBlur = 90;
+        
+        // Anel Externo Vermelho
+        const grad = ctx.createLinearGradient(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+        grad.addColorStop(0, '#ed1c24');
+        grad.addColorStop(1, '#8a0c10');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        
+        // Círculo Interno Escuro
+        ctx.fillStyle = '#090a0c';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius - 10, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Letras FM
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 190px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('FM', centerX, centerY + 8);
+        
+        // Nome FAHREN MOTORS
+        ctx.font = '900 84px Inter, sans-serif';
+        const textY = 780;
+        
+        const fWidth = ctx.measureText('FAHREN').width;
+        ctx.font = '900 84px Inter, sans-serif';
+        const mWidth = ctx.measureText('MOTORS').width;
+        const totalW = fWidth + 24 + mWidth;
+        const startX = (1080 - totalW) / 2;
+        
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('FAHREN', startX, textY);
+        
+        ctx.fillStyle = '#ed1c24';
+        ctx.fillText('MOTORS', startX + fWidth + 24, textY);
+        
+        // Subtítulo
+        ctx.textAlign = 'center';
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '700 36px Inter, sans-serif';
+        ctx.letterSpacing = '6px';
+        ctx.fillText('AUTO PEÇAS', 540, 860);
+        
+      } else {
+        canvas.width = 1200;
+        canvas.height = 400;
+        
+        // Fundo Preto
+        ctx.fillStyle = '#090a0c';
+        ctx.fillRect(0, 0, 1200, 400);
+        
+        const centerX = 240;
+        const centerY = 200;
+        const radius = 100;
+        
+        // Glow Vermelho
+        ctx.save();
+        ctx.shadowColor = '#ed1c24';
+        ctx.shadowBlur = 50;
+        const grad = ctx.createLinearGradient(centerX - radius, centerY - radius, centerX + radius, centerY + radius);
+        grad.addColorStop(0, '#ed1c24');
+        grad.addColorStop(1, '#8a0c10');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        
+        // Círculo Interno Escuro
+        ctx.fillStyle = '#090a0c';
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius - 6, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Letras FM
+        ctx.fillStyle = '#ffffff';
+        ctx.font = '900 85px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('FM', centerX, centerY + 4);
+        
+        // Texto Horizontal
+        const textStartX = 390;
+        ctx.textAlign = 'left';
+        ctx.font = '900 86px Inter, sans-serif';
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText('FAHREN', textStartX, 190);
+        
+        const fWidth = ctx.measureText('FAHREN').width;
+        ctx.fillStyle = '#ed1c24';
+        ctx.fillText('MOTORS', textStartX + fWidth + 20, 190);
+        
+        ctx.fillStyle = '#6b7280';
+        ctx.font = '800 32px Inter, sans-serif';
+        ctx.letterSpacing = '5px';
+        ctx.fillText('GESTÃO WMS', textStartX, 250);
+      }
+      
+      const link = document.createElement('a');
+      link.download = type === 'vert' ? 'fahren-motors-whatsapp.png' : 'fahren-motors-horizontal.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+  </script>
+</body>
+</html>
