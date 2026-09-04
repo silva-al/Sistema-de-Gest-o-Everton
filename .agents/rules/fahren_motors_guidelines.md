@@ -18,3 +18,9 @@
 - **NÃO mencione nem utilize** links legados/antigos como `sistema-de-gest-o-everton.onrender.com`.
 - **URL Loja (Cliente):** `https://fahren-motors-ltda.onrender.com`
 - **URL Painel WMS (Admin):** `https://fahren-motors-ltda.onrender.com/admin`
+
+## 5. Responsividade Mobile Obrigatória (Loja & Painel WMS)
+- **Zero Vazamento Horizontal**: Manter sempre `overflow-x: hidden` em `html, body, .app` e `.wms-layout`.
+- **Cabeçalho Limpo**: Nunca usar `overflow-x: auto` em `.header-inner` da loja no mobile para evitar que crie faixas pretas ou corte o texto da logo.
+- **Modal de Nota Fiscal (DANFE/DACCE)**: No celular, o modal deve conter ações em largura total no topo e a folha em viewport com rolagem horizontal suave (`overflow-x: auto; -webkit-overflow-scrolling: touch;`), preservando a nitidez das colunas oficiais e o padrão de impressão A4.
+- **Cards e Formulários Touch**: Botões de ação, cards de expedição e campos de formulário devem ocupar 100% da largura em smartphones com alvos de toque confortáveis.
