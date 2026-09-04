@@ -489,13 +489,17 @@ async function loadCategoryCarousel() {
     const cardHtml = (c, hidden) => {
       const photo = c.photoUrl || CATEGORY_IMAGES[c.category] || 'images/categorias/filtros.jpg';
       const priceVal = typeof c.price === 'number' ? c.price : (c.price_cents ? c.price_cents / 100 : 0);
+      const pixVal = priceVal > 0 ? (priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04))) : 0;
       return `<div class="card cat-card" data-product-id="${c.id || ''}" data-category="${c.category || ''}"${hidden ? ' aria-hidden="true"' : ''}>
         <div class="cat-card-img-wrap">
           <img alt="${hidden ? '' : c.name}" loading="lazy" src="${photo}">
         </div>
         <b>${c.name}</b>
         <small>${c.category || 'Peça'}</small>
-        <div class="cat-card-price">${priceVal > 0 ? money(priceVal) : 'Disponível'}</div>
+        <div class="cat-card-price-block">
+          <div class="cat-card-pix">${priceVal > 0 ? money(pixVal) : 'Disponível'} <span class="pix-micro-tag">no Pix</span></div>
+          ${priceVal > 0 ? `<div class="cat-card-alt">ou ${money(priceVal)}</div>` : ''}
+        </div>
       </div>`;
     };
 
@@ -584,6 +588,7 @@ async function loadRecommendedProducts(product) {
     grid.innerHTML = recommended.map(p => {
       const photo = p.photoUrl || CATEGORY_IMAGES[p.category] || 'images/categorias/filtros.jpg';
       const priceVal = typeof p.price === 'number' ? p.price : (p.price_cents ? p.price_cents / 100 : 0);
+      const pixVal = priceVal > 0 ? (priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04))) : 0;
       return `
         <div class="fp-rec-card" data-rec-id="${p.id}" role="button" tabindex="0">
           <div class="fp-rec-card-img-wrap">
@@ -592,7 +597,10 @@ async function loadRecommendedProducts(product) {
           <div class="fp-rec-card-body">
             <span class="fp-rec-card-cat">${p.category || 'Peça'}</span>
             <strong class="fp-rec-card-name" title="${p.name}">${p.name}</strong>
-            <div class="fp-rec-card-price">${priceVal > 0 ? money(priceVal) : 'Disponível'}</div>
+            <div class="cat-card-price-block">
+              <div class="cat-card-pix">${priceVal > 0 ? money(pixVal) : 'Disponível'} <span class="pix-micro-tag">no Pix</span></div>
+              ${priceVal > 0 ? `<div class="cat-card-alt">ou ${money(priceVal)}</div>` : ''}
+            </div>
           </div>
         </div>
       `;
@@ -633,13 +641,29 @@ function renderProducts(container, products) {
   container.innerHTML = products.map(p => {
     const img = p.photoUrl || CATEGORY_IMAGES[p.category];
     const maxQty = p.stockQty || 99;
+    const priceVal = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
+    const pixVal = priceVal > 0 ? (priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04))) : 0;
     return `
     <div class="product" data-product-id="${p.id}">
       <div class="part-photo">${img ? `<img src="${img}" alt="${p.name}" loading="lazy">` : '🔩'}</div>
       <b>${p.name}</b>
       <small>${p.description || p.category || 'Aplicação compatível'}</small>
       <div class="stock">${p.inStock ? '● Disponível' : '○ Fora de estoque'}</div>
-      <div class="price">${money(p.price)}</div>
+      <div class="product-price-block">
+        <div class="product-pix-row">
+          <span class="product-pix-price">${priceVal > 0 ? money(pixVal) : 'Sob Consulta'}</span>
+          ${priceVal > 0 ? `
+            <span class="product-pix-tag">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px"><path d="M12 2L2 12l10 10 10-10L12 2zm0 3.5L18.5 12 12 18.5 5.5 12 12 5.5z"/></svg>
+              no Pix
+            </span>
+            <span class="product-pix-badge">4% OFF</span>
+          ` : ''}
+        </div>
+        ${priceVal > 0 ? `
+          <div class="product-alt-price">ou <strong>${money(priceVal)}</strong> em até 12x no cartão</div>
+        ` : ''}
+      </div>
       ${p.inStock ? `
         <div class="product-qty-row">
           <label class="qty-label">Quantidade:</label>
