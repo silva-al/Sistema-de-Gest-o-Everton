@@ -12,3 +12,9 @@
 ## 3. Otimização de Javascript e DOM
 - **Nunca use `localStorage` (getItem/setItem) ou `JSON.parse`/`stringify` dentro de loops densos.** Acesse e processe os dados em variáveis de memória e salve/leia no `localStorage` apenas uma vez (antes ou depois do loop) para evitar travamentos da Main Thread.
 - **Transições Diretas**: Animações de UI, como fade-ins nas abas principais, só devem existir se não causarem percepção de "lentidão" (delay). Caso o usuário exija carregamento "liso", remova os delays visuais em favor de transições de display instantâneas.
+
+## 4. Ambientes e URLs Oficiais (Produção no Render)
+- O serviço oficial em produção no Render foi criado do zero com o nome **`fahren-motors-ltda`**.
+- **NÃO mencione nem utilize** links legados/antigos como `sistema-de-gest-o-everton.onrender.com`.
+- **URL Loja (Cliente):** `https://fahren-motors-ltda.onrender.com`
+- **URL Painel WMS (Admin):** `https://fahren-motors-ltda.onrender.com/admin`
