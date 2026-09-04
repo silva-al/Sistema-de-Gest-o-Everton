@@ -118,6 +118,24 @@ backBtn?.addEventListener('click', () => {
   else show('inicio');
 });
 
+// Tecla ESC para voltar de telas, fechar zoom ou cancelar
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    const zoomModal = document.getElementById('zoomModal');
+    if (zoomModal && !zoomModal.classList.contains('hidden')) {
+      zoomModal.classList.add('hidden');
+      return;
+    }
+    if (currentScreenId && currentScreenId !== 'inicio' && currentScreenId !== 'welcome') {
+      if (navDepth > 0) {
+        window.history.back();
+      } else {
+        show('inicio');
+      }
+    }
+  }
+});
+
 function show(id, opts = {}) {
   const { push = true } = opts;
   if (!authenticated && !['welcome', 'inicio', 'pecas', 'cadastro', 'carrinho', 'produto'].includes(id)) {
@@ -157,6 +175,14 @@ document.getElementById('fpBackRegister')?.addEventListener('click', openRegiste
 // ---------- Busca rápida e categorias na tela inicial ----------
 const homeSearchInput = document.getElementById('homeSearchInput');
 const homeSearchBtn = document.getElementById('homeSearchBtn');
+
+// Limpa qualquer autofill indevido do navegador (ex: admin, CPF ou senhas salvas)
+if (homeSearchInput) {
+  homeSearchInput.value = '';
+  setTimeout(() => { if (homeSearchInput) homeSearchInput.value = ''; }, 60);
+  setTimeout(() => { if (homeSearchInput) homeSearchInput.value = ''; }, 300);
+}
+
 function executeHomeSearch() {
   const q = homeSearchInput?.value?.trim() || '';
   show('pecas');

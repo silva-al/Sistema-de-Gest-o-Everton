@@ -495,19 +495,26 @@ body {
    =================================================================== */
 .stats-grid {
   display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+#pane-financeiro .stats-grid {
   grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
-  margin-bottom: 24px;
 }
 
 .stat-card {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 14px 16px;
   position: relative;
   overflow: hidden;
   transition: transform .18s, border-color .18s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .stat-card:hover {
@@ -529,46 +536,58 @@ body {
 .stat-card.card-green::before { background: var(--accent-green); box-shadow: 0 0 12px var(--accent-green); }
 .stat-card.card-red::before { background: var(--accent-red); box-shadow: 0 0 12px var(--accent-red); }
 .stat-card.card-purple::before { background: var(--accent-purple); box-shadow: 0 0 12px var(--accent-purple); }
+.stat-card.card-orange::before { background: #ffb74d; box-shadow: 0 0 12px #ffb74d; }
 
 .stat-card-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+  gap: 6px;
 }
 
 .stat-icon-box {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-icon-box svg {
+  width: 18px;
+  height: 18px;
 }
 
 .stat-icon-box.cyan { background: rgba(237, 28, 36, 0.12); color: var(--accent-red-light); border: 1px solid rgba(237, 28, 36, 0.25); }
 .stat-icon-box.green { background: rgba(57, 201, 121, 0.12); color: var(--accent-green); border: 1px solid rgba(57, 201, 121, 0.25); }
 .stat-icon-box.red { background: rgba(237, 28, 36, 0.12); color: var(--accent-red); border: 1px solid rgba(237, 28, 36, 0.25); }
 .stat-icon-box.purple { background: rgba(168, 85, 247, 0.12); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.25); }
+.stat-icon-box.orange { background: rgba(255, 183, 77, 0.12); color: #ffb74d; border: 1px solid rgba(255, 183, 77, 0.25); }
 
 .stat-sub {
-  font-size: 11px;
+  font-size: 10.5px;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .stat-number {
-  font-size: 30px;
+  font-size: 22px;
   font-weight: 900;
   color: #fff;
   letter-spacing: -0.5px;
-  line-height: 1.1;
+  line-height: 1.15;
 }
 
 .stat-label {
-  font-size: 12.5px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 /* ===================================================================
@@ -2029,18 +2048,106 @@ html.has-admin-session #mainScreen {
 }
 
 /* ===================================================================
-   MODAL DE EDIÇÃO FISCAL / DANFE
+   CARTA DE CORREÇÃO ELETRÔNICA (CC-e) & DACCE
    =================================================================== */
-.modal-card.modal-lg {
-  max-width: 820px;
-  width: 95%;
+.cce-nf-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  background: #16181d;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
 }
 
-.modal-desc {
-  font-size: 13px;
+.cce-summary-col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cce-summary-col.full-width {
+  grid-column: 1 / -1;
+  border-top: 1px dashed var(--panel-border);
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.cce-label {
+  font-size: 10.5px;
+  font-weight: 700;
   color: var(--text-muted);
-  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.cce-legal-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(255, 183, 77, 0.08);
+  border: 1px solid rgba(255, 183, 77, 0.25);
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-top: 16px;
+  color: #ffb74d;
+}
+
+.cce-legal-notice svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.cce-legal-notice p {
+  font-size: 11.5px;
   line-height: 1.5;
+  margin: 0;
+  color: #ffcc80;
+}
+
+.status-badge.cce-active-badge {
+  background: rgba(255, 152, 0, 0.15);
+  color: #ffb74d;
+  border: 1px solid rgba(255, 152, 0, 0.35);
+  margin-top: 3px;
+  display: inline-block;
+  font-size: 10px;
+}
+
+/* FOLHA OFICIAL DO DACCE (A4) */
+.dacce-sheet {
+  background: #fff;
+  color: #000;
+  font-family: Arial, Helvetica, sans-serif;
+  padding: 24px;
+  margin: 14px auto;
+  border: 1px solid #999;
+  font-size: 9.5px;
+  line-height: 1.3;
+}
+
+.dacce-title-box {
+  text-align: center;
+  border: 1px solid #000;
+  padding: 8px;
+  margin: 8px 0;
+  background: #f5f5f5;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+}
+
+.dacce-correction-box {
+  border: 2px solid #000;
+  padding: 14px 18px;
+  background: #fafafa;
+  font-size: 11px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  font-family: inherit;
+  margin: 10px 0;
+  min-height: 80px;
 }
 
 @keyframes fadeIn {

@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
-<link href="admin.css?v=20260904a" rel="stylesheet"/>
+<link href="admin.css?v=20260904e" rel="stylesheet"/>
 </head>
 <body>
 
@@ -654,23 +654,28 @@
   </div>
 </div>
 
-<!-- ====================================================
-     MODAL DE AJUSTE RÁPIDO DE ESTOQUE
-     ==================================================== -->
 <div class="modal-overlay hidden" id="stockModal">
   <div class="modal-card">
     <div class="modal-header">
       <div class="modal-title-box">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        <h3>Ajustar Estoque da Peça</h3>
+        <h3>Ajustar Estoque e Dados da Peça</h3>
       </div>
       <button class="modal-close" onclick="closeStockModal()">✕</button>
     </div>
     <div class="modal-body">
       <input type="hidden" id="stockModalProdId"/>
-      <div class="stock-modal-info">
-        <strong id="stockModalProdName" style="color:#fff;font-size:15px;display:block"></strong>
-        <span id="stockModalProdCode" style="color:var(--text-muted);font-size:12px;font-family:var(--font-mono)"></span>
+      
+      <!-- IDENTIFICAÇÃO E EDIÇÃO RÁPIDA DE NOME / DESCRIÇÃO -->
+      <div class="stock-modal-info" style="margin-bottom:14px;padding:12px;background:#16181d;border:1px solid var(--panel-border);border-radius:10px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <label style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin:0">Nome / Título da Peça</label>
+          <span id="stockModalProdCode" style="color:var(--text-muted);font-size:11.5px;font-family:var(--font-mono)"></span>
+        </div>
+        <input type="text" id="stockModalProdNameInput" placeholder="Nome da peça..." style="width:100%;margin-bottom:10px;background:#0d0f12;border:1px solid var(--panel-border);border-radius:8px;padding:9px 12px;color:#fff;font-size:14px;font-weight:600"/>
+        
+        <label style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Descrição / Aplicação da Peça</label>
+        <textarea id="stockModalProdDescInput" rows="2" placeholder="Descrição detalhada, aplicação de veículos ou especificações..." style="width:100%;background:#0d0f12;border:1px solid var(--panel-border);border-radius:8px;padding:8px 12px;color:#e1e4ea;font-size:12.5px;resize:vertical;font-family:inherit"></textarea>
       </div>
 
       <div class="stock-qty-control-box">
@@ -696,7 +701,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-secondary" onclick="closeStockModal()">Cancelar</button>
-      <button class="btn btn-primary" id="btnSaveStockModal">Salvar Estoque</button>
+      <button class="btn btn-primary" id="btnSaveStockModal">Salvar Alterações</button>
     </div>
   </div>
 </div>
@@ -727,6 +732,119 @@
   </div>
 </div>
 
+<!-- ====================================================
+     MODAL DE EMISSÃO / EDIÇÃO DE CARTA DE CORREÇÃO (CC-e)
+     ==================================================== -->
+<div class="modal-overlay hidden" id="cceModal">
+  <div class="modal-card modal-lg">
+    <div class="modal-header">
+      <div class="modal-title-box">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+        <h3>Carta de Correção Eletrônica (CC-e)</h3>
+      </div>
+      <button class="modal-close" onclick="closeCceModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">A Carta de Correção Eletrônica (CC-e) é um evento fiscal registrado na SEFAZ vinculado à NF-e para sanar irregularidades cadastrais e operacionais.</p>
+      
+      <input type="hidden" id="cceOrderId"/>
+      
+      <!-- RESUMO DA NF-E VINCULADA -->
+      <div class="cce-nf-summary">
+        <div class="cce-summary-col">
+          <span class="cce-label">DOCUMENTO FISCAL VINCULADO</span>
+          <strong id="cceNfNumber" style="color:#fff">NF-e</strong>
+        </div>
+        <div class="cce-summary-col">
+          <span class="cce-label">DESTINATÁRIO</span>
+          <strong id="cceCustomerName" style="color:#fff">Cliente</strong>
+        </div>
+        <div class="cce-summary-col">
+          <span class="cce-label">DATA DE EMISSÃO DA NF</span>
+          <span id="cceNfDate" style="color:var(--text-secondary)">-</span>
+        </div>
+        <div class="cce-summary-col full-width">
+          <span class="cce-label">CHAVE DE ACESSO DA NF-e (44 DÍGITOS)</span>
+          <code id="cceNfKey" style="color:var(--accent-red-light);font-family:var(--font-mono);font-size:12px"></code>
+        </div>
+      </div>
+
+      <!-- DADOS DO EVENTO FISCAL -->
+      <div class="form-grid" style="margin-top:14px">
+        <div class="field">
+          <label>Sequencial do Evento (Seq)</label>
+          <input id="cceSeq" type="number" min="1" max="20" value="1"/>
+        </div>
+        <div class="field">
+          <label>Data / Hora do Evento SEFAZ</label>
+          <input id="cceDate" type="datetime-local"/>
+        </div>
+        <div class="field">
+          <label>Protocolo de Autorização SEFAZ</label>
+          <input id="cceProtocol" placeholder="Ex: 135260009874512"/>
+        </div>
+        <div class="field">
+          <label>Status do Evento</label>
+          <input id="cceStatus" value="135 - Evento homologado e vinculado a NF-e" readonly style="color:var(--accent-green)"/>
+        </div>
+        <div class="field full-width">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label style="margin:0">Texto da Correção a ser Considerada * (Mín. 15 caracteres)</label>
+            <span id="cceCharCounter" style="font-size:11px;color:var(--text-muted)">0 / 1000</span>
+          </div>
+          <textarea id="cceText" rows="4" maxlength="1000" placeholder="Descreva de forma clara e objetiva a correção pretendida.&#10;Exemplo: Correção do endereço de entrega do destinatário para: Rua das Palmeiras, nº 350, Apto 42, Bairro Centro, Hortolândia - SP, CEP 13184-000. O restante das informações da NF-e permanece inalterado."></textarea>
+        </div>
+      </div>
+
+      <!-- ALERTA LEGAL SEFAZ -->
+      <div class="cce-legal-notice">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        <p><strong>Condições de Uso (§ 1º-A do art. 7º do Convênio S/N de 15/12/1970):</strong> A Carta de Correção NÃO pode ser utilizada para sanar erros relacionados a: <strong>I</strong> - valores de impostos ou cálculos fiscais; <strong>II</strong> - dados cadastrais que impliquem mudança completa de remetente ou destinatário; <strong>III</strong> - data de emissão ou saída.</p>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <button class="btn btn-secondary" onclick="closeCceModal()">Cancelar</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-secondary hidden" id="btnPrintDacceFromModal" type="button">
+          🖨️ Visualizar / Imprimir DACCE
+        </button>
+        <button class="btn btn-primary" id="btnSaveCce">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          Salvar e Vincular CC-e
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================
+     MODAL DE VISUALIZAÇÃO E IMPRESSÃO DO DACCE (CARTA DE CORREÇÃO)
+     ==================================================== -->
+<div class="modal-overlay hidden" id="dacceModal">
+  <div class="modal-danfe-container">
+    <div class="modal-danfe-actions no-print">
+      <div class="modal-danfe-title">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+        <span>Visualização do DACCE — Documento Auxiliar da Carta de Correção Eletrônica</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-primary" onclick="window.print()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          IMPRIMIR DACCE (PDF / A4)
+        </button>
+        <button class="btn btn-secondary" onclick="closeDacceModal()">FECHAR</button>
+      </div>
+    </div>
+
+    <!-- FOLHA OFICIAL DACCE FORMATADA PARA IMPRESSÃO A4 -->
+    <div class="danfe-sheet dacce-sheet" id="daccePrintArea">
+      <!-- Injetado dinamicamente via JS -->
+    </div>
+  </div>
+</div>
+
 <!-- TOAST NOTIFICATION DE ATUALIZAÇÃO -->
 <div class="wms-toast" id="wmsToast">
   <span class="wms-toast-icon">
@@ -735,6 +853,6 @@
   <span id="wmsToastMsg">Sistema atualizado com sucesso!</span>
 </div>
 
-<script src="admin.js?v=20260904a"></script>
+<script src="admin.js?v=20260904g"></script>
 </body>
 </html>

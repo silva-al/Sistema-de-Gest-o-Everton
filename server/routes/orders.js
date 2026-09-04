@@ -158,4 +158,39 @@ router.put('/:id/status', requireRole('admin'), async (req, res) => {
   res.json({ order: serializeOrder(result.rows[0], []) });
 });
 
+router.delete('/:id', requireRole('admin'), async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    await client.query('BEGIN');
+    const orderRes = await client.query('SELECT * FROM orders WHERE id = $1', [req.params.id]);
+    if (!orderRes.rows.length) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: 'Pedido não encontrado.' });
+    }
+    const order = orderRes.rows[0];
+
+    // Se o pedido não estava cancelado, devolve os itens ao estoque
+    if (order.status !== 'cancelado') {
+      const itemsRes = await client.query('SELECT * FROM order_items WHERE order_id = $1', [req.params.id]);
+      for (const item of itemsRes.rows) {
+        await client.query(
+          'UPDATE products SET stock_qty = stock_qty + $1, in_stock = true WHERE id = $2',
+          [item.quantity, item.product_id]
+        );
+      }
+    }
+
+    await client.query('DELETE FROM order_items WHERE order_id = $1', [req.params.id]);
+    await client.query('DELETE FROM orders WHERE id = $1', [req.params.id]);
+    await client.query('COMMIT');
+    res.json({ ok: true, message: 'Pedido excluído com sucesso.' });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Erro ao excluir pedido:', err);
+    res.status(500).json({ error: 'Erro ao excluir pedido.' });
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;

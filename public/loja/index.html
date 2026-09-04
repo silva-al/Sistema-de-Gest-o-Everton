@@ -14,7 +14,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-<link href="styles.css?v=20260903c" rel="stylesheet"/></head>
+<link href="styles.css?v=20260904d" rel="stylesheet"/></head>
 <body>
 <!-- Splash Screen / Tela de Carregamento Oficial com Nome da Empresa -->
 <div id="splashScreen" class="splash-screen" aria-hidden="false">
@@ -58,7 +58,23 @@
         <circle cx="11" cy="11" r="8"></circle>
         <path d="m21 21-4.3-4.3"></path>
       </svg>
-      <input type="text" id="homeSearchInput" placeholder="Pesquisar peça, modelo ou código..." autocomplete="off" />
+      <input
+        type="search"
+        id="homeSearchInput"
+        name="q_catalogo_pecas"
+        placeholder="Pesquisar peça, modelo ou código..."
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        data-lpignore="true"
+        data-1p-ignore="true"
+        data-form-type="other"
+        readonly
+        onfocus="this.removeAttribute('readonly')"
+        onpointerdown="this.removeAttribute('readonly')"
+        onclick="this.removeAttribute('readonly')"
+      />
       <button type="button" id="homeSearchBtn" class="hero-search-btn">BUSCAR</button>
     </div>
 
@@ -316,4 +332,4 @@
 <div id="toastContainer"></div>
 <script defer="True" src="vendor/qrcode.js"></script>
 <script defer="True" src="https://sdk.mercadopago.com/js/v2"></script>
-<script defer="True" src="app.js?v=20260903c"></script></body></html>
+<script defer="True" src="app.js?v=20260904d"></script></body></html>

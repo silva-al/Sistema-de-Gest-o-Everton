@@ -63,8 +63,21 @@ function showMain(admin) {
   const nameEl = document.getElementById('adminName');
   if (nameEl) nameEl.textContent = admin.name || admin.email || 'Administrador';
 
-  // Carrega dados iniciais do sistema
+  // Restaura a aba onde o usuário estava antes de recarregar
+  const targetTab = getInitialTab();
+  switchTab(targetTab, false, false);
+
+  // Carrega dados do sistema preservando a rolagem onde o usuário estava
   refreshAllData();
+
+  try {
+    const savedScroll = sessionStorage.getItem('fm_admin_scroll_y_' + targetTab);
+    if (savedScroll) {
+      setTimeout(() => {
+        window.scrollTo({ top: parseInt(savedScroll, 10) || 0, behavior: 'instant' });
+      }, 120);
+    }
+  } catch (e) {}
 }
 
 // ---------- Relógio Digital em Tempo Real ----------
@@ -94,13 +107,46 @@ function startLiveClock() {
 }
 
 // ---------- Navegação por Abas do WMS ----------
-function switchTab(tabId) {
+const VALID_TABS = ['dashboard', 'estoque', 'pedidos', 'expedicao', 'financeiro', 'notas-fiscais'];
+let currentTabId = 'dashboard';
+const tabHistory = ['dashboard'];
+
+function getInitialTab() {
+  const hash = (window.location.hash || '').replace('#', '').trim();
+  if (VALID_TABS.includes(hash)) return hash;
+  try {
+    const saved = localStorage.getItem('fm_admin_active_tab');
+    if (VALID_TABS.includes(saved)) return saved;
+  } catch (e) {}
+  return 'dashboard';
+}
+
+function switchTab(tabId, pushHistory = true, resetScroll = true) {
+  if (!VALID_TABS.includes(tabId)) tabId = 'dashboard';
+
+  if (pushHistory && tabId !== currentTabId) {
+    tabHistory.push(tabId);
+  }
+  currentTabId = tabId;
+
+  // Persiste a aba atual para que F5 ou atualização mantenha o usuário exatamente aqui
+  try {
+    localStorage.setItem('fm_admin_active_tab', tabId);
+    if (window.location.hash !== `#${tabId}`) {
+      history.replaceState(null, '', `#${tabId}`);
+    }
+  } catch (e) {}
+
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tabId);
   });
   document.querySelectorAll('.tab-pane').forEach(pane => {
     pane.classList.toggle('active', pane.id === `pane-${tabId}`);
   });
+
+  if (resetScroll) {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }
 
   if (tabId === 'dashboard') updateDashboardMetrics();
   if (tabId === 'pedidos') renderOrdersTable(allOrders);
@@ -109,12 +155,28 @@ function switchTab(tabId) {
   if (tabId === 'notas-fiscais') renderFiscalTable();
 }
 
+window.switchTab = switchTab;
+
+window.addEventListener('hashchange', () => {
+  const hash = (window.location.hash || '').replace('#', '').trim();
+  if (VALID_TABS.includes(hash) && hash !== currentTabId) {
+    switchTab(hash, false, false);
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  try {
+    sessionStorage.setItem('fm_admin_scroll_y_' + currentTabId, window.pageYOffset || 0);
+  } catch (e) {}
+});
+
 document.querySelectorAll('.sidebar-nav .nav-item').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 
 // ---------- Carregamento Global de Dados ----------
 async function refreshAllData() {
+  const currentY = window.pageYOffset || document.documentElement.scrollTop || 0;
   try {
     const [productsRes, ordersRes] = await Promise.allSettled([
       api('/products?in_stock='),
@@ -141,6 +203,13 @@ async function refreshAllData() {
     renderFinances();
     renderFiscalTable();
     renderExpedicao();
+
+    // Mantém a rolagem exatamente no mesmo lugar onde o usuário estava
+    if (currentY > 0) {
+      setTimeout(() => {
+        window.scrollTo({ top: currentY, behavior: 'instant' });
+      }, 50);
+    }
   } catch (err) {
     console.error('Erro ao atualizar dados:', err);
   }
@@ -377,13 +446,20 @@ async function quickUpdateStock(id, newQty) {
   }
 }
 
-// Modal de ajuste de estoque
+// Modal de ajuste de estoque e dados da peça
 function openStockModal(id) {
   const p = allProducts.find(item => String(item.id) === String(id));
   if (!p) return;
   document.getElementById('stockModalProdId').value = p.id;
-  document.getElementById('stockModalProdName').textContent = p.name;
-  document.getElementById('stockModalProdCode').textContent = `Código SKU: ${p.code || 'S/CÓD'} | Categoria: ${p.category || 'Geral'}`;
+  const codeEl = document.getElementById('stockModalProdCode');
+  if (codeEl) codeEl.textContent = `SKU: ${p.code || 'S/CÓD'} | ${p.category || 'Geral'}`;
+  
+  const nameInput = document.getElementById('stockModalProdNameInput');
+  if (nameInput) nameInput.value = p.name || '';
+  
+  const descInput = document.getElementById('stockModalProdDescInput');
+  if (descInput) descInput.value = p.description || '';
+  
   document.getElementById('stockModalQty').value = p.stockQty || 0;
   document.getElementById('stockModal').classList.remove('hidden');
 }
@@ -405,8 +481,42 @@ document.getElementById('btnStockPlus')?.addEventListener('click', () => stepSto
 document.getElementById('btnSaveStockModal')?.addEventListener('click', async () => {
   const id = document.getElementById('stockModalProdId').value;
   const qty = parseInt(document.getElementById('stockModalQty').value, 10) || 0;
-  await quickUpdateStock(id, qty);
-  closeStockModal();
+  const newName = document.getElementById('stockModalProdNameInput')?.value?.trim();
+  const newDesc = document.getElementById('stockModalProdDescInput')?.value?.trim();
+
+  const prod = allProducts.find(x => String(x.id) === String(id));
+  if (!prod) return;
+
+  try {
+    const payload = {
+      stockQty: qty,
+      inStock: qty > 0
+    };
+    if (newName && newName !== prod.name) {
+      payload.name = newName;
+    }
+    if (newDesc !== undefined && newDesc !== (prod.description || '')) {
+      payload.description = newDesc;
+    }
+
+    await api(`/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload)
+    });
+
+    prod.stockQty = qty;
+    prod.inStock = qty > 0;
+    if (payload.name) prod.name = payload.name;
+    if (payload.description !== undefined) prod.description = payload.description;
+
+    renderProductsTable(allProducts);
+    updateDashboardMetrics();
+    closeStockModal();
+    showToast(`Peça "${prod.name}" atualizada com sucesso!`);
+  } catch (err) {
+    console.error('Erro ao salvar dados da peça:', err);
+    showToast(err.message || 'Erro ao salvar alterações da peça');
+  }
 });
 
 function fillCategoryList(products) {
@@ -428,8 +538,18 @@ document.getElementById('stockSearch')?.addEventListener('input', (e) => {
 
 // Cadastro e Edição de Peças
 document.getElementById('newProductToggleBtn')?.addEventListener('click', () => {
+  switchTab('estoque');
   resetProductForm();
-  document.getElementById('productFormPanel')?.scrollIntoView({ behavior: 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const panel = document.getElementById('productFormPanel');
+  if (panel) {
+    const yOffset = -75;
+    const y = panel.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+  }
+  setTimeout(() => {
+    document.getElementById('pName')?.focus();
+  }, 180);
 });
 
 function startEdit(id) {
@@ -460,7 +580,17 @@ function startEdit(id) {
   document.getElementById('pCompatibility').value = p.compatibility || '';
   document.getElementById('cancelEditBtn').classList.remove('hidden');
   document.getElementById('saveProductBtn').textContent = 'SALVAR ALTERAÇÕES';
-  document.getElementById('productFormPanel')?.scrollIntoView({ behavior: 'smooth' });
+  
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const panel = document.getElementById('productFormPanel');
+  if (panel) {
+    const yOffset = -75;
+    const y = panel.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+  }
+  setTimeout(() => {
+    document.getElementById('pName')?.focus();
+  }, 180);
 }
 
 function resetProductForm() {
@@ -670,9 +800,12 @@ function renderOrdersTable(orders) {
             <option value="cancelado" ${o.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
           </select>
         </td>
-        <td style="text-align:right">
+        <td style="text-align:right;white-space:nowrap">
           <button class="btn btn-secondary btn-sm" onclick="openDanfeForOrder(${o.id})" title="Imprimir DANFE / Nota Fiscal">
             🖨️ DANFE
+          </button>
+          <button class="btn btn-secondary btn-sm" onclick="deleteExpedicaoOrder(${o.id})" title="Excluir Pedido" style="margin-left:4px;border-color:rgba(237,28,36,0.35);color:#ff5e65">
+            🗑️
           </button>
         </td>
       </tr>
@@ -751,22 +884,40 @@ function renderExpedicao() {
             <div style="color:#fff;font-weight:700;margin-top:2px">${o.customerName || 'Cliente'}</div>
             <div style="font-size:12px;color:var(--text-muted)">📍 ${addressStr}</div>
           </div>
-          <span class="status-badge ${o.status}">${ORDER_STATUS_LABEL[o.status] || o.status}</span>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-badge ${o.status}">${ORDER_STATUS_LABEL[o.status] || o.status}</span>
+            <button class="btn btn-secondary btn-sm" onclick="deleteExpedicaoOrder(${o.id})" title="Excluir este pedido da expedição" style="border-color:rgba(237,28,36,0.35);color:#ff5e65;padding:4px 8px">
+              🗑️ Excluir
+            </button>
+          </div>
         </div>
         <div style="background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;font-size:12.5px;color:var(--text-secondary);margin-bottom:12px">
           <strong>Itens a separar:</strong><br/>
           ${(o.items || []).map(i => `• ${i.quantity}x ${i.name}`).join('<br/>')}
         </div>
-        <div style="display:flex;justify-content:space-between;align-items:center">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
           <span style="font-weight:800;color:var(--accent-green)">Total: ${money(o.total)}</span>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
             <button class="btn btn-secondary btn-sm" onclick="openDanfeForOrder(${o.id})">🖨️ DANFE de Envio</button>
+            
             ${o.status === 'em_preparacao' ? `
-              <button class="btn btn-primary btn-sm" onclick="updateOrderStatusQuick(${o.id}, 'pronto')">Marcar Pronto</button>
+              <button class="btn btn-secondary btn-sm" onclick="stepBackOrderStatus(${o.id}, 'novo')" title="Voltar etapa para Novo">
+                ↩ Voltar p/ Novo
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="updateOrderStatusQuick(${o.id}, 'pronto')">
+                ✓ Marcar Pronto
+              </button>
             ` : o.status === 'pronto' ? `
-              <button class="btn btn-primary btn-sm" style="background:var(--accent-green);color:#000" onclick="updateOrderStatusQuick(${o.id}, 'entregue')">Despachar / Entregue</button>
+              <button class="btn btn-secondary btn-sm" onclick="stepBackOrderStatus(${o.id}, 'em_preparacao')" title="Voltar etapa para Em Preparação">
+                ↩ Voltar p/ Separação
+              </button>
+              <button class="btn btn-primary btn-sm" style="background:var(--accent-green);color:#000;font-weight:700" onclick="updateOrderStatusQuick(${o.id}, 'entregue')">
+                🚀 Despachar / Entregue
+              </button>
             ` : `
-              <button class="btn btn-primary btn-sm" onclick="updateOrderStatusQuick(${o.id}, 'em_preparacao')">Iniciar Separação</button>
+              <button class="btn btn-primary btn-sm" onclick="updateOrderStatusQuick(${o.id}, 'em_preparacao')">
+                ▶ Iniciar Separação
+              </button>
             `}
           </div>
         </div>
@@ -774,6 +925,34 @@ function renderExpedicao() {
     `;
   }).join('');
 }
+
+window.stepBackOrderStatus = async (orderId, prevStatus) => {
+  try {
+    await api(`/orders/${orderId}/status`, {
+      method: 'PUT',
+      body: JSON.stringify({ status: prevStatus })
+    });
+    showToast(`Pedido #${orderId} retornou para "${ORDER_STATUS_LABEL[prevStatus] || prevStatus}".`);
+    await refreshAllData();
+  } catch (err) {
+    console.error('Erro ao voltar etapa:', err);
+    alert('Erro ao voltar etapa: ' + err.message);
+  }
+};
+
+window.deleteExpedicaoOrder = async (orderId) => {
+  if (!confirm(`Deseja realmente excluir o Pedido #${orderId}?\nOs itens reservados retornarão ao estoque da loja.`)) {
+    return;
+  }
+  try {
+    await api(`/orders/${orderId}`, { method: 'DELETE' });
+    showToast(`Pedido #${orderId} excluído com sucesso!`);
+    await refreshAllData();
+  } catch (err) {
+    console.error('Erro ao excluir pedido:', err);
+    alert('Erro ao excluir pedido: ' + err.message);
+  }
+};
 
 async function updateOrderStatusQuick(orderId, status) {
   try {
@@ -941,38 +1120,52 @@ function renderFiscalTable() {
     const accessKey = isIssued ? nfData.accessKey : 'Pendente de envio SEFAZ';
     const issuedDate = isIssued ? formatDate(nfData.issuedAt) : '-';
 
-    return `
-      <tr>
-        <td>
-          <strong style="color:${isIssued ? '#fff' : 'var(--text-muted)'}">${nfNumFormatted}</strong>
-        </td>
-        <td style="font-family:var(--font-mono);font-size:11px;color:${isIssued ? 'var(--accent-red-light)' : 'var(--text-muted)'}">
-          ${accessKey}
-        </td>
-        <td><strong style="color:#fff">Pedido #${o.id}</strong></td>
-        <td>${o.customerName || 'Consumidor Final'}</td>
-        <td style="font-weight:800;color:var(--accent-green)">${money(o.total)}</td>
-        <td style="font-size:12px;color:var(--text-muted)">${issuedDate}</td>
-        <td>
-          ${isIssued ? '<span class="status-badge nf-emitida">✓ Autorizada</span>' : '<span class="status-badge nf-pendente">⏳ Pendente</span>'}
-        </td>
-        <td style="text-align:right;white-space:nowrap">
-          ${isIssued ? `
-            <button class="btn btn-primary btn-sm" onclick="openDanfeForOrder(${o.id})" title="Imprimir Documento Fiscal">
-              🖨️ DANFE
-            </button>
-            <button class="btn btn-secondary btn-sm" onclick="openEditNfModal(${o.id})" title="Editar campos da DANFE / NFe" style="margin-left:4px">
-              ✏️ Editar NF
-            </button>
-          ` : `
-            <button class="btn btn-secondary btn-sm" onclick="manualEmitNf(${o.id})">
-              ⚡ Emitir Agora
-            </button>
-          `}
-        </td>
-      </tr>
-    `;
-  }).join('');
+      const hasCce = isIssued && !!nfData.cce;
+      const cceSeq = hasCce ? (nfData.cce.seq || 1) : 1;
+
+      return `
+        <tr>
+          <td>
+            <strong style="color:${isIssued ? '#fff' : 'var(--text-muted)'}">${nfNumFormatted}</strong>
+          </td>
+          <td style="font-family:var(--font-mono);font-size:11px;color:${isIssued ? 'var(--accent-red-light)' : 'var(--text-muted)'}">
+            ${accessKey}
+          </td>
+          <td><strong style="color:#fff">Pedido #${o.id}</strong></td>
+          <td>${o.customerName || 'Consumidor Final'}</td>
+          <td style="font-weight:800;color:var(--accent-green)">${money(o.total)}</td>
+          <td style="font-size:12px;color:var(--text-muted)">${issuedDate}</td>
+          <td>
+            ${isIssued ? '<span class="status-badge nf-emitida">✓ Autorizada</span>' : '<span class="status-badge nf-pendente">⏳ Pendente</span>'}
+            ${hasCce ? `<br/><span class="status-badge cce-active-badge" title="Carta de Correção Eletrônica Vinculada">📝 CC-e Ativa (Seq ${cceSeq})</span>` : ''}
+          </td>
+          <td style="text-align:right;white-space:nowrap;vertical-align:middle">
+            ${isIssued ? `
+              <div style="display:inline-flex;flex-direction:column;gap:5px;width:105px">
+                <button class="btn btn-primary btn-sm" onclick="openDanfeForOrder(${o.id})" title="Imprimir Documento Fiscal" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:700">
+                  🖨️ DANFE
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="openEditNfModal(${o.id})" title="Editar campos da DANFE / NFe" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:600">
+                  ✏️ Editar NF
+                </button>
+                <button class="btn btn-secondary btn-sm" onclick="openCceModal(${o.id})" title="Carta de Correção Eletrônica (CC-e)" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:600;border-color:rgba(255,183,77,0.4);color:#ffb74d">
+                  📝 CC-e
+                </button>
+                ${hasCce ? `
+                  <button class="btn btn-secondary btn-sm" onclick="openDacceForOrder(${o.id})" title="Visualizar / Imprimir DACCE da Carta de Correção" style="justify-content:center;padding:4px 6px;font-size:11px;font-weight:600;border-color:rgba(57,201,121,0.4);color:var(--accent-green)">
+                    🖨️ DACCE
+                  </button>
+                ` : ''}
+              </div>
+            ` : `
+              <button class="btn btn-secondary btn-sm" onclick="manualEmitNf(${o.id})">
+                ⚡ Emitir Agora
+              </button>
+            `}
+          </td>
+        </tr>
+      `;
+    }).join('');
 }
 
 window.manualEmitNf = (orderId) => {
@@ -1052,6 +1245,210 @@ document.getElementById('emitAllPendingNfBtn')?.addEventListener('click', () => 
   alert('Todas as notas fiscais pendentes foram emitidas e autorizadas com sucesso!');
 });
 
+// ===================================================================
+// CARTA DE CORREÇÃO ELETRÔNICA (CC-e) E DACCE
+// ===================================================================
+window.openCceModal = (orderId) => {
+  const order = allOrders.find(o => String(o.id) === String(orderId));
+  if (!order) return;
+
+  markNfAsIssued(orderId);
+  const nfsMap = getIssuedNfsMap();
+  const nf = nfsMap[orderId] || {};
+  const cce = nf.cce || null;
+
+  const orderIdInput = document.getElementById('cceOrderId');
+  if (orderIdInput) orderIdInput.value = orderId;
+
+  const nfNumEl = document.getElementById('cceNfNumber');
+  if (nfNumEl) nfNumEl.textContent = `NF-e Nº. 000.${String(nf.nfNumber || (1000 + Number(orderId))).padStart(6, '0')} (Série ${nf.series || '1'})`;
+
+  const custEl = document.getElementById('cceCustomerName');
+  if (custEl) custEl.textContent = nf.customerName || order.customerName || 'Consumidor Final';
+
+  const dateEl = document.getElementById('cceNfDate');
+  if (dateEl) dateEl.textContent = formatDate(nf.issuedAt || new Date().toISOString());
+
+  const keyEl = document.getElementById('cceNfKey');
+  if (keyEl) keyEl.textContent = nf.accessKey || generateNfAccessKey(orderId);
+
+  const textInput = document.getElementById('cceText');
+  const seqInput = document.getElementById('cceSeq');
+  const dateInput = document.getElementById('cceDate');
+  const protocolInput = document.getElementById('cceProtocol');
+  const btnPrintDacce = document.getElementById('btnPrintDacceFromModal');
+
+  if (cce) {
+    if (seqInput) seqInput.value = cce.seq || 1;
+    if (dateInput) dateInput.value = cce.date ? new Date(cce.date).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16);
+    if (protocolInput) protocolInput.value = cce.protocol || ('135' + Date.now().toString().slice(-11));
+    if (textInput) textInput.value = cce.text || '';
+    if (btnPrintDacce) {
+      btnPrintDacce.classList.remove('hidden');
+      btnPrintDacce.onclick = () => {
+        closeCceModal();
+        openDacceForOrder(orderId);
+      };
+    }
+  } else {
+    if (seqInput) seqInput.value = 1;
+    if (dateInput) dateInput.value = new Date().toISOString().slice(0, 16);
+    if (protocolInput) protocolInput.value = '135' + Date.now().toString().slice(-11);
+    if (textInput) textInput.value = '';
+    if (btnPrintDacce) btnPrintDacce.classList.add('hidden');
+  }
+
+  const counter = document.getElementById('cceCharCounter');
+  if (counter && textInput) counter.textContent = `${textInput.value.length} / 1000`;
+
+  document.getElementById('cceModal')?.classList.remove('hidden');
+};
+
+window.closeCceModal = () => {
+  document.getElementById('cceModal')?.classList.add('hidden');
+};
+
+document.getElementById('cceText')?.addEventListener('input', (e) => {
+  const counter = document.getElementById('cceCharCounter');
+  if (counter) counter.textContent = `${e.target.value.length} / 1000`;
+});
+
+document.getElementById('btnSaveCce')?.addEventListener('click', () => {
+  const orderId = document.getElementById('cceOrderId')?.value;
+  if (!orderId) return;
+
+  const text = (document.getElementById('cceText')?.value || '').trim();
+  if (text.length < 15) {
+    showToast('O texto da correção deve ter no mínimo 15 caracteres (Regra SEFAZ).');
+    return;
+  }
+
+  const nfsMap = getIssuedNfsMap();
+  if (!nfsMap[orderId]) {
+    markNfAsIssued(orderId);
+  }
+
+  const dateVal = document.getElementById('cceDate')?.value;
+  const isoDate = dateVal ? new Date(dateVal).toISOString() : new Date().toISOString();
+  const seq = parseInt(document.getElementById('cceSeq')?.value, 10) || 1;
+  const protocol = document.getElementById('cceProtocol')?.value?.trim() || ('135' + Date.now().toString().slice(-11));
+
+  nfsMap[orderId] = {
+    ...(nfsMap[orderId] || {}),
+    cce: {
+      seq,
+      date: isoDate,
+      protocol,
+      text,
+      status: '135 - Evento homologado e vinculado à NF-e'
+    }
+  };
+
+  localStorage.setItem(NF_STORAGE_KEY, JSON.stringify(nfsMap));
+  closeCceModal();
+  renderFiscalTable();
+  showToast(`Carta de Correção Eletrônica (Seq ${seq}) vinculada com sucesso!`);
+});
+
+window.openDacceForOrder = (orderId) => {
+  const order = allOrders.find(o => String(o.id) === String(orderId));
+  if (!order) return;
+
+  const nfsMap = getIssuedNfsMap();
+  const nf = nfsMap[orderId];
+  if (!nf || !nf.cce) {
+    showToast('Nenhuma Carta de Correção (CC-e) registrada para esta nota fiscal.');
+    return;
+  }
+
+  const cce = nf.cce;
+  const addr = order.address || {};
+  const destName = nf.customerName || order.customerName || 'Consumidor Final';
+  const destDoc = nf.customerDoc || order.customerCpf || '99.999.999/0001-91';
+  const destAddr = nf.customerAddress || (addr.street ? `${addr.street}, ${addr.number || 'S/N'} - ${addr.neighborhood || 'Centro'}, ${addr.city || FISCAL_CONFIG.cidade}-${addr.state || FISCAL_CONFIG.uf}` : 'Av. Santana, 1420 - Centro');
+  const nfNumFull = `000.${String(nf.nfNumber || (1000 + Number(orderId))).padStart(6, '0')}`;
+  const rawKey = (nf.accessKey || generateNfAccessKey(orderId)).replace(/\s+/g, '');
+  const cceDateFull = formatDate(cce.date);
+  const nfDateFull = formatDate(nf.issuedAt || new Date().toISOString());
+
+  const sheet = document.getElementById('daccePrintArea');
+  if (!sheet) return;
+
+  sheet.innerHTML = `
+    <div style="border:1px solid #000;padding:14px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #000;padding-bottom:8px;margin-bottom:8px">
+        <div>
+          <div style="font-size:14px;font-weight:900;text-transform:uppercase">${FISCAL_CONFIG.razaoSocial}</div>
+          <div style="font-size:9.5px;color:#333;margin-top:2px">
+            ${FISCAL_CONFIG.logradouro} - ${FISCAL_CONFIG.cidade}-${FISCAL_CONFIG.uf} - CEP: ${FISCAL_CONFIG.cep} - Fone: ${FISCAL_CONFIG.telefone}
+          </div>
+          <div style="font-size:9.5px;margin-top:2px">
+            <strong>CNPJ:</strong> ${FISCAL_CONFIG.cnpj} &nbsp;|&nbsp; <strong>I.E.:</strong> ${FISCAL_CONFIG.ie}
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:16px;font-weight:900;border:2px solid #000;padding:4px 10px;display:inline-block">DACCE</div>
+          <div style="font-size:8.5px;margin-top:4px">DOCUMENTO AUXILIAR DA CARTA DE CORREÇÃO ELETRÔNICA</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:12px;align-items:center;background:#f9f9f9;padding:6px 10px;border:1px solid #ccc;margin-bottom:8px">
+        <div style="flex:1">
+          <div style="font-size:8px;font-weight:700;color:#555">CHAVE DE ACESSO DA NF-E VINCULADA</div>
+          <div style="font-family:monospace;font-size:12px;font-weight:700;letter-spacing:0.5px">${nf.accessKey || rawKey}</div>
+        </div>
+        <div style="width:220px">
+          ${generateCode128Svg(rawKey, 34)}
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:8px;border:1px solid #000;padding:8px;margin-bottom:8px;font-size:9.5px">
+        <div><strong>NF-E NÚMERO:</strong> ${nfNumFull}</div>
+        <div><strong>SÉRIE:</strong> ${nf.series || '1'}</div>
+        <div><strong>EMISSÃO NF-E:</strong> ${nfDateFull.slice(0, 10)}</div>
+        <div><strong>PEDIDO LOJA:</strong> #${order.id}</div>
+        <div style="grid-column:1 / -1"><strong>DESTINATÁRIO:</strong> ${destName} &nbsp;|&nbsp; <strong>CNPJ/CPF:</strong> ${destDoc}</div>
+        <div style="grid-column:1 / -1"><strong>ENDEREÇO:</strong> ${destAddr}</div>
+      </div>
+
+      <div style="background:#000;color:#fff;font-weight:800;font-size:10px;padding:4px 8px;margin-bottom:6px">
+        DADOS DO EVENTO FISCAL — SEFAZ AUTORIZADORA
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;border:1px solid #000;padding:8px;margin-bottom:10px;font-size:9.5px">
+        <div><strong>EVENTO:</strong> 110110 - CARTA DE CORREÇÃO</div>
+        <div><strong>SEQUENCIAL DO EVENTO:</strong> ${cce.seq || 1}</div>
+        <div><strong>ÓRGÃO RECEPTOR:</strong> SEFAZ - SP (35)</div>
+        <div><strong>PROTOCOLO SEFAZ:</strong> ${cce.protocol || '135260009874512'}</div>
+        <div><strong>DATA/HORA DO REGISTRO:</strong> ${cceDateFull}</div>
+        <div><strong>STATUS DO EVENTO:</strong> 135 - Evento Homologado</div>
+      </div>
+
+      <div style="font-size:11px;font-weight:800;margin-bottom:4px">
+        TEXTO DA CORREÇÃO A SER CONSIDERADA:
+      </div>
+      <div class="dacce-correction-box">
+        ${cce.text}
+      </div>
+
+      <div style="border:1px solid #666;padding:8px;margin-top:10px;font-size:8px;line-height:1.35;color:#333;background:#fdfdfd">
+        <strong>CONDIÇÃO DE USO:</strong> A Carta de Correção é disciplinada pelo § 1º-A do art. 7º do Convênio S/N de 15 de dezembro de 1970 e pode ser utilizada para regularização de erro ocorrido na emissão de documento fiscal, desde que o erro não esteja relacionado com: I - as variáveis que determinam o valor do imposto tais como: base de cálculo, alíquota, diferença de preço, quantidade, valor da operação ou da prestação; II - a correção de dados cadastrais que implique mudança do remetente ou do destinatário; III - a data de emissão ou de saída.
+      </div>
+      
+      <div style="display:flex;justify-content:space-between;margin-top:10px;font-size:8px;color:#666">
+        <span>DACCE impresso em ${formatDate(new Date().toISOString())}</span>
+        <span>JC Mantovan - Sistema de Gestão e Faturamento WMS Fahren Motors</span>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('dacceModal')?.classList.remove('hidden');
+};
+
+window.closeDacceModal = () => {
+  document.getElementById('dacceModal')?.classList.add('hidden');
+};
+
 // Helper de formatação numérica brasileira para campos fiscais
 function moneyNum(v) {
   return Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -1118,32 +1515,44 @@ function generateCode128Svg(codeDigits, height = 36) {
 }
 
 // ---------- MODAL DE IMPRESSÃO DO DANFE OFICIAL ----------
-// Fechar modal ou voltar de telas com tecla ESC
+// Fechar modal, cancelar edição ou voltar de telas/abas com tecla ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
-    const modal = document.getElementById('danfeModal');
-    if (modal && !modal.classList.contains('hidden')) {
-      closeDanfeModal();
+    // 1. Fecha qualquer modal aberto no sistema (editNfModal, cceModal, dacceModal, danfeModal, stockModal, etc.)
+    const openModals = document.querySelectorAll('.modal-overlay:not(.hidden)');
+    if (openModals && openModals.length > 0) {
+      openModals.forEach(m => m.classList.add('hidden'));
       return;
     }
-    // Se estiver editando produto, cancela edição
+
+    // 2. Se estiver editando produto no formulário, cancela edição
     if (editingProductId) {
-      cancelProductEdit();
+      resetProductForm();
+      showToast('Edição de peça cancelada.');
       return;
     }
-    // Se estiver em outra aba que não dashboard, volta para o dashboard
-    const activeNav = document.querySelector('.sidebar-nav .nav-item.active');
-    if (activeNav && activeNav.dataset.tab !== 'dashboard') {
-      switchTab('dashboard');
+
+    // 3. Se estiver em qualquer outra aba que não seja o Dashboard, volta pelo histórico ou para o Dashboard
+    if (currentTabId && currentTabId !== 'dashboard') {
+      if (tabHistory.length > 1) {
+        tabHistory.pop(); // remove a aba atual
+        const prevTab = tabHistory[tabHistory.length - 1] || 'dashboard';
+        switchTab(prevTab, false);
+      } else {
+        switchTab('dashboard', false);
+      }
+      return;
     }
   }
 });
 
-// Fechar modal clicando no fundo escuro
-document.getElementById('danfeModal')?.addEventListener('click', (e) => {
-  if (e.target.id === 'danfeModal') {
-    closeDanfeModal();
-  }
+// Fechar modais clicando no fundo escuro (backdrop)
+['danfeModal', 'dacceModal', 'cceModal', 'editNfModal', 'stockModal'].forEach(mId => {
+  document.getElementById(mId)?.addEventListener('click', (e) => {
+    if (e.target.id === mId) {
+      e.target.classList.add('hidden');
+    }
+  });
 });
 
 window.openDanfeForOrder = (orderId) => {

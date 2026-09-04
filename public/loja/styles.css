@@ -2054,6 +2054,25 @@ html, body {
   font-size: 15px !important;
   font-weight: 500;
   padding: 10px 0 !important;
+  box-shadow: none !important;
+}
+.hero-clean-search input:-webkit-autofill,
+.hero-clean-search input:-webkit-autofill:hover,
+.hero-clean-search input:-webkit-autofill:focus,
+.hero-clean-search input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px #12151b inset !important;
+  box-shadow: 0 0 0 1000px #12151b inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+  background: transparent !important;
+}
+.hero-clean-search input::-webkit-search-decoration,
+.hero-clean-search input::-webkit-search-cancel-button,
+.hero-clean-search input::-webkit-search-results-button,
+.hero-clean-search input::-webkit-search-results-decoration {
+  display: none;
+  -webkit-appearance: none;
 }
 .hero-clean-search input::placeholder {
   color: #727782;
