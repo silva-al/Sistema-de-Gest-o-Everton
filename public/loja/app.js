@@ -1850,6 +1850,37 @@ function hideSplashScreen() {
   }, 450);
 }
 
+// ---------- Tecla ESC para sair de modais ou voltar telas ----------
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    // 1. Fecha lightbox de fotos se aberto
+    const lb = document.getElementById('imageLightbox');
+    if (lb && !lb.classList.contains('hidden')) {
+      const closeBtn = document.getElementById('lightboxCloseBtn');
+      if (closeBtn) closeBtn.click();
+      else lb.classList.add('hidden');
+      return;
+    }
+    // 2. Fecha qualquer modal ativo
+    const openModals = document.querySelectorAll('.modal-overlay:not(.hidden), .modal:not(.hidden)');
+    if (openModals.length > 0) {
+      openModals.forEach(m => m.classList.add('hidden'));
+      return;
+    }
+    // 3. Se estiver em detalhes do produto ou carrinho, volta ao catálogo
+    const detailsView = document.getElementById('view-detalhes');
+    if (detailsView && !detailsView.classList.contains('hidden')) {
+      show('catalogo');
+      return;
+    }
+    const cartView = document.getElementById('view-carrinho');
+    if (cartView && !cartView.classList.contains('hidden')) {
+      show('catalogo');
+      return;
+    }
+  }
+});
+
 // ---------- Inicialização ----------
 async function init() {
   // Timeout de segurança para nunca travar a tela caso a conexão caia

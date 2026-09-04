@@ -76,9 +76,19 @@ app.get('/api/health', (_req, res) => res.json({ ok: true }));
 // 1. Fotos de peças enviadas no painel
 app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
 
-// 2. Loja do cliente na raiz, painel de gestão em /admin
+// 2. Loja do cliente na raiz, painel de gestão em /admin com no-cache para atualização imediata
+const noCacheStaticOpts = {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+  }
+};
 app.use(express.static(path.join(__dirname, '..', 'public', 'loja')));
-app.use('/admin', express.static(path.join(__dirname, '..', 'public', 'admin')));
+app.use('/admin', express.static(path.join(__dirname, '..', 'public', 'admin'), noCacheStaticOpts));
 
 // Tratador de erro final. Sem ele, um erro não previsto (JSON malformado, por
 // exemplo) faz o Express devolver uma página HTML com o rastro completo do

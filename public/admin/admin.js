@@ -715,14 +715,97 @@ document.getElementById('emitAllPendingNfBtn')?.addEventListener('click', () => 
   alert('Todas as notas fiscais pendentes foram emitidas e autorizadas com sucesso!');
 });
 
+// Helper de formatação numérica brasileira para campos fiscais
+function moneyNum(v) {
+  return Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+// Gerador de Código de Barras Code 128 (Subset C) em SVG puro
+function generateCode128Svg(codeDigits, height = 36) {
+  const digits = String(codeDigits).replace(/\D/g, '');
+  const pairs = [];
+  for (let i = 0; i < digits.length; i += 2) {
+    pairs.push(parseInt(digits.substr(i, 2), 10));
+  }
+  const patterns = [
+    [2,1,2,2,2,2],[2,2,2,1,2,2],[2,2,2,2,2,1],[1,2,1,2,2,3],[1,2,1,3,2,2],[1,3,1,2,2,2],[1,2,2,2,1,3],[1,2,2,3,1,2],[1,3,2,2,1,2],[2,2,1,2,1,3],
+    [2,2,1,3,1,2],[2,3,1,2,1,2],[1,1,2,2,3,2],[1,2,2,1,3,2],[1,2,2,2,3,1],[1,1,3,2,2,2],[1,2,3,1,2,2],[1,2,3,2,2,1],[2,2,3,2,1,1],[2,2,1,1,3,2],
+    [2,2,1,2,3,1],[2,1,3,2,1,2],[2,2,3,1,1,2],[3,1,2,1,3,1],[3,1,1,2,2,2],[3,2,1,1,2,2],[3,2,1,2,2,1],[3,1,2,2,1,2],[3,2,2,1,1,2],[3,2,2,2,1,1],
+    [2,1,2,1,2,3],[2,1,2,3,2,1],[2,3,2,1,2,1],[1,1,1,3,2,3],[1,3,1,1,2,3],[1,3,1,3,2,1],[1,1,2,3,1,3],[1,3,2,1,1,3],[1,3,2,3,1,1],[2,1,1,3,1,3],
+    [2,3,1,1,1,3],[2,3,1,3,1,1],[1,1,2,1,3,3],[1,1,2,3,3,1],[1,3,2,1,3,1],[1,1,3,1,2,3],[1,1,3,3,2,1],[1,3,3,1,2,1],[3,1,3,1,2,1],[2,1,1,3,3,1],
+    [2,3,1,1,3,1],[2,1,3,1,1,3],[2,1,3,3,1,1],[2,1,3,1,3,1],[3,1,1,1,2,3],[3,1,1,3,2,1],[3,3,1,1,2,1],[3,1,2,1,1,3],[3,1,2,3,1,1],[3,3,2,1,1,1],
+    [3,1,4,1,1,1],[2,2,1,4,1,1],[4,3,1,1,1,1],[1,1,1,2,2,4],[1,1,1,4,2,2],[1,2,1,1,2,4],[1,2,1,4,2,1],[1,4,1,1,2,2],[1,4,1,2,2,1],[1,1,2,2,1,4],
+    [1,1,2,4,1,2],[1,2,2,1,1,4],[1,2,2,4,1,1],[1,4,2,1,1,2],[1,4,2,2,1,1],[2,4,1,2,1,1],[2,2,1,1,1,4],[4,1,3,1,1,1],[2,4,1,1,1,2],[1,3,4,1,1,1],
+    [1,1,1,2,4,2],[1,2,1,1,4,2],[1,2,1,2,4,1],[1,1,4,2,1,2],[1,2,4,1,1,2],[1,2,4,2,1,1],[4,1,1,2,1,2],[4,2,1,1,1,2],[4,2,1,2,1,1],[2,1,2,1,4,1],
+    [2,1,4,1,2,1],[4,1,2,1,2,1],[1,1,1,1,4,3],[1,1,1,3,4,1],[1,3,1,1,4,1],[1,1,4,1,1,3],[1,1,4,3,1,1],[4,1,1,1,1,3],[4,1,1,3,1,1],[1,1,3,1,4,1],
+    [1,1,4,1,3,1],[3,1,1,1,4,1],[4,1,1,1,3,1],[2,1,1,4,1,2],[2,1,1,2,1,4],[2,1,1,2,3,2],[2,3,3,1,1,1,2]
+  ];
+  const startCode = 105;
+  let checksum = startCode;
+  const sequence = [startCode];
+  pairs.forEach((val, idx) => {
+    sequence.push(val);
+    checksum += val * (idx + 1);
+  });
+  checksum %= 103;
+  sequence.push(checksum);
+  sequence.push(106);
+  let modules = [];
+  sequence.forEach(code => {
+    const pattern = patterns[code];
+    if (!pattern) return;
+    let isBar = true;
+    for (let w of pattern) {
+      for (let i = 0; i < w; i++) modules.push(isBar ? 1 : 0);
+      isBar = !isBar;
+    }
+  });
+  const totalWidth = modules.length;
+  let svg = `<svg viewBox="0 0 ${totalWidth} ${height}" preserveAspectRatio="none" style="width:100%;height:${height}px;display:block;">`;
+  let currentX = 0;
+  for (let i = 0; i < modules.length; i++) {
+    if (modules[i] === 1) {
+      let len = 1;
+      while (i + 1 < modules.length && modules[i + 1] === 1) {
+        len++;
+        i++;
+      }
+      svg += `<rect x="${currentX}" y="0" width="${len}" height="${height}" fill="#000" />`;
+      currentX += len;
+    } else {
+      currentX++;
+    }
+  }
+  svg += `</svg>`;
+  return svg;
+}
+
 // ---------- MODAL DE IMPRESSÃO DO DANFE OFICIAL ----------
-// Fechar modal com ESC
+// Fechar modal ou voltar de telas com tecla ESC
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     const modal = document.getElementById('danfeModal');
     if (modal && !modal.classList.contains('hidden')) {
       closeDanfeModal();
+      return;
     }
+    // Se estiver editando produto, cancela edição
+    if (editingProductId) {
+      cancelProductEdit();
+      return;
+    }
+    // Se estiver em outra aba que não dashboard, volta para o dashboard
+    const activeNav = document.querySelector('.sidebar-nav .nav-item.active');
+    if (activeNav && activeNav.dataset.tab !== 'dashboard') {
+      switchTab('dashboard');
+    }
+  }
+});
+
+// Fechar modal clicando no fundo escuro
+document.getElementById('danfeModal')?.addEventListener('click', (e) => {
+  if (e.target.id === 'danfeModal') {
+    closeDanfeModal();
   }
 });
 
@@ -742,89 +825,109 @@ window.openDanfeForOrder = (orderId) => {
   if (!sheet) return;
 
   const addr = order.address || {};
-  const destName = order.customerName || 'Consumidor Final';
-  const destPhone = order.customerPhone || '(Sem telefone)';
-  const destCep = addr.cep || '';
+  const destName = order.customerName || 'NF-E EMITIDA EM AMBIENTE DE HOMOLOGAÇÃO - SEM VALOR FISCAL';
+  const destPhone = order.customerPhone || '(19) 99876-5432';
+  const destCep = addr.cep || '13180-000';
   const destCity = addr.city || FISCAL_CONFIG.cidade;
   const destUf = addr.state || FISCAL_CONFIG.uf;
-  const destBairro = addr.neighborhood || '';
-  const destRua = addr.street ? `${addr.street}, ${addr.number} ${addr.complement || ''}` : 'Retirada no Balcão';
+  const destBairro = addr.neighborhood || 'Centro';
+  const destRua = addr.street ? `${addr.street}, ${addr.number || 'S/N'} ${addr.complement || ''}`.trim() : 'Av. Santana, 1420';
+  const destCpfCnpj = order.customerCpf || '99.999.999/0001-91';
 
   const items = order.items || [];
   const totalProdutos = items.reduce((acc, i) => acc + ((Number(i.unitPrice) || 0) * (Number(i.quantity) || 1)), 0);
-  const valorTotalNota = Number(order.total) || 0;
-  const valorIcms = valorTotalNota * 0.18;
+  const valorTotalNota = Number(order.total) || totalProdutos;
+  const valorIcms = totalProdutos * 0.07;
   const emissaoDate = formatDate(nf.issuedAt).slice(0, 10);
   const emissaoFull = formatDate(nf.issuedAt);
-  const nfNum = String(nf.nfNumber).padStart(6, '0');
-  const protocolo = `135${String(26).padStart(2,'0')}0098${String(nf.nfNumber).padStart(6,'0')}`;
+  const emissaoHora = formatDate(nf.issuedAt).slice(11);
+  const nfNumFull = `000.${String(nf.nfNumber).padStart(6, '0')}`;
+  const rawKey = nf.accessKey.replace(/\s+/g, '');
+  const protocolo = `141200000220788`;
+  const totalQtd = items.reduce((a, i) => a + (Number(i.quantity) || 1), 0);
 
   sheet.innerHTML = `
-    <!-- TOPO: RECEBEMOS DE... -->
-    <div class="nf-row nf-top-receiver">
-      <div class="nf-cell" style="flex:3">
-        <span class="nf-label">RECEBEMOS DE <strong>${FISCAL_CONFIG.razaoSocial}</strong> OS PRODUTOS/SERVIÇOS CONSTANTES DA NOTA FISCAL INDICADA AO LADO</span>
+    <!-- CANHOTO DE RECEBIMENTO -->
+    <div class="nf-canhoto">
+      <div class="nf-canhoto-left">
+        <div class="nf-canhoto-text">
+          RECEBEMOS DE ${FISCAL_CONFIG.razaoSocial} OS PRODUTOS/SERVIÇOS CONSTANTES DA NOTA FISCAL ELETRÔNICA INDICADA AO LADO. EMISSÃO: ${emissaoDate} - VALOR TOTAL: R$ ${moneyNum(valorTotalNota)} - DESTINATÁRIO: ${destName} - ${destRua}, ${destBairro} - ${destCity}-${destUf}
+        </div>
+        <div class="nf-canhoto-bottom">
+          <div class="nf-canhoto-data">
+            <span class="nf-label">DATA DE RECEBIMENTO</span>
+          </div>
+          <div class="nf-canhoto-assinatura">
+            <span class="nf-label">IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR</span>
+          </div>
+        </div>
       </div>
-      <div class="nf-cell" style="flex:1;text-align:center;border-left:1px solid #000">
-        <span class="nf-label">NF-e</span><br/>
-        <strong style="font-size:12px">Nº ${nfNum}</strong><br/>
-        <span class="nf-label">Série 1</span>
+      <div class="nf-canhoto-right">
+        <div class="nf-canhoto-nfe">NF-e</div>
+        <div class="nf-canhoto-num">Nº. ${nfNumFull}</div>
+        <div class="nf-canhoto-serie">Série 001</div>
       </div>
     </div>
-    <div class="nf-row" style="border-top:0">
-      <div class="nf-cell" style="flex:2">
-        <span class="nf-label">DATA DE RECEBIMENTO</span>
-      </div>
-      <div class="nf-cell" style="flex:3;border-left:1px solid #000">
-        <span class="nf-label">IDENTIFICAÇÃO E ASSINATURA DO RECEBEDOR</span>
-      </div>
-    </div>
+    <div class="nf-cut-line"></div>
 
-    <!-- CABEÇALHO PRINCIPAL -->
+    <!-- CABEÇALHO PRINCIPAL (3 COLUNAS) -->
     <div class="nf-header-main">
       <div class="nf-header-emitente">
-        <strong style="font-size:11px;display:block;margin-bottom:2px">${FISCAL_CONFIG.razaoSocial}</strong>
-        <div>${FISCAL_CONFIG.logradouro}</div>
-        <div>${FISCAL_CONFIG.cidade} - ${FISCAL_CONFIG.uf} - CEP: ${FISCAL_CONFIG.cep}</div>
-        <div>TEL: ${FISCAL_CONFIG.telefone}</div>
-        <div style="margin-top:2px">www.fahrenmotors.com.br</div>
+        <div class="nf-emitente-sub">IDENTIFICAÇÃO DO EMITENTE</div>
+        <div class="nf-emitente-brand">${FISCAL_CONFIG.razaoSocial}</div>
+        <div class="nf-emitente-info">
+          ${FISCAL_CONFIG.logradouro}<br/>
+          ${FISCAL_CONFIG.cidade} - ${FISCAL_CONFIG.uf} - Fone/Fax: ${FISCAL_CONFIG.telefone}<br/>
+          CEP: ${FISCAL_CONFIG.cep} - www.fahrenmotors.com.br
+        </div>
       </div>
       <div class="nf-header-danfe">
-        <strong style="font-size:14px;display:block">DANFE</strong>
-        <div style="font-size:7.5px;line-height:1.2">Documento Auxiliar<br/>da Nota Fiscal Eletrônica</div>
-        <div style="margin-top:3px;font-size:9px">0 - ENTRADA<br/><strong>1 - SAÍDA</strong></div>
-        <div style="margin-top:3px"><strong style="font-size:11px">Nº ${nfNum}</strong></div>
-        <div style="font-size:8px">Série 1&nbsp;&nbsp;Página 1 de 1</div>
+        <div class="nf-danfe-word">DANFE</div>
+        <div class="nf-danfe-desc">Documento Auxiliar da<br/>Nota Fiscal Eletrônica</div>
+        <div class="nf-tp-emis-box">
+          <div class="nf-tp-emis-text">0 - ENTRADA<br/>1 - SAÍDA</div>
+          <div class="nf-tp-emis-digit">1</div>
+        </div>
+        <div class="nf-danfe-num">Nº. ${nfNumFull}</div>
+        <div class="nf-danfe-sub">Série 001</div>
+        <div class="nf-danfe-sub">Folha 1/1</div>
       </div>
       <div class="nf-header-barcode">
-        <div class="danfe-barcode-mock"></div>
+        <div class="nf-barcode-svg-wrap">
+          ${generateCode128Svg(rawKey, 38)}
+        </div>
+        <div class="nf-key-label">CHAVE DE ACESSO</div>
         <div class="nf-key-text">${nf.accessKey}</div>
-        <div style="font-size:7px;color:#555;margin-top:2px">Consulta de autenticidade no portal nacional da NF-e<br/>www.nfe.fazenda.gov.br/portal</div>
+        <div class="nf-consulta-box">
+          Consulta de autenticidade no portal nacional da NF-e<br/>
+          <strong>www.nfe.fazenda.gov.br/portal</strong> ou no site da Sefaz Autorizadora
+        </div>
       </div>
     </div>
 
-    <!-- NATUREZA DA OPERAÇÃO + PROTOCOLO -->
-    <div class="nf-row">
-      <div class="nf-cell" style="flex:3">
-        <span class="nf-label">NATUREZA DA OPERAÇÃO</span><br/>
-        <strong>Venda de mercadorias</strong>
+    <!-- NATUREZA DA OPERAÇÃO / PROTOCOLO -->
+    <div class="nf-row" style="border-top:0">
+      <div class="nf-cell" style="flex:2.2">
+        <span class="nf-label">NATUREZA DA OPERAÇÃO</span>
+        <strong>6102 - Venda de mercadoria adquirida ou recebida de terceiros</strong>
       </div>
-      <div class="nf-cell" style="flex:2;border-left:1px solid #000">
-        <span class="nf-label">PROTOCOLO DE AUTORIZAÇÃO DE USO DA NF-e</span><br/>
+      <div class="nf-cell" style="flex:1.8;border-left:1px solid #000">
+        <span class="nf-label">PROTOCOLO DE AUTORIZAÇÃO DE USO</span>
         <strong>${protocolo} - ${emissaoFull}</strong>
       </div>
     </div>
-
-    <!-- INSCRIÇÃO ESTADUAL / CNPJ -->
     <div class="nf-row" style="border-top:0">
       <div class="nf-cell" style="flex:1">
-        <span class="nf-label">INSCRIÇÃO ESTADUAL</span><br/>${FISCAL_CONFIG.ie}
+        <span class="nf-label">INSCRIÇÃO ESTADUAL</span>
+        <span>${FISCAL_CONFIG.ie}</span>
       </div>
       <div class="nf-cell" style="flex:1;border-left:1px solid #000">
-        <span class="nf-label">INSCRIÇÃO ESTADUAL DO SUBST. TRIB.</span><br/>&nbsp;
+        <span class="nf-label">INSCRIÇÃO ESTADUAL DO SUBST. TRIBUT.</span>
+        <span>&nbsp;</span>
       </div>
       <div class="nf-cell" style="flex:1;border-left:1px solid #000">
-        <span class="nf-label">CNPJ</span><br/>${FISCAL_CONFIG.cnpj}
+        <span class="nf-label">CNPJ</span>
+        <strong>${FISCAL_CONFIG.cnpj}</strong>
       </div>
     </div>
 
@@ -832,178 +935,185 @@ window.openDanfeForOrder = (orderId) => {
     <div class="nf-section-title">DESTINATÁRIO / REMETENTE</div>
     <div class="nf-row" style="border-top:0">
       <div class="nf-cell" style="flex:3">
-        <span class="nf-label">NOME / RAZÃO SOCIAL</span><br/><strong>${destName}</strong>
+        <span class="nf-label">NOME / RAZÃO SOCIAL</span>
+        <strong>${destName}</strong>
       </div>
-      <div class="nf-cell" style="flex:1.2;border-left:1px solid #000">
-        <span class="nf-label">CNPJ/CPF</span><br/>Consumidor Final
+      <div class="nf-cell" style="flex:1.4;border-left:1px solid #000">
+        <span class="nf-label">CNPJ / CPF</span>
+        <strong>${destCpfCnpj}</strong>
       </div>
       <div class="nf-cell" style="flex:0.8;border-left:1px solid #000">
-        <span class="nf-label">DATA DA EMISSÃO</span><br/>${emissaoDate}
+        <span class="nf-label">DATA DA EMISSÃO</span>
+        <span>${emissaoDate}</span>
       </div>
     </div>
     <div class="nf-row" style="border-top:0">
-      <div class="nf-cell" style="flex:2.5">
-        <span class="nf-label">ENDEREÇO</span><br/>${destRua}
+      <div class="nf-cell" style="flex:2.7">
+        <span class="nf-label">ENDEREÇO</span>
+        <span>${destRua}</span>
       </div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
-        <span class="nf-label">BAIRRO / DISTRITO</span><br/>${destBairro}
+      <div class="nf-cell" style="flex:1.3;border-left:1px solid #000">
+        <span class="nf-label">BAIRRO / DISTRITO</span>
+        <span>${destBairro}</span>
       </div>
       <div class="nf-cell" style="flex:0.8;border-left:1px solid #000">
-        <span class="nf-label">CEP</span><br/>${destCep}
+        <span class="nf-label">CEP</span>
+        <span>${destCep}</span>
       </div>
-      <div class="nf-cell" style="flex:0.5;border-left:1px solid #000">
-        <span class="nf-label">DATA SAÍDA</span><br/>${emissaoDate}
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000">
+        <span class="nf-label">DATA SAÍDA/ENTRADA</span>
+        <span>${emissaoDate}</span>
       </div>
     </div>
     <div class="nf-row" style="border-top:0">
-      <div class="nf-cell" style="flex:2">
-        <span class="nf-label">MUNICÍPIO</span><br/>${destCity}
+      <div class="nf-cell" style="flex:2.2">
+        <span class="nf-label">MUNICÍPIO</span>
+        <span>${destCity}</span>
       </div>
-      <div class="nf-cell" style="flex:0.5;border-left:1px solid #000">
-        <span class="nf-label">FONE/FAX</span><br/>${destPhone}
+      <div class="nf-cell" style="flex:0.4;border-left:1px solid #000">
+        <span class="nf-label">UF</span>
+        <span>${destUf}</span>
       </div>
-      <div class="nf-cell" style="flex:0.3;border-left:1px solid #000">
-        <span class="nf-label">UF</span><br/>${destUf}
+      <div class="nf-cell" style="flex:1.1;border-left:1px solid #000">
+        <span class="nf-label">FONE / FAX</span>
+        <span>${destPhone}</span>
       </div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
-        <span class="nf-label">INSCRIÇÃO ESTADUAL</span><br/>&nbsp;
+      <div class="nf-cell" style="flex:1.1;border-left:1px solid #000">
+        <span class="nf-label">INSCRIÇÃO ESTADUAL</span>
+        <span>ISENTO</span>
       </div>
       <div class="nf-cell" style="flex:0.8;border-left:1px solid #000">
-        <span class="nf-label">HORA DA SAÍDA</span><br/>${formatDate(nf.issuedAt).slice(11)}
-      </div>
-    </div>
-
-    <!-- FATURA -->
-    <div class="nf-section-title">FATURA</div>
-    <div class="nf-row" style="border-top:0">
-      <div class="nf-cell" style="flex:1">
-        <span class="nf-label">NÚMERO</span><br/>${nfNum}
-      </div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
-        <span class="nf-label">VALOR ORIGINAL</span><br/>${money(totalProdutos)}
-      </div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
-        <span class="nf-label">DESCONTO</span><br/>${money(order.discount || 0)}
-      </div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
-        <span class="nf-label">VALOR LÍQUIDO</span><br/><strong>${money(valorTotalNota)}</strong>
+        <span class="nf-label">HORA DA SAÍDA</span>
+        <span>${emissaoHora}</span>
       </div>
     </div>
 
     <!-- CÁLCULO DO IMPOSTO -->
     <div class="nf-section-title">CÁLCULO DO IMPOSTO</div>
-    <div class="nf-row nf-imposto-row" style="border-top:0">
-      <div class="nf-cell"><span class="nf-label">BASE DE CÁLC. ICMS</span><br/>${money(valorTotalNota)}</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO ICMS</span><br/>${money(valorIcms)}</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">BC ICMS S.T.</span><br/>0,00</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">V. ICMS SUBST.</span><br/>0,00</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">V. IMP. IMPORT.</span><br/>0,00</div>
+    <div class="nf-row nf-calc-imposto" style="border-top:0">
+      <div class="nf-cell"><span class="nf-label">BASE DE CÁLC. DO ICMS</span>${moneyNum(totalProdutos)}</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO ICMS</span>${moneyNum(valorIcms)}</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">BASE DE CÁLC. ICMS S.T.</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO ICMS S.T.</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO F. POBREZA</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO II</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR TOTAL DOS PRODUTOS</span>${moneyNum(totalProdutos)}</div>
     </div>
-    <div class="nf-row nf-imposto-row" style="border-top:0">
-      <div class="nf-cell"><span class="nf-label">VALOR DO FRETE</span><br/>0,00</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO SEGURO</span><br/>0,00</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">DESCONTO</span><br/>${money(order.discount || 0)}</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">OUTRAS DESP.</span><br/>0,00</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR TOTAL DOS PRODUTOS</span><br/>${money(totalProdutos)}</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label"><strong>VALOR TOTAL DA NOTA</strong></span><br/><strong>${money(valorTotalNota)}</strong></div>
+    <div class="nf-row nf-calc-imposto" style="border-top:0">
+      <div class="nf-cell"><span class="nf-label">VALOR DO FRETE</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO SEGURO</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">DESCONTO</span>${moneyNum(order.discount || 0)}</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">OUTRAS DESP. ACESS.</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR TOTAL DO IPI</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR TOTAL TRIBUTOS</span>0,00</div>
+      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR TOTAL DA NOTA</span><strong>${moneyNum(valorTotalNota)}</strong></div>
     </div>
 
     <!-- TRANSPORTADOR / VOLUMES TRANSPORTADOS -->
     <div class="nf-section-title">TRANSPORTADOR / VOLUMES TRANSPORTADOS</div>
     <div class="nf-row" style="border-top:0">
-      <div class="nf-cell" style="flex:2"><span class="nf-label">RAZÃO SOCIAL</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">FRETE POR CONTA</span><br/>1 - Emitente</div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">CÓDIGO ANTT</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">PLACA DO VEÍCULO</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="flex:0.3;border-left:1px solid #000"><span class="nf-label">UF</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">CNPJ/CPF</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:2.2"><span class="nf-label">NOME / RAZÃO SOCIAL</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:1.1;border-left:1px solid #000"><span class="nf-label">FRETE POR CONTA</span>(9) Sem Frete</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">CÓDIGO ANTT</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">PLACA DO VEÍCULO</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.3;border-left:1px solid #000"><span class="nf-label">UF</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:1.1;border-left:1px solid #000"><span class="nf-label">CNPJ / CPF</span>&nbsp;</div>
     </div>
     <div class="nf-row" style="border-top:0">
-      <div class="nf-cell" style="flex:2"><span class="nf-label">ENDEREÇO</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">MUNICÍPIO</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="flex:0.3;border-left:1px solid #000"><span class="nf-label">UF</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">INSCRIÇÃO ESTADUAL</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:2.5"><span class="nf-label">ENDEREÇO</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:1.5;border-left:1px solid #000"><span class="nf-label">MUNICÍPIO</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.3;border-left:1px solid #000"><span class="nf-label">UF</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000"><span class="nf-label">INSCRIÇÃO ESTADUAL</span>&nbsp;</div>
     </div>
     <div class="nf-row" style="border-top:0">
-      <div class="nf-cell"><span class="nf-label">QUANTIDADE</span><br/>${items.reduce((a,i)=>a+(Number(i.quantity)||1),0)}</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">ESPÉCIE</span><br/>Caixa</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">MARCA</span><br/>Fahren</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">NUMERAÇÃO</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">PESO BRUTO</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">PESO LÍQUIDO</span><br/>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.8"><span class="nf-label">QUANTIDADE</span>${totalQtd}</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">ESPÉCIE</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">MARCA</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">NUMERAÇÃO</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">PESO BRUTO</span>&nbsp;</div>
+      <div class="nf-cell" style="flex:0.8;border-left:1px solid #000"><span class="nf-label">PESO LÍQUIDO</span>&nbsp;</div>
     </div>
 
-    <!-- DADOS DOS PRODUTOS -->
+    <!-- DADOS DOS PRODUTOS / SERVIÇOS -->
     <div class="nf-section-title">DADOS DOS PRODUTOS / SERVIÇOS</div>
-    <table class="nf-products-table">
-      <thead>
-        <tr>
-          <th>Código</th>
-          <th>Descrição do Produto/Serviço</th>
-          <th>NCM/SH</th>
-          <th>CST</th>
-          <th>CFOP</th>
-          <th>UN</th>
-          <th>Quant.</th>
-          <th>Valor Unit.</th>
-          <th>Valor Total</th>
-          <th>BC ICMS</th>
-          <th>Vl. ICMS</th>
-          <th>Vl. IPI</th>
-          <th>Alíq. ICMS</th>
-          <th>Alíq. IPI</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${items.map(i => {
-          const qtd = Number(i.quantity) || 1;
-          const unit = Number(i.unitPrice) || 0;
-          const tot = qtd * unit;
-          const icmsItem = tot * 0.18;
-          return `<tr>
-            <td>PECA-${i.productId}</td>
-            <td><strong>${i.name}</strong></td>
-            <td>8708.29.99</td>
-            <td>010</td>
-            <td>5.102</td>
-            <td>UN</td>
-            <td>${qtd}</td>
-            <td>${money(unit)}</td>
-            <td>${money(tot)}</td>
-            <td>${money(tot)}</td>
-            <td>${money(icmsItem)}</td>
-            <td>0,00</td>
-            <td>18%</td>
-            <td>0%</td>
-          </tr>`;
-        }).join('')}
-      </tbody>
-    </table>
-
-    <!-- CÁLCULO DO ISSQN -->
-    <div class="nf-section-title">CÁLCULO DO ISSQN</div>
-    <div class="nf-row" style="border-top:0">
-      <div class="nf-cell"><span class="nf-label">INSCRIÇÃO MUNICIPAL</span><br/>&nbsp;</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR TOTAL DOS SERVIÇOS</span><br/>0,00</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">BASE DE CÁLCULO DO ISSQN</span><br/>0,00</div>
-      <div class="nf-cell" style="border-left:1px solid #000"><span class="nf-label">VALOR DO ISSQN</span><br/>0,00</div>
+    <div class="nf-products-container">
+      <table class="nf-products-table">
+        <thead>
+          <tr>
+            <th style="width:7%">CÓDIGO PRODUTO</th>
+            <th style="width:33%">DESCRIÇÃO DO PRODUTO / SERVIÇO</th>
+            <th style="width:7%">NCM/SH</th>
+            <th style="width:4%">CST</th>
+            <th style="width:5%">CFOP</th>
+            <th style="width:4%">UNID.</th>
+            <th style="width:5%">QUANT.</th>
+            <th style="width:7%">VALOR UNIT.</th>
+            <th style="width:7%">VALOR TOTAL</th>
+            <th style="width:7%">B. CÁLC. ICMS</th>
+            <th style="width:6%">VALOR ICMS</th>
+            <th style="width:5%">VALOR IPI</th>
+            <th style="width:4%">ALÍQ. ICMS</th>
+            <th style="width:4%">ALÍQ. IPI</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${items.map(i => {
+            const qtd = Number(i.quantity) || 1;
+            const unit = Number(i.unitPrice) || 0;
+            const tot = qtd * unit;
+            const icmsItem = tot * 0.07;
+            return `
+              <tr class="nf-item-row">
+                <td>${String(i.productId || '01').padStart(2, '0')}</td>
+                <td style="text-align:left"><strong>${i.name}</strong></td>
+                <td>8708.29.99</td>
+                <td>0102</td>
+                <td>5.102</td>
+                <td>UN</td>
+                <td>${qtd}</td>
+                <td>${moneyNum(unit)}</td>
+                <td>${moneyNum(tot)}</td>
+                <td>${moneyNum(tot)}</td>
+                <td>${moneyNum(icmsItem)}</td>
+                <td>0,00</td>
+                <td>7%</td>
+                <td>0%</td>
+              </tr>
+            `;
+          }).join('')}
+          <tr class="nf-empty-filler">
+            <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+            <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+            <td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="nf-watermark-overlay">
+        SEM VALOR FISCAL<br/>
+        AMBIENTE DE HOMOLOGAÇÃO
+      </div>
     </div>
 
     <!-- DADOS ADICIONAIS -->
     <div class="nf-section-title">DADOS ADICIONAIS</div>
     <div class="nf-row nf-dados-adicionais" style="border-top:0">
-      <div class="nf-cell" style="flex:1;min-height:50px">
-        <span class="nf-label">INFORMAÇÕES COMPLEMENTARES</span><br/>
-        <span style="font-size:7.5px">Pedido #${order.id} — ${order.paymentMethodLabel}. Regime Tributário: Simples Nacional. Permite o aproveitamento de crédito de ICMS correspondente à alíquota aplicável. Mercadoria destinada a uso/consumo ou reposição veicular.</span>
+      <div class="nf-cell" style="flex:2.6">
+        <span class="nf-label">INFORMAÇÕES COMPLEMENTARES</span>
+        <div style="font-size:6.2px;line-height:1.2;margin-top:1px">
+          Inf. Contribuinte: Pedido #${order.id} - Forma de Pagamento: ${order.paymentMethodLabel || 'PIX'}.<br/>
+          Documento emitido por ME ou EPP optante pelo Simples Nacional.<br/>
+          Permite o aproveitamento de crédito de ICMS correspondente à alíquota de 2,5%, nos termos do art. 23 da LC 123/2006.<br/>
+          NÃO GERA DIREITO A CRÉDITO FISCAL DE IPI. Destinado a consumidor final.
+        </div>
       </div>
-      <div class="nf-cell" style="flex:1;border-left:1px solid #000;min-height:50px">
-        <span class="nf-label">RESERVADO AO FISCO</span><br/>&nbsp;
+      <div class="nf-cell" style="flex:1;border-left:1px solid #000">
+        <span class="nf-label">RESERVADO AO FISCO</span>
+        &nbsp;
       </div>
     </div>
-
-    <!-- RODAPÉ -->
-    <div class="nf-footer">
-      Documento emitido por sistema de gestão Fahren Motors &nbsp;|&nbsp; Ambiente de <strong>HOMOLOGAÇÃO</strong> - documento sem valor fiscal &nbsp;|&nbsp; ${emissaoFull}
+    <div class="nf-footer-line">
+      <span>Impresso em ${emissaoFull}</span>
+      <span>JC Mantovan - Desenvolvido por Sistema Fahren Motors Gestão WMS</span>
     </div>
   `;
 

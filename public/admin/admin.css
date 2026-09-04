@@ -1043,79 +1043,192 @@ input:checked + .slider:before {
 }
 
 /* ===================================================================
-   FOLHA OFICIAL DO DANFE — LAYOUT NFe PADRÃO BRASILEIRO
+   FOLHA OFICIAL DO DANFE — LAYOUT NFe PADRÃO BRASILEIRO (A4 1 PÁGINA)
    =================================================================== */
 .danfe-sheet {
   background: #ffffff;
   color: #000000;
   font-family: Arial, Helvetica, sans-serif;
-  padding: 18px;
-  margin: 12px;
-  border-radius: 4px;
+  padding: 10px 14px;
+  margin: 10px auto;
+  border-radius: 2px;
   overflow-y: auto;
-  font-size: 9px;
-  line-height: 1.2;
+  font-size: 8px;
+  line-height: 1.15;
+  width: 100%;
+  max-width: 800px;
+  box-sizing: border-box;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  position: relative;
 }
 
-/* LINHAS & CÉLULAS (GRID FLEXÍVEL COM BORDAS) */
-.nf-row {
+/* CANHOTO DE RECEBIMENTO */
+.nf-canhoto {
   display: flex;
   border: 1px solid #000;
+  box-sizing: border-box;
 }
 
-.nf-cell {
-  flex: 1;
+.nf-canhoto-left {
+  flex: 5;
+  display: flex;
+  flex-direction: column;
+}
+
+.nf-canhoto-text {
+  font-size: 6.2px;
+  line-height: 1.15;
   padding: 2px 4px;
-  min-height: 18px;
-  font-size: 8.5px;
-}
-
-.nf-label {
-  display: block;
-  font-size: 6.5px;
-  font-weight: bold;
-  color: #555;
+  border-bottom: 1px solid #000;
   text-transform: uppercase;
-  letter-spacing: 0.2px;
-  line-height: 1.1;
-  margin-bottom: 0px;
 }
 
-.nf-section-title {
-  background: #e8e8e8;
+.nf-canhoto-bottom {
+  display: flex;
+  flex: 1;
+  min-height: 20px;
+}
+
+.nf-canhoto-data {
+  flex: 1.2;
+  border-right: 1px solid #000;
+  padding: 2px 4px;
+}
+
+.nf-canhoto-assinatura {
+  flex: 3.8;
+  padding: 2px 4px;
+}
+
+.nf-canhoto-right {
+  flex: 1.1;
+  border-left: 1px solid #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2px 4px;
+}
+
+.nf-canhoto-nfe {
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.nf-canhoto-num {
+  font-size: 9px;
   font-weight: bold;
+  white-space: nowrap;
+  margin-top: 1px;
+}
+
+.nf-canhoto-serie {
   font-size: 7.5px;
-  padding: 2px 5px;
-  border: 1px solid #000;
-  border-bottom: none;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  margin-top: 2px;
 }
 
-/* CABEÇALHO PRINCIPAL DO DANFE (3 COLUNAS) */
+.nf-cut-line {
+  border-top: 1px dashed #000;
+  margin: 3px 0 3px 0;
+}
+
+/* CABEÇALHO PRINCIPAL (3 COLUNAS) */
 .nf-header-main {
   display: grid;
-  grid-template-columns: 2.2fr 0.8fr 2fr;
+  grid-template-columns: 2.2fr 1fr 2.4fr;
   border: 1px solid #000;
-  margin-top: 4px;
+  box-sizing: border-box;
 }
 
 .nf-header-emitente {
-  padding: 5px 6px;
-  font-size: 8px;
-  line-height: 1.3;
+  padding: 4px 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.nf-emitente-sub {
+  font-size: 6px;
+  font-weight: bold;
+  color: #222;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.nf-emitente-brand {
+  font-size: 11px;
+  font-weight: 900;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.nf-emitente-info {
+  font-size: 7px;
+  line-height: 1.25;
+  color: #000;
 }
 
 .nf-header-danfe {
   border-left: 1px solid #000;
   border-right: 1px solid #000;
   text-align: center;
-  padding: 4px 5px;
+  padding: 3px 3px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+}
+
+.nf-danfe-word {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.nf-danfe-desc {
+  font-size: 6px;
+  line-height: 1.1;
+  text-align: center;
+  margin-top: 1px;
+}
+
+.nf-tp-emis-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin: 2px 0;
+}
+
+.nf-tp-emis-text {
+  font-size: 6.5px;
+  font-weight: bold;
+  line-height: 1.1;
+  text-align: left;
+}
+
+.nf-tp-emis-digit {
+  border: 1px solid #000;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.nf-danfe-num {
+  font-size: 9.5px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.nf-danfe-sub {
+  font-size: 7px;
+  line-height: 1.2;
 }
 
 .nf-header-barcode {
@@ -1123,94 +1236,190 @@ input:checked + .slider:before {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 4px 6px;
+  padding: 3px 6px;
   text-align: center;
 }
 
-.danfe-barcode-mock {
+.nf-barcode-svg-wrap {
   width: 100%;
-  height: 32px;
-  background: repeating-linear-gradient(90deg, #000 0px, #000 2px, #fff 2px, #fff 3.5px, #000 3.5px, #000 5px, #fff 5px, #fff 7px, #000 7px, #000 8px, #fff 8px, #fff 10px);
-  margin-bottom: 3px;
+  max-width: 320px;
+  margin-bottom: 2px;
+}
+
+.nf-key-label {
+  font-size: 6px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
 }
 
 .nf-key-text {
-  font-family: 'Courier New', monospace;
+  font-family: 'Courier New', Courier, monospace;
   font-size: 7.5px;
-  letter-spacing: 0.3px;
   font-weight: bold;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+  margin: 1px 0 2px 0;
 }
 
-/* TOPO RECEBEDOR */
-.nf-top-receiver {
-  min-height: 22px;
-  font-size: 7.5px;
+.nf-consulta-box {
+  font-size: 5.8px;
+  line-height: 1.15;
+  color: #000;
+  border-top: 1px solid #000;
+  width: 100%;
+  padding-top: 2px;
+  margin-top: 1px;
 }
 
-/* IMPOSTO: LINHAS COM FLEX AUTOMÁTICO */
-.nf-imposto-row .nf-cell {
+/* LINHAS E CÉLULAS DO DANFE */
+.nf-row {
+  display: flex;
+  border: 1px solid #000;
+  box-sizing: border-box;
+}
+
+.nf-cell {
   flex: 1;
-  text-align: center;
+  padding: 1.5px 3px;
+  min-height: 20px;
+  font-size: 7.8px;
+  box-sizing: border-box;
 }
 
-/* TABELA DE PRODUTOS */
+.nf-label {
+  display: block;
+  font-size: 5.8px;
+  font-weight: bold;
+  color: #000;
+  text-transform: uppercase;
+  letter-spacing: 0.15px;
+  line-height: 1.0;
+  margin-bottom: 1px;
+}
+
+.nf-section-title {
+  background: #e6e6e6;
+  font-weight: bold;
+  font-size: 6.8px;
+  padding: 1.5px 4px;
+  border: 1px solid #000;
+  border-bottom: none;
+  text-transform: uppercase;
+  letter-spacing: 0.2px;
+  margin-top: 2px;
+  box-sizing: border-box;
+}
+
+/* CÁLCULO DO IMPOSTO */
+.nf-calc-imposto .nf-cell {
+  text-align: right;
+}
+
+.nf-calc-imposto .nf-label {
+  text-align: left;
+}
+
+/* TABELA DE PRODUTOS COM BORDA VERTICAL CONTÍNUA */
+.nf-products-container {
+  position: relative;
+  border: 1px solid #000;
+  border-top: none;
+  min-height: 240px;
+  display: flex;
+  flex-direction: column;
+}
+
 .nf-products-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 7.5px;
-  border: 1px solid #000;
-  border-top: none;
+  table-layout: fixed;
+  flex: 1;
 }
 
 .nf-products-table th {
-  background: #e8e8e8;
+  background: #e6e6e6;
   border-bottom: 1px solid #000;
-  border-right: 1px solid #ddd;
-  padding: 2px 3px;
+  border-right: 1px solid #000;
+  padding: 2px 2px;
   text-align: center;
-  font-size: 6.5px;
+  font-size: 5.8px;
   font-weight: bold;
   text-transform: uppercase;
-  white-space: nowrap;
+  line-height: 1.05;
 }
 
-.nf-products-table th:last-child { border-right: none; }
+.nf-products-table th:last-child {
+  border-right: none;
+}
 
 .nf-products-table td {
   padding: 2px 3px;
-  border-bottom: 1px dotted #bbb;
-  border-right: 1px solid #eee;
+  border-right: 1px solid #000;
+  border-bottom: none;
   text-align: center;
   font-size: 7.5px;
+  vertical-align: top;
+  line-height: 1.15;
 }
 
-.nf-products-table td:nth-child(2) { text-align: left; }
-.nf-products-table td:last-child { border-right: none; }
+.nf-products-table td:last-child {
+  border-right: none;
+}
+
+.nf-products-table tr.nf-item-row td {
+  border-bottom: 1px solid #ddd;
+}
+
+.nf-products-table tr.nf-empty-filler td {
+  height: 100%;
+  border-bottom: none;
+}
+
+/* MARCA D'ÁGUA HORIZONTAL CENTRALIZADA NA TABELA DE PRODUTOS */
+.nf-watermark-overlay {
+  position: absolute;
+  top: 60%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 34px;
+  font-weight: 900;
+  color: rgba(0, 0, 0, 0.12);
+  text-align: center;
+  pointer-events: none;
+  line-height: 1.15;
+  letter-spacing: 2px;
+  font-family: Arial, Helvetica, sans-serif;
+  z-index: 1;
+  white-space: nowrap;
+}
 
 /* DADOS ADICIONAIS */
 .nf-dados-adicionais .nf-cell {
-  font-size: 7px;
-  line-height: 1.3;
+  font-size: 6.8px;
+  line-height: 1.25;
+  min-height: 44px;
 }
 
-/* RODAPÉ */
-.nf-footer {
-  text-align: center;
-  font-size: 6.5px;
-  color: #666;
-  padding: 4px;
-  border: 1px solid #000;
-  border-top: 0;
-  margin-bottom: 0;
+/* RODAPÉ DO DANFE */
+.nf-footer-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 6px;
+  color: #555;
+  padding: 2px 0 0 0;
+  margin-top: 1px;
 }
 
 /* ===================================================================
-   REGRAS DE IMPRESSÃO (@media print) — 1 PÁGINA A4
+   REGRAS DE IMPRESSÃO (@media print) — EXATAMENTE 1 PÁGINA A4
    =================================================================== */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 8mm 6mm;
+    margin: 5mm 6mm;
   }
 
   * {
@@ -1218,15 +1427,15 @@ input:checked + .slider:before {
     print-color-adjust: exact !important;
   }
 
-  body {
+  html, body {
     background: #fff !important;
     color: #000 !important;
     margin: 0 !important;
     padding: 0 !important;
-    font-size: 9px !important;
+    width: 100% !important;
+    height: 100% !important;
   }
 
-  /* Esconde TUDO que não é o DANFE */
   .wms-layout,
   .login-wrap,
   .wms-sidebar,
@@ -1238,14 +1447,14 @@ input:checked + .slider:before {
     display: none !important;
   }
 
-  /* Mostra apenas o modal do DANFE */
   .modal-overlay {
     position: static !important;
     background: transparent !important;
     padding: 0 !important;
-    backdrop-filter: none !important;
     display: block !important;
     overflow: visible !important;
+    box-shadow: none !important;
+    border: none !important;
   }
 
   .modal-overlay.hidden {
@@ -1261,23 +1470,46 @@ input:checked + .slider:before {
     border-radius: 0 !important;
     margin: 0 !important;
     max-height: none !important;
+    overflow: visible !important;
   }
 
   .danfe-sheet {
     margin: 0 !important;
     padding: 0 !important;
     width: 100% !important;
+    max-width: 100% !important;
+    border: none !important;
+    box-shadow: none !important;
     border-radius: 0 !important;
     overflow: visible !important;
-    font-size: 8.5px !important;
     page-break-inside: avoid !important;
+    page-break-after: avoid !important;
+    height: 284mm !important;
+    max-height: 284mm !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
   }
 
-  .nf-row,
+  .danfe-sheet::after {
+    display: none !important;
+  }
+
+  .nf-products-container {
+    flex: 1 !important;
+    min-height: 0 !important;
+  }
+
+  .nf-products-table {
+    height: 100% !important;
+  }
+
+  .nf-canhoto,
   .nf-header-main,
   .nf-section-title,
-  .nf-products-table,
-  .nf-footer {
+  .nf-row,
+  .nf-products-container,
+  .nf-footer-line {
     page-break-inside: avoid !important;
   }
 }
