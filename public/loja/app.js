@@ -2039,6 +2039,62 @@ init();
     }
   });
 
+  // Atalho "Informe seu veículo" leva para o localizador de veículo da home
+  document.getElementById('qaVehicle')?.addEventListener('click', () => {
+    show('inicio');
+    setTimeout(() => {
+      const vf = document.querySelector('.vehicle-finder');
+      vf?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => document.getElementById('vfMontadora')?.focus(), 400);
+    }, 80);
+  });
+
+  // Ofertas especiais — monta os cards com peças reais do catálogo e o desconto do Pix
+  (async function loadOffers() {
+    const section = document.getElementById('offersSection');
+    const list = document.getElementById('offersList');
+    if (!section || !list) return;
+    try {
+      const res = await fetch('/api/products/categories/featured');
+      const data = await res.json();
+      const items = (data.products || data.categories || []).filter(p => {
+        const v = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
+        return v > 0 && p.inStock !== false;
+      }).slice(0, 4);
+      if (!items.length) return;
+
+      list.innerHTML = items.map(p => {
+        const photo = p.photoUrl || CATEGORY_IMAGES[p.category] || 'images/categorias/filtros.jpg';
+        const priceVal = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
+        const pixVal = priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04));
+        const pixStr = money(pixVal).replace('R$', '').trim();
+        return `
+        <button type="button" class="offer-card" data-product-id="${p.id}">
+          <div class="offer-card-text">
+            <div class="offer-card-cat">${p.category || 'Peça'}</div>
+            <div class="offer-card-name">${p.name}</div>
+            <div class="offer-card-label">A partir de</div>
+            <div class="offer-card-price"><small>R$</small>${pixStr}</div>
+            <div class="offer-card-note">no Pix • ou ${money(priceVal)} em até 12x</div>
+            <span class="offer-card-cta">VER PEÇA</span>
+          </div>
+          <div class="offer-card-img"><img src="${photo}" alt="${p.name}" loading="lazy"></div>
+        </button>`;
+      }).join('');
+
+      list.querySelectorAll('.offer-card').forEach(card => {
+        card.addEventListener('click', () => {
+          const id = card.dataset.productId;
+          const prod = items.find(p => String(p.id) === String(id));
+          if (typeof openProductDetails === 'function') openProductDetails(id, prod);
+        });
+      });
+      section.style.display = '';
+    } catch (e) {
+      console.error('Erro ao carregar ofertas:', e);
+    }
+  })();
+
   // Barra de navegação inferior (somente mobile)
   const tabbar = document.getElementById('mobileTabbar');
   if (tabbar) {

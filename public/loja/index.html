@@ -29,6 +29,11 @@
 </div>
 
 <div class="app">
+<!-- Barra de aviso no topo -->
+<div class="topbar-note">
+  <strong>PEÇAS COM GARANTIA DE FÁBRICA</strong>
+  <span>Retire em Hortolândia ou receba no seu endereço</span>
+</div>
 <header class="header"><div class="header-inner">
 <button aria-label="Voltar" class="back-btn" id="backBtn" title="Voltar" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"></path></svg></button>
 <div class="logo" id="logoBtn" role="button" tabindex="0" title="Ir para o início" style="cursor:pointer;user-select:none"><div class="logo-badge"><div class="logo-badge-inner">FM</div></div><div class="logo-text">FAHREN<span>MOTORS</span></div></div>
@@ -69,6 +74,20 @@
 
 <main>
 <section class="screen active" id="inicio">
+  <!-- Atalhos rápidos -->
+  <div class="quick-actions">
+    <button type="button" class="quick-action" id="qaVehicle">
+      <span class="qa-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17h14M6.5 17V9.5L8 6h8l1.5 3.5V17"/><circle cx="8" cy="17" r="1.6"/><circle cx="16" cy="17" r="1.6"/></svg></span>
+      <span class="qa-text"><b>Informe seu veículo</b><small>Encontre a peça certa</small></span>
+      <svg class="qa-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+    </button>
+    <a class="quick-action" id="qaStore" href="https://www.google.com/maps/search/?api=1&amp;query=Rua+Florian%C3%B3polis%2C+165+-+Residencial+Jo%C3%A3o+Luiz%2C+Hortol%C3%A2ndia+-+SP%2C+13186-492" target="_blank" rel="noopener">
+      <span class="qa-icon qa-icon-green"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></span>
+      <span class="qa-text"><b>Rua Florianópolis, 165</b><small>Res. João Luiz – Hortolândia/SP</small></span>
+      <svg class="qa-arrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg>
+    </a>
+  </div>
+
   <div class="hero-clean">
     <div class="hero-clean-grid">
       <div class="hero-clean-text">
@@ -133,6 +152,15 @@
       <button type="button" class="cat-grid-item" data-cat="Óleos e fluidos"><img src="images/categorias/oleos.jpg" alt="Fluidos"/><span class="cat-grid-name">Fluidos</span><span class="cat-grid-count" data-count-for="Óleos e fluidos">Carregando...</span></button>
       <button type="button" class="cat-grid-item cat-grid-all" data-go="pecas"><span class="cat-grid-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span><span class="cat-grid-name">Ver todas as categorias</span></button>
     </div>
+  </div>
+
+  <!-- Ofertas especiais (peças reais do catálogo, com o desconto do Pix) -->
+  <div class="offers-section" id="offersSection" style="display:none">
+    <div class="offers-head">
+      <h2>OFERTAS ESPECIAIS</h2>
+      <p>Todas as peças com 4% de desconto à vista no Pix</p>
+    </div>
+    <div class="offers-list" id="offersList"></div>
   </div>
 
   <!-- Selos de confiança -->
