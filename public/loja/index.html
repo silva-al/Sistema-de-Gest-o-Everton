@@ -14,7 +14,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-<link href="styles.css?v=20260905_5" rel="stylesheet"/>
+<link href="styles.css?v=20260905_6" rel="stylesheet"/>
 
 <!-- Bloqueio e remoção total do badge e drawer do Netlify -->
 <style id="netlify-badge-blocker">
@@ -180,6 +180,9 @@
           <span data-slide="3" role="tab" aria-label="Slide 4" title="Slide 4"></span>
         </div>
       </div>
+
+      <!-- Peças reais do catálogo ao lado do banner (aparece somente no desktop) -->
+      <div class="hero-side-cards" id="heroSideCards" aria-label="Peças em destaque"></div>
     </div>
 
     <div class="hero-clean-tag">
@@ -299,25 +302,71 @@
     </div>
 
     <div class="fp-detail-grid">
-      <!-- Coluna Esquerda: Visualizador Interativo com Hiper Zoom e Ângulos 3D -->
+      <!-- Coluna Esquerda: Galeria Deslizável e Arrastável Manualmente para Ver Mais -->
       <div class="fp-viewer-column">
         <div class="fp-viewer-card" id="detailViewerContainer">
           <div class="fp-viewer-status-bar">
             <span class="fp-viewer-badge" id="viewerBadge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
-              <span id="viewerBadgeText">Passe o mouse ou arraste o dedo para ângulos e zoom</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <span id="viewerBadgeText">Arraste para o lado para ver mais</span>
             </span>
-            <span class="fp-angle-indicator" id="angleIndicator">3D: 0° / 0°</span>
+            <span class="fp-slide-counter" id="detailSlideCounter">1 / 3</span>
           </div>
 
-          <div class="fp-viewer-stage" id="viewerStage">
-            <div class="fp-viewer-track" id="viewerTrack">
-              <img id="detailMainImg" src="" alt="Peça automotiva" loading="eager" draggable="false" />
-              <div class="fp-viewer-sheen" id="viewerSheen"></div>
-              <div class="fp-viewer-reticle" id="viewerReticle"></div>
+          <div class="fp-gallery-slider" id="gallerySlider">
+            <!-- Setas de navegação manual -->
+            <button type="button" class="gallery-nav-btn prev" id="galleryPrevBtn" aria-label="Slide anterior" title="Anterior">‹</button>
+            <button type="button" class="gallery-nav-btn next" id="galleryNextBtn" aria-label="Próximo slide" title="Próximo">›</button>
+
+            <!-- Trilha de slides arrastável -->
+            <div class="gallery-slides-track" id="gallerySlidesTrack">
+              <!-- Slide 1: Foto Oficial da Peça -->
+              <div class="gallery-slide" data-slide-index="0">
+                <div class="slide-img-wrap">
+                  <img id="detailMainImg" src="" alt="Peça automotiva" loading="eager" draggable="false" />
+                </div>
+                <div class="slide-label">Foto Oficial da Peça</div>
+              </div>
+
+              <!-- Slide 2: Aplicação & Compatibilidade -->
+              <div class="gallery-slide" data-slide-index="1">
+                <div class="slide-card-content">
+                  <div class="slide-card-icon">🚗</div>
+                  <div class="slide-card-title">Aplicação & Compatibilidade</div>
+                  <div class="slide-card-desc" id="slideCompatText">Compatível com padrão original da montadora. Consulte a lista técnica completa logo abaixo.</div>
+                  <div class="slide-card-badge">Padrão 100% Plug & Play</div>
+                </div>
+                <div class="slide-label">Compatibilidade</div>
+              </div>
+
+              <!-- Slide 3: Garantia & Procedência -->
+              <div class="gallery-slide" data-slide-index="2">
+                <div class="slide-card-content">
+                  <div class="slide-card-icon">🛡️</div>
+                  <div class="slide-card-title">Garantia & Procedência</div>
+                  <div class="slide-card-desc">Garantia oficial de 90 dias com Nota Fiscal. Peça inspecionada com pronta entrega e envio rápido.</div>
+                  <div class="slide-card-badge green">Garantia Fahren Motors</div>
+                </div>
+                <div class="slide-label">Garantia e Envio</div>
+              </div>
             </div>
           </div>
 
+          <!-- Dots de navegação do produto -->
+          <div class="gallery-dots-row" id="galleryDotsRow">
+            <button type="button" class="g-dot active" data-go-slide="0" aria-label="Slide 1 - Foto" title="Foto Oficial"></button>
+            <button type="button" class="g-dot" data-go-slide="1" aria-label="Slide 2 - Compatibilidade" title="Compatibilidade"></button>
+            <button type="button" class="g-dot" data-go-slide="2" aria-label="Slide 3 - Garantia" title="Garantia"></button>
+          </div>
+
+          <!-- Dica de arrastar e botão de tela cheia -->
+          <div class="gallery-hints-row">
+            <span class="gallery-hint-swipe">👈 Deslize para o lado para ver mais</span>
+            <button type="button" class="gallery-zoom-btn" id="galleryZoomBtn" title="Inspecionar em alta resolução">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M11 8v6M8 11h6"/></svg>
+              Ver foto inteira
+            </button>
+          </div>
         </div>
       </div>
 
@@ -505,4 +554,4 @@
 <div id="toastContainer"></div>
 <script defer="True" src="vendor/qrcode.js"></script>
 <script defer="True" src="https://sdk.mercadopago.com/js/v2"></script>
-<script defer="True" src="app.js?v=20260905_5"></script></body></html>
+<script defer="True" src="app.js?v=20260905_6"></script></body></html>

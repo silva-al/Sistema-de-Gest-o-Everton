@@ -996,9 +996,21 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
     `;
   }
 
-  // Reseta visualizador para posição neutra
-  if (typeof window.resetViewer === 'function') {
+  // Reseta a galeria para o primeiro slide
+  if (typeof window.resetProductGallery === 'function') {
+    window.resetProductGallery();
+  } else if (typeof window.resetViewer === 'function') {
     window.resetViewer();
+  }
+
+  // Atualiza texto de compatibilidade no slide 2 da galeria
+  const slideCompat = document.getElementById('slideCompatText');
+  if (slideCompat) {
+    if (product.compatibility && product.compatibility.trim()) {
+      slideCompat.textContent = `Compatível com: ${product.compatibility}`;
+    } else {
+      slideCompat.textContent = `Compatível com padrão original da montadora para ${product.category || 'este veículo'}. Consulte a tabela completa abaixo.`;
+    }
   }
 
   // Navega para a tela do produto
@@ -1009,147 +1021,116 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
   loadRecommendedProducts(product);
 }
 
-// Inicializador dos Efeitos Interativos de Hiper Zoom e Ângulos 3D
+// Inicializador da Galeria de Fotos e Detalhes Deslizável por Arrastar/Toque
 function initProductViewer() {
-  const stage = document.getElementById('viewerStage');
-  const track = document.getElementById('viewerTrack');
-  const img = document.getElementById('detailMainImg');
-  const sheen = document.getElementById('viewerSheen');
-  const reticle = document.getElementById('viewerReticle');
-  const angleInd = document.getElementById('angleIndicator');
+  const slider = document.getElementById('gallerySlider');
+  const track = document.getElementById('gallerySlidesTrack');
+  const prevBtn = document.getElementById('galleryPrevBtn');
+  const nextBtn = document.getElementById('galleryNextBtn');
+  const dotsRow = document.getElementById('galleryDotsRow');
+  const counter = document.getElementById('detailSlideCounter');
   const badgeText = document.getElementById('viewerBadgeText');
-  const controls = document.querySelectorAll('.fp-viewer-controls .btn-ctrl');
+  const zoomBtn = document.getElementById('galleryZoomBtn');
 
-  if (!stage || !track || !img) return;
+  if (!slider || !track) return;
 
-  function setActiveBtn(id) {
-    controls.forEach(b => b.classList.toggle('active', b.id === id));
-  }
+  const totalSlides = 3;
+  let currentSlide = 0;
+  let startX = 0;
+  let isDragging = false;
 
-  function handleInteraction(clientX, clientY, zoomLevel = 2.8) {
-    const rect = stage.getBoundingClientRect();
-    let x = (clientX - rect.left) / rect.width;
-    let y = (clientY - rect.top) / rect.height;
-    x = Math.max(0, Math.min(1, x));
-    y = Math.max(0, Math.min(1, y));
+  function updateGallery(index) {
+    currentSlide = Math.max(0, Math.min(totalSlides - 1, index));
+    track.style.transition = 'transform 0.35s cubic-bezier(0.2, 0.8, 0.25, 1)';
+    track.style.transform = `translateX(-${currentSlide * 100}%)`;
 
-    // Inclinação 3D proporcional à posição do cursor/dedo
-    const tiltY = ((x - 0.5) * 28).toFixed(1);
-    const tiltX = ((0.5 - y) * 22).toFixed(1);
-
-    track.classList.remove('is-resting');
-    img.classList.remove('is-resting');
-
-    track.style.transform = `rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateZ(12px)`;
-    img.style.transformOrigin = `${(x * 100).toFixed(1)}% ${(y * 100).toFixed(1)}%`;
-    img.style.transform = `scale(${zoomLevel})`;
-
-    if (sheen) {
-      sheen.style.background = `radial-gradient(circle at ${(x * 100).toFixed(1)}% ${(y * 100).toFixed(1)}%, rgba(255,255,255,0.34) 0%, rgba(255,255,255,0.06) 38%, transparent 70%)`;
+    if (counter) counter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+    if (dotsRow) {
+      dotsRow.querySelectorAll('.g-dot').forEach((d, i) => {
+        d.classList.toggle('active', i === currentSlide);
+      });
     }
 
-    if (reticle) {
-      reticle.style.display = 'block';
-      reticle.style.left = `${(x * 100).toFixed(1)}%`;
-      reticle.style.top = `${(y * 100).toFixed(1)}%`;
-    }
-
-    if (angleInd) {
-      angleInd.textContent = `3D: ${tiltY > 0 ? '+' : ''}${tiltY}° / ${tiltX > 0 ? '+' : ''}${tiltX}°`;
-    }
     if (badgeText) {
-      badgeText.textContent = `Hiper Zoom ${zoomLevel}x • Ângulo dinâmico`;
+      if (currentSlide === 0) badgeText.textContent = 'Arraste para o lado para ver mais';
+      else if (currentSlide === 1) badgeText.textContent = 'Compatibilidade & Aplicação';
+      else badgeText.textContent = 'Garantia & Procedência';
     }
   }
 
-  window.resetViewer = function() {
-    track.classList.add('is-resting');
-    img.classList.add('is-resting');
-    track.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(0px)';
-    img.style.transform = 'scale(1)';
-    img.style.transformOrigin = 'center center';
-    if (sheen) sheen.style.background = 'none';
-    if (reticle) reticle.style.display = 'none';
-    if (angleInd) angleInd.textContent = '3D: 0° / 0°';
-    if (badgeText) badgeText.textContent = 'Passe o mouse ou arraste o dedo para ângulos e zoom';
-    setActiveBtn('ctrlResetAngle');
+  window.resetProductGallery = function() {
+    updateGallery(0);
   };
+  window.resetViewer = window.resetProductGallery;
 
-  // Eventos de Mouse
-  stage.addEventListener('mousemove', (e) => {
-    handleInteraction(e.clientX, e.clientY);
+  prevBtn?.addEventListener('click', () => {
+    if (currentSlide > 0) updateGallery(currentSlide - 1);
   });
 
-  stage.addEventListener('mouseleave', () => {
-    window.resetViewer();
+  nextBtn?.addEventListener('click', () => {
+    if (currentSlide < totalSlides - 1) updateGallery(currentSlide + 1);
   });
 
-  // Eventos de Toque (Smartphone / Tablet)
-  stage.addEventListener('touchstart', (e) => {
-    if (e.touches.length === 1) {
-      const t = e.touches[0];
-      handleInteraction(t.clientX, t.clientY);
+  dotsRow?.querySelectorAll('.g-dot').forEach((dot, idx) => {
+    dot.addEventListener('click', () => updateGallery(idx));
+  });
+
+  // Touch & Mouse Dragging manual e suave
+  function getPositionX(e) {
+    return e.type.includes('mouse') ? e.pageX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+  }
+
+  function touchStart(e) {
+    isDragging = true;
+    startX = getPositionX(e);
+    track.style.transition = 'none';
+  }
+
+  function touchMove(e) {
+    if (!isDragging) return;
+    const currentX = getPositionX(e);
+    const diff = currentX - startX;
+    const offset = -currentSlide * slider.offsetWidth + diff;
+    track.style.transform = `translateX(${offset}px)`;
+  }
+
+  function touchEnd(e) {
+    if (!isDragging) return;
+    isDragging = false;
+    const endX = e.type.includes('mouse') ? e.pageX : (e.changedTouches ? e.changedTouches[0].clientX : startX);
+    const diff = endX - startX;
+
+    if (diff < -40 && currentSlide < totalSlides - 1) {
+      updateGallery(currentSlide + 1);
+    } else if (diff > 40 && currentSlide > 0) {
+      updateGallery(currentSlide - 1);
+    } else {
+      updateGallery(currentSlide);
     }
-  }, { passive: true });
+  }
 
-  stage.addEventListener('touchmove', (e) => {
-    if (e.touches.length === 1) {
-      const t = e.touches[0];
-      handleInteraction(t.clientX, t.clientY);
+  slider.addEventListener('touchstart', touchStart, { passive: true });
+  slider.addEventListener('touchmove', touchMove, { passive: true });
+  slider.addEventListener('touchend', touchEnd);
+
+  slider.addEventListener('mousedown', (e) => {
+    e.preventDefault();
+    touchStart(e);
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) touchMove(e);
+  });
+  window.addEventListener('mouseup', (e) => {
+    if (isDragging) touchEnd(e);
+  });
+
+  zoomBtn?.addEventListener('click', () => {
+    const modal = document.getElementById('detailLightboxModal');
+    if (modal) {
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden';
+      if (typeof window.resetLbPan === 'function') window.resetLbPan();
     }
-  }, { passive: true });
-
-  stage.addEventListener('touchend', () => {
-    setTimeout(window.resetViewer, 700);
-  });
-
-  // Botões de Ângulos Pré-definidos
-  document.getElementById('ctrlResetAngle')?.addEventListener('click', () => {
-    window.resetViewer();
-  });
-
-  document.getElementById('ctrlAngleLeft')?.addEventListener('click', () => {
-    track.classList.add('is-resting');
-    img.classList.add('is-resting');
-    track.style.transform = 'rotateY(-25deg) rotateX(4deg) translateZ(10px)';
-    img.style.transformOrigin = '30% 50%';
-    img.style.transform = 'scale(1.9)';
-    if (angleInd) angleInd.textContent = '3D: -25.0° / +4.0°';
-    if (badgeText) badgeText.textContent = 'Ângulo Esquerdo (1.9x)';
-    setActiveBtn('ctrlAngleLeft');
-  });
-
-  document.getElementById('ctrlAngleRight')?.addEventListener('click', () => {
-    track.classList.add('is-resting');
-    img.classList.add('is-resting');
-    track.style.transform = 'rotateY(25deg) rotateX(4deg) translateZ(10px)';
-    img.style.transformOrigin = '70% 50%';
-    img.style.transform = 'scale(1.9)';
-    if (angleInd) angleInd.textContent = '3D: +25.0° / +4.0°';
-    if (badgeText) badgeText.textContent = 'Ângulo Direito (1.9x)';
-    setActiveBtn('ctrlAngleRight');
-  });
-
-  document.getElementById('ctrlAngleTop')?.addEventListener('click', () => {
-    track.classList.add('is-resting');
-    img.classList.add('is-resting');
-    track.style.transform = 'rotateX(22deg) rotateY(0deg) translateZ(10px)';
-    img.style.transformOrigin = '50% 30%';
-    img.style.transform = 'scale(1.9)';
-    if (angleInd) angleInd.textContent = '3D: 0.0° / +22.0°';
-    if (badgeText) badgeText.textContent = 'Ângulo Superior (1.9x)';
-    setActiveBtn('ctrlAngleTop');
-  });
-
-  document.getElementById('ctrlMaxZoom')?.addEventListener('click', () => {
-    track.classList.add('is-resting');
-    img.classList.add('is-resting');
-    track.style.transform = 'rotateX(0deg) rotateY(0deg) translateZ(16px)';
-    img.style.transformOrigin = 'center center';
-    img.style.transform = 'scale(3.5)';
-    if (angleInd) angleInd.textContent = '3D: Centro • 3.5x';
-    if (badgeText) badgeText.textContent = 'Hiper Zoom Máximo 3.5x';
-    setActiveBtn('ctrlMaxZoom');
   });
 
   // Lightbox Modal para tela cheia com movimentação livre por toque ou mouse
@@ -2357,3 +2338,92 @@ init();
   } catch (e) {}
 })();
 
+
+/* ==========================================================================
+   CARDS DE PEÇAS AO LADO DO BANNER (somente desktop)
+   Usa exclusivamente peças reais do catálogo (mesma API das ofertas) e vai
+   trocando o trio exibido, sem inventar marca, preço ou disponibilidade.
+   ========================================================================== */
+(function heroSideCards() {
+  function start() {
+    const box = document.getElementById('heroSideCards');
+    if (!box) return;
+
+    const SLOTS = 3;
+    let items = [];
+    let offset = 0;
+    let timer = null;
+
+    function cardHtml(p) {
+      const photo = p.photoUrl || (typeof CATEGORY_IMAGES !== 'undefined' && CATEGORY_IMAGES[p.category]) || 'images/categorias/filtros.jpg';
+      const priceVal = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
+      const pixVal = priceVal * (1 - (typeof PIX_DISCOUNT_RATE !== 'undefined' ? PIX_DISCOUNT_RATE : 0.04));
+      return `
+        <button type="button" class="hero-side-card" data-product-id="${p.id}" title="${p.name}">
+          <span class="hsc-img"><img src="${photo}" alt="${p.name}" loading="lazy"></span>
+          <span class="hsc-text">
+            <span class="hsc-cat">${p.category || 'Peça'}</span>
+            <span class="hsc-name">${p.name}</span>
+            <span class="hsc-price"><small>À vista no Pix</small><b>${money(pixVal)}</b></span>
+          </span>
+        </button>`;
+    }
+
+    function render() {
+      const slice = [];
+      for (let i = 0; i < SLOTS; i++) slice.push(items[(offset + i) % items.length]);
+      box.innerHTML = slice.map(cardHtml).join('');
+      box.querySelectorAll('.hero-side-card').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.productId;
+          const prod = items.find((p) => String(p.id) === String(id));
+          if (typeof openProductDetails === 'function') openProductDetails(id, prod);
+        });
+      });
+    }
+
+    function rotate() {
+      if (window.innerWidth < 761 || items.length <= SLOTS) return;
+      box.classList.add('swapping');
+      setTimeout(() => {
+        offset = (offset + SLOTS) % items.length;
+        render();
+        box.classList.remove('swapping');
+      }, 250);
+    }
+
+    fetch('/api/products/categories/featured')
+      .then((r) => r.json())
+      .then((data) => {
+        const eligible = (data.products || data.categories || []).filter((p) => {
+          const v = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
+          return v > 0 && p.inStock !== false;
+        });
+        // Intercala as categorias para que os três cards visíveis nunca
+        // fiquem todos da mesma categoria.
+        const buckets = new Map();
+        eligible.forEach((p) => {
+          const cat = p.category || 'Geral';
+          if (!buckets.has(cat)) buckets.set(cat, []);
+          buckets.get(cat).push(p);
+        });
+        const lists = Array.from(buckets.values());
+        items = [];
+        for (let i = 0; items.length < eligible.length; i++) {
+          lists.forEach((l) => { if (l[i]) items.push(l[i]); });
+        }
+        if (items.length < SLOTS) return;
+        render();
+        timer = setInterval(rotate, 4500);
+        box.addEventListener('mouseenter', () => { if (timer) { clearInterval(timer); timer = null; } });
+        box.addEventListener('mouseleave', () => { if (!timer) timer = setInterval(rotate, 4500); });
+      })
+      .catch((e) => console.error('Erro ao carregar peças do banner:', e));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
+  }
+})();
