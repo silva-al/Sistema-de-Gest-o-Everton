@@ -662,7 +662,10 @@ async function loadRecommendedProducts(product) {
       card.onclick = () => {
         const id = card.dataset.recId;
         const target = recommended.find(p => String(p.id) === String(id));
-        if (target) openProductDetails(id, target);
+        if (target) {
+          openProductDetails(id, target);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       };
       card.onkeydown = (e) => {
         if (e.key === 'Enter' || e.key === ' ') {
@@ -2203,6 +2206,128 @@ init();
     }
   }
 })();
+
+// ---------- Carrossel de Imagens em Destaque no Banner Hero ----------
+(function initHeroCollageSlider() {
+  const HERO_SLIDES = [
+    {
+      main: 'images/categorias/filtros.jpg',
+      secondary: 'images/categorias/eletrica.jpg',
+      tertiary: 'images/categorias/freios.jpg'
+    },
+    {
+      main: 'images/produtos/pastilha.jpg',
+      secondary: 'images/categorias/suspensao.jpg',
+      tertiary: 'images/categorias/oleos.jpg'
+    },
+    {
+      main: 'images/produtos/bobina_2.jpg',
+      secondary: 'images/categorias/sensores.jpg',
+      tertiary: 'images/categorias/correias.jpg'
+    },
+    {
+      main: 'images/categorias/iluminacao.jpg',
+      secondary: 'images/produtos/filtro.jpg',
+      tertiary: 'images/produtos/pastilha_2.jpg'
+    }
+  ];
+
+  let currentSlide = 0;
+  let timer = null;
+
+  function goToSlide(idx) {
+    const mainImg = document.getElementById('hpcMain');
+    const secImg = document.getElementById('hpcSecondary');
+    const tertImg = document.getElementById('hpcTertiary');
+    const dots = document.querySelectorAll('#heroDots span');
+
+    if (!mainImg || !secImg || !tertImg) return;
+    currentSlide = (idx + HERO_SLIDES.length) % HERO_SLIDES.length;
+    const slide = HERO_SLIDES[currentSlide];
+
+    // Transição suave: fade out, troca as fotos, fade in
+    mainImg.classList.add('fading');
+    secImg.classList.add('fading');
+    tertImg.classList.add('fading');
+
+    setTimeout(() => {
+      mainImg.src = slide.main;
+      secImg.src = slide.secondary;
+      tertImg.src = slide.tertiary;
+
+      mainImg.classList.remove('fading');
+      secImg.classList.remove('fading');
+      tertImg.classList.remove('fading');
+    }, 280);
+
+    dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === currentSlide);
+    });
+  }
+
+  function startRotation() {
+    stopRotation();
+    timer = setInterval(() => {
+      goToSlide(currentSlide + 1);
+    }, 3200);
+  }
+
+  function stopRotation() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+
+  function init() {
+    const collage = document.getElementById('heroCollage');
+    const dots = document.querySelectorAll('#heroDots span');
+
+    dots.forEach((dot, idx) => {
+      dot.style.cursor = 'pointer';
+      dot.addEventListener('click', () => {
+        goToSlide(idx);
+        startRotation();
+      });
+    });
+
+    if (collage) {
+      collage.addEventListener('click', () => {
+        goToSlide(currentSlide + 1);
+        startRotation();
+      });
+      collage.addEventListener('mouseenter', stopRotation);
+      collage.addEventListener('mouseleave', startRotation);
+
+      // Suporte a toque / swipe no celular
+      let touchStartX = 0;
+      collage.addEventListener('touchstart', (e) => {
+        if (e.touches && e.touches[0]) touchStartX = e.touches[0].clientX;
+        stopRotation();
+      }, { passive: true });
+      collage.addEventListener('touchend', (e) => {
+        if (e.changedTouches && e.changedTouches[0]) {
+          const touchEndX = e.changedTouches[0].clientX;
+          if (touchStartX - touchEndX > 35) {
+            goToSlide(currentSlide + 1);
+          } else if (touchEndX - touchStartX > 35) {
+            goToSlide(currentSlide - 1);
+          }
+        }
+        startRotation();
+      }, { passive: true });
+    }
+
+    startRotation();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
 
 // Remove badge ou drawer do Netlify caso injetados dinamicamente
 (function cleanNetlifyBadges() {

@@ -494,56 +494,72 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
 }
 
 /* ===== STYLE BLOCK — peças recomendadas da mesma categoria na tela de produto ===== */
+.fp-detail-related-section {
+  margin-top: 46px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 .fp-recommended-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-top: 14px;
+  gap: 22px;
+  margin-top: 18px;
 }
 
 .fp-rec-card {
-  background: #11141a;
-  border: 1px solid #232730;
-  border-radius: 12px;
+  background: #11141b;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
   overflow: hidden;
   cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   display: flex;
   flex-direction: column;
   transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  position: relative;
 }
 
 .fp-rec-card:hover {
-  transform: translateY(-4px);
+  transform: translateY(-5px);
   border-color: #ed1c24;
-  box-shadow: 0 8px 24px rgba(237, 28, 36, 0.25);
+  box-shadow: 0 12px 32px rgba(237, 28, 36, 0.25);
 }
 
 .fp-rec-card-img-wrap {
   width: 100%;
-  height: 140px;
-  background: #08090c;
+  height: 145px;
+  background: radial-gradient(circle at center, #181b22 0%, #08090c 100%);
   overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .fp-rec-card-img-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  max-width: 86%;
+  max-height: 86%;
+  width: auto;
+  height: auto;
+  object-fit: contain !important;
   display: block;
   transition: transform 0.3s ease;
+  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.45));
 }
 
 .fp-rec-card:hover .fp-rec-card-img-wrap img {
-  transform: scale(1.06);
+  transform: scale(1.08);
 }
 
 .fp-rec-card-body {
-  padding: 12px 14px 14px;
+  padding: 14px 15px 16px;
   display: flex;
   flex-direction: column;
   flex: 1;
+  gap: 6px;
 }
 
 .fp-rec-card-cat {
@@ -552,20 +568,18 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
   color: #8f949c;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  margin-bottom: 4px;
 }
 
 .fp-rec-card-name {
   font-size: 13.5px;
   color: #ffffff;
   font-weight: 700;
-  line-height: 1.35;
-  margin-bottom: 8px;
+  line-height: 1.4;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  flex: 1;
+  min-height: 38px;
 }
 
 .fp-rec-card-price {
@@ -576,30 +590,37 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
 
 @media (max-width: 900px) {
   .fp-recommended-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px !important;
   }
   .fp-rec-card-img-wrap {
-    height: 125px;
+    height: 125px !important;
   }
 }
 
 @media (max-width: 480px) {
   .fp-recommended-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
+    margin-top: 14px !important;
+  }
+  .fp-rec-card {
+    border-radius: 14px !important;
   }
   .fp-rec-card-img-wrap {
-    height: 110px;
+    height: 105px !important;
+    padding: 10px !important;
   }
   .fp-rec-card-body {
-    padding: 10px 10px 12px;
+    padding: 11px 11px 13px !important;
+    gap: 4px !important;
   }
   .fp-rec-card-name {
-    font-size: 12.5px;
+    font-size: 12px !important;
+    min-height: 34px !important;
   }
   .fp-rec-card-price {
-    font-size: 14px;
+    font-size: 13.5px !important;
   }
 }
 
@@ -988,14 +1009,19 @@ select option {
 .fp-viewer-column {
   position: sticky;
   top: 104px;
+  max-width: 440px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 .fp-viewer-card {
   background: #0d0f13;
   border: 1px solid #282b30;
   border-radius: 16px;
-  padding: 18px;
+  padding: 14px;
   box-shadow: 0 10px 36px rgba(0, 0, 0, 0.65);
+  max-width: 440px;
+  margin: 0 auto;
 }
 
 .fp-viewer-status-bar {
@@ -1033,11 +1059,13 @@ select option {
 
 .fp-viewer-stage {
   width: 100%;
-  height: 420px;
+  height: 290px;
+  max-width: 400px;
+  margin: 0 auto;
   position: relative;
   overflow: hidden;
-  border-radius: 14px;
-  background: #090a0d;
+  border-radius: 12px;
+  background: radial-gradient(circle at center, #151820 0%, #08090c 100%);
   border: 1px solid #262a33;
   cursor: crosshair;
   perspective: 1200px;
@@ -1051,15 +1079,19 @@ select option {
   .product-detail-screen {
     padding: 0 0 24px;
   }
+  .fp-viewer-column {
+    max-width: 100%;
+  }
   .fp-viewer-card {
     padding: 10px;
     border-radius: 12px;
+    max-width: 100%;
   }
   .fp-viewer-stage {
     width: 100%;
-    height: auto;
-    aspect-ratio: 1 / 1;
-    max-height: 88vw;
+    height: 220px;
+    max-height: 58vw;
+    aspect-ratio: 4 / 3;
     border-radius: 10px;
   }
 }
@@ -1081,16 +1113,19 @@ select option {
 }
 
 #detailMainImg {
-  width: 100%;
-  height: 100%;
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: cover;
+  max-width: 82%;
+  max-height: 82%;
+  width: auto;
+  height: auto;
+  object-fit: contain !important;
   user-select: none;
   pointer-events: none;
   transform-origin: center center;
   will-change: transform, transform-origin;
   transition: transform .05s ease-out;
+  display: block;
+  margin: auto;
+  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.5));
 }
 
 #detailMainImg.is-resting {
@@ -1961,20 +1996,21 @@ html, body {
 
   /* Grid de Peças Recomendadas no Mobile */
   .fp-recommended-grid {
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: 10px !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 14px !important;
   }
   .fp-rec-card-img-wrap {
-    height: 115px !important;
+    height: 110px !important;
+    padding: 10px !important;
   }
   .fp-rec-card-body {
-    padding: 10px 10px 12px !important;
+    padding: 11px 11px 13px !important;
   }
   .fp-rec-card-name {
     font-size: 12px !important;
   }
   .fp-rec-card-price {
-    font-size: 14px !important;
+    font-size: 13.5px !important;
   }
 
   /* Carrinho no Mobile */
@@ -2688,16 +2724,18 @@ html, body {
 .hero-clean-text{position:relative}
 
 .hero-clean-visual{display:flex;align-items:center;justify-content:center;margin-top:34px}
-.hero-photo-collage{position:relative;width:260px;height:260px;max-width:78vw;max-height:78vw}
+.hero-photo-collage{position:relative;width:260px;height:260px;max-width:78vw;max-height:78vw;cursor:pointer}
 .hpc-glow{position:absolute;inset:-30px;background:radial-gradient(circle,rgba(237,28,36,.35) 0%,rgba(237,28,36,.12) 45%,rgba(237,28,36,0) 72%);filter:blur(6px);pointer-events:none}
-.hpc-img{position:absolute;object-fit:cover;border-radius:50%;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06)}
+.hpc-img{position:absolute;object-fit:cover;border-radius:50%;box-shadow:0 18px 40px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.06);transition:opacity .35s ease,transform .35s ease;will-change:opacity,transform}
+.hpc-img.fading{opacity:0.12;transform:scale(0.92)}
 .hpc-main{width:66%;height:66%;top:0;right:0;z-index:3}
 .hpc-secondary{width:46%;height:46%;left:0;bottom:8%;z-index:2;box-shadow:0 14px 30px rgba(0,0,0,.5),0 0 0 4px #0d0f14}
 .hpc-tertiary{width:34%;height:34%;left:8%;top:6%;z-index:1;object-position:20% 20%;box-shadow:0 10px 22px rgba(0,0,0,.5),0 0 0 4px #0d0f14}
 
-.hero-dots{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:26px}
-.hero-dots span{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.18)}
-.hero-dots span.active{width:20px;border-radius:4px;background:#ed1c24}
+.hero-dots{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:26px}
+.hero-dots span{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.24);cursor:pointer;transition:all .32s cubic-bezier(0.2,0.8,0.2,1)}
+.hero-dots span:hover{background:rgba(255,255,255,.55)}
+.hero-dots span.active{width:24px;height:7px;border-radius:4px;background:#ed1c24;box-shadow:0 0 12px rgba(237,28,36,.6)}
 
 @media(min-width:900px){
   .hero-clean{text-align:left}

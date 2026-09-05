@@ -14,7 +14,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-<link href="styles.css?v=20260905_2" rel="stylesheet"/>
+<link href="styles.css?v=20260905_3" rel="stylesheet"/>
 
 <!-- Bloqueio e remoção total do badge e drawer do Netlify -->
 <style id="netlify-badge-blocker">
@@ -190,19 +190,22 @@
         </div>
       </div>
 
-      <!-- Colagem de fotos reais das peças (mesmas fotos usadas nas categorias) -->
-      <div class="hero-clean-visual" aria-hidden="true">
-        <div class="hero-photo-collage">
+      <!-- Colagem dinâmica de fotos reais das peças (troca automática de imagens) -->
+      <div class="hero-clean-visual">
+        <div class="hero-photo-collage" id="heroCollage" title="Peças em Destaque Fahren Motors">
           <div class="hpc-glow"></div>
-          <img class="hpc-img hpc-main" src="images/categorias/filtros.jpg" alt=""/>
-          <img class="hpc-img hpc-secondary" src="images/categorias/eletrica.jpg" alt=""/>
-          <img class="hpc-img hpc-tertiary" src="images/categorias/freios.jpg" alt=""/>
+          <img class="hpc-img hpc-main" id="hpcMain" src="images/categorias/filtros.jpg" alt="Filtro de Óleo Fahren"/>
+          <img class="hpc-img hpc-secondary" id="hpcSecondary" src="images/categorias/eletrica.jpg" alt="Bobina de Ignição Fahren"/>
+          <img class="hpc-img hpc-tertiary" id="hpcTertiary" src="images/categorias/freios.jpg" alt="Pastilha de Freio Fahren"/>
         </div>
       </div>
     </div>
 
-    <div class="hero-dots">
-      <span class="active"></span><span></span><span></span><span></span>
+    <div class="hero-dots" id="heroDots" role="tablist" aria-label="Navegar pelas fotos em destaque">
+      <span class="active" data-slide="0" role="tab" aria-label="Slide 1" title="Slide 1"></span>
+      <span data-slide="1" role="tab" aria-label="Slide 2" title="Slide 2"></span>
+      <span data-slide="2" role="tab" aria-label="Slide 3" title="Slide 3"></span>
+      <span data-slide="3" role="tab" aria-label="Slide 4" title="Slide 4"></span>
     </div>
   </div>
 
@@ -507,4 +510,4 @@
 <div id="toastContainer"></div>
 <script defer="True" src="vendor/qrcode.js"></script>
 <script defer="True" src="https://sdk.mercadopago.com/js/v2"></script>
-<script defer="True" src="app.js?v=20260905_2"></script></body></html>
+<script defer="True" src="app.js?v=20260905_3"></script></body></html>
