@@ -44,31 +44,26 @@ e-mail/senha que você definiu em `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
 
 O plano grátis do Supabase já é suficiente para começar.
 
-## 3. Colocar no ar (Render)
+## 3. Colocar no ar (Netlify)
 
-1. Crie uma conta em https://render.com e conecte seu repositório do GitHub (suba esta pasta
-   para um repositório do GitHub primeiro — pode ser privado).
-2. Clique em **New → Web Service**, aponte para o repositório.
-3. Configurações do serviço:
-   - **Build command**: `npm install`
-   - **Start command**: `npm start`
-4. Em **Environment**, adicione as variáveis:
-   - `DATABASE_URL` = a connection string do Supabase (passo 2)
-   - `JWT_SECRET` = um texto longo e aleatório (pode gerar em https://generate-secret.vercel.app/32)
+A hospedagem oficial do projeto é no **Netlify**, onde a loja e o painel são entregues diretamente pelo CDN (carregamento instantâneo) e a API é atendida via Serverless Functions (`netlify/functions/api.js`).
+
+1. Crie uma conta no Netlify (https://www.netlify.com) e conecte seu repositório do GitHub.
+2. Em **Add new site → Import from Git**, selecione este repositório. As configurações de build já vêm automáticas do `netlify.toml`:
+   - **Build command**: `npm run build:netlify`
+   - **Publish directory**: `dist`
+   - **Functions directory**: `netlify/functions`
+3. Em **Site settings → Environment variables**, cadastre as variáveis de ambiente:
+   - `DATABASE_URL` = a connection string do banco PostgreSQL (Neon / Supabase)
+   - `JWT_SECRET` = um texto longo e aleatório (mínimo 32 caracteres)
    - `NODE_ENV` = `production`
-   - `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_PUBLIC_KEY` = só quando for cobrar de
-     verdade (veja a seção "Pagamento online" mais abaixo)
-5. Depois do primeiro deploy, rode uma vez o script de inicialização do banco. No Render, use
-   a aba **Shell** do serviço (ou rode localmente apontando `DATABASE_URL` para o Supabase):
+   - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` = bucket `produtos` para persistência de fotos
+   - `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_PUBLIC_KEY` = para pagamentos reais
+4. No primeiro deploy ou após alterações no catálogo/schema, rode localmente ou via terminal o script de banco:
    ```bash
-   ADMIN_EMAIL=voce@fahrenparts.com ADMIN_PASSWORD=escolha-uma-senha-forte node server/init-db.js
+   ADMIN_EMAIL=voce@fahrenparts.com ADMIN_PASSWORD=suaSenhaForte node server/init-db.js
    ```
-6. Pronto — o Render vai te dar uma URL pública (tipo `https://fahren-parts.onrender.com`).
-   A loja fica em `/` e o painel em `/admin`.
-
-No plano grátis do Render, o serviço "dorme" depois de um tempo sem uso e demora alguns
-segundos para acordar na primeira visita — isso não afeta os dados (que ficam no Supabase),
-só a velocidade da primeira carga do dia.
+5. Pronto — o Netlify fornece a URL pública com certificado HTTPS ativo automaticamente.
 
 ## Estrutura do projeto
 
@@ -99,8 +94,7 @@ Já está funcionando dentro do site:
 
 Sem as chaves configuradas o sistema roda em **modo teste**: o Pix sai com a chave do
 `PIX_KEY` (ou simulado) e o cartão aprova automaticamente, para você conseguir testar a loja
-inteira antes de contratar a maquininha. Para valer de verdade, preencha no `.env` (e no
-Render):
+inteira antes de contratar a maquininha. Para valer de verdade, preencha no `.env` (e nas variáveis de ambiente do Netlify):
 
 - `MERCADOPAGO_ACCESS_TOKEN` — fica só no servidor, nunca aparece no site.
 - `MERCADOPAGO_PUBLIC_KEY` — é o que o navegador usa para montar o formulário do cartão.
@@ -122,9 +116,7 @@ Com o token de um provedor (WDAPI2, APIBrasil ou compatível) ela passa a trazer
 - **Fonte dos dados de placa**: definir com o dono da oficina qual provedor contratar (a
   consulta real é paga por consulta) — e se a tela "Placa" deve mostrar os veículos que
   estão na oficina em vez de consulta aberta. A tela da loja ainda não chama a rota acima.
-- **Fotos das peças**: o upload de imagem pelo painel (`POST /api/uploads`) já funciona, mas
-  o painel ainda não tem o botão. E, no plano grátis do Render, as imagens somem a cada
-  deploy — se for usar de verdade, vale guardar num storage externo (ex.: Supabase Storage).
+- **Fotos das peças**: o upload de imagens está integrado ao Supabase Storage para persistência permanente no ambiente Netlify (bucket `produtos`). O painel WMS permite envio e gestão de fotos diretamente pelo cadastro da peça.
 
 ## Segurança
 

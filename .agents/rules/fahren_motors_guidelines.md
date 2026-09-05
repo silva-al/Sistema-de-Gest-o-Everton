@@ -13,11 +13,11 @@
 - **Nunca use `localStorage` (getItem/setItem) ou `JSON.parse`/`stringify` dentro de loops densos.** Acesse e processe os dados em variáveis de memória e salve/leia no `localStorage` apenas uma vez (antes ou depois do loop) para evitar travamentos da Main Thread.
 - **Transições Diretas**: Animações de UI, como fade-ins nas abas principais, só devem existir se não causarem percepção de "lentidão" (delay). Caso o usuário exija carregamento "liso", remova os delays visuais em favor de transições de display instantâneas.
 
-## 4. Ambientes e URLs Oficiais (Produção no Render)
-- O serviço oficial em produção no Render foi criado do zero com o nome **`fahren-motors-ltda`**.
-- **NÃO mencione nem utilize** links legados/antigos como `sistema-de-gest-o-everton.onrender.com`.
-- **URL Loja (Cliente):** `https://fahren-motors-ltda.onrender.com`
-- **URL Painel WMS (Admin):** `https://fahren-motors-ltda.onrender.com/admin`
+## 4. Ambientes e Hospedagem Oficial (Netlify)
+- A hospedagem e produção oficial do projeto está no **Netlify** (CDN global + Serverless Functions via `netlify/functions/api.js`).
+- O banco de dados em nuvem roda em PostgreSQL (Neon / Supabase) e fotos de produtos no Supabase Storage.
+- **NÃO utilize nem publique no Render**: o serviço no Render foi descontinuado em favor do Netlify. Não utilize links `*.onrender.com`.
+- O build de produção é gerado via script `npm run build:netlify`.
 
 ## 5. Responsividade Mobile Obrigatória (Loja & Painel WMS)
 - **Zero Vazamento Horizontal**: Manter sempre `overflow-x: hidden` em `html, body, .app` e `.wms-layout`.

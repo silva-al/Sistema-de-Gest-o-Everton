@@ -37,7 +37,7 @@ router.get('/', async (req, res) => {
 
     if (q) {
       params.push(`%${q.trim()}%`);
-      clauses.push(`(name ILIKE $${params.length} OR code ILIKE $${params.length})`);
+      clauses.push(`(name ILIKE $${params.length} OR code ILIKE $${params.length} OR compatibility ILIKE $${params.length} OR description ILIKE $${params.length})`);
     }
     if (category) {
       params.push(category);
