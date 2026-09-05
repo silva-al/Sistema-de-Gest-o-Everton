@@ -3531,3 +3531,101 @@ netlify-drawer,
   .carousel .cat-card{flex:0 0 236px}
   .home-carousel-section .section-head h2{font-size:22px}
 }
+
+/* ==========================================================================
+   DETALHE DA PEÇA — FOTO GRANDE, TELA SEM VAZAMENTO
+   - a coluna do produto estourava a largura da tela porque a coluna do grid
+     usava "1fr" (mínimo automático). minmax(0,1fr) resolve na raiz.
+   - a foto passa a ocupar o card inteiro em vez de 90% dele.
+   - a galeria agora tem um slide só (a foto), então some a barra de arrastar.
+   ========================================================================== */
+.fp-detail-grid{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr)}
+.fp-viewer-column,
+.fp-info-column,
+.fp-gallery-slider,
+.gallery-slides-track,
+.gallery-slide,
+.slide-img-wrap{min-width:0}
+
+/* A foto preenche o card inteiro */
+.gallery-slide{padding:0 !important}
+.gallery-slide .slide-img-wrap{
+  width:100% !important;
+  height:100% !important;
+  padding:0 !important;
+  display:block !important;
+  overflow:hidden;
+  border-radius:13px;
+}
+#detailMainImg{
+  width:100% !important;
+  height:100% !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  object-fit:cover !important;
+  object-position:center center;
+  margin:0 !important;
+  display:block;
+  filter:none !important;
+  border-radius:13px;
+}
+.gallery-slide .slide-label{display:none !important}
+.fp-gallery-slider{padding:0;background:#08090c}
+
+/* No desktop o card da foto acompanha melhor a coluna de informações */
+@media (min-width:861px){
+  .fp-viewer-column,
+  .fp-viewer-card,
+  .fp-gallery-slider{max-width:520px}
+  .gallery-slide{height:auto;aspect-ratio:1/1}
+}
+
+/* Botão "Ver foto inteira" sozinho na linha das dicas */
+.gallery-hints-row{justify-content:flex-end !important;flex-wrap:wrap;gap:8px}
+
+/* ---- Celular: nada pode passar da largura da tela ---- */
+@media (max-width:860px){
+  .fp-detail-grid{grid-template-columns:minmax(0,1fr) !important}
+}
+@media (max-width:600px){
+  .product-detail-screen{overflow-x:hidden}
+  /* O "sticky" da coluna da foto empurrava o card 58px para baixo e o fazia
+     invadir o bloco de informações. No celular ele não faz sentido. */
+  .fp-viewer-column{position:static !important;top:auto !important}
+  .fp-viewer-card{padding:10px !important;max-width:100% !important}
+  .fp-gallery-slider{max-width:100% !important}
+  .gallery-slide{height:auto !important;aspect-ratio:1/1}
+
+  /* Quantidade bem visível e o total sem cortar */
+  .fp-qty-picker-row{gap:10px;row-gap:10px}
+  .fp-qty-picker-label{font-size:11.5px}
+  .fp-detail-qty-control{flex-shrink:0}
+  .btn-qty-btn{width:38px !important;height:38px !important;font-size:20px !important}
+  .product-qty-val{width:54px !important;height:38px !important;font-size:19px !important;color:#fff !important;opacity:1 !important}
+  .fp-qty-subtotal{font-size:13.5px;margin-left:auto;white-space:nowrap}
+
+  /* Caixa de preço e botões sem estourar */
+  .fp-price-box{padding:12px !important}
+  .fp-pix-badge{font-size:10.5px !important;line-height:1.35;white-space:normal !important}
+  .fp-cta-buttons{flex-direction:column;gap:10px}
+  .fp-btn-cart,
+  .fp-btn-buy{min-width:0 !important;width:100% !important;flex:1 1 auto !important}
+  .fp-detail-title{overflow-wrap:anywhere}
+}
+
+/* ==========================================================================
+   FOTOS DOS CARDS: preenchem o card inteiro, sem moldura sobrando
+   ========================================================================== */
+.cat-card-img-wrap{height:172px;padding:0 !important}
+.cat-card img{
+  width:100% !important;
+  height:100% !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  object-fit:cover !important;
+  margin:0 !important;
+  filter:none !important;
+}
+@media(max-width:760px){
+  .cat-card-img-wrap{height:150px}
+}

@@ -1034,7 +1034,8 @@ function initProductViewer() {
 
   if (!slider || !track) return;
 
-  const totalSlides = 3;
+  // Conta os slides que realmente existem (hoje: só a foto da peça).
+  const totalSlides = Math.max(1, track.querySelectorAll('.gallery-slide').length);
   let currentSlide = 0;
   let startX = 0;
   let isDragging = false;
@@ -1163,7 +1164,8 @@ function initProductViewer() {
   function openLightbox() {
     if (modal) {
       modal.style.display = 'flex';
-      lbScale = 2.0;
+      // "Ver foto inteira" abre mostrando a peça completa; o zoom fica no +/-.
+      lbScale = 1.0;
       lbPanX = 0;
       lbPanY = 0;
       updateLbTransform();
@@ -1177,7 +1179,9 @@ function initProductViewer() {
   }
 
   // Abre tela cheia exclusivamente pelo botão "Tela Cheia" (sem duplo clique acidental)
+  // O botão "Ver foto inteira" (#galleryZoomBtn) não estava ligado ao lightbox.
   document.getElementById('ctrlFullscreen')?.addEventListener('click', openLightbox);
+  document.getElementById('galleryZoomBtn')?.addEventListener('click', openLightbox);
   lbOverlay?.addEventListener('click', closeLightbox);
   lbClose?.addEventListener('click', closeLightbox);
 
