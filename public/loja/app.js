@@ -2207,58 +2207,33 @@ init();
   }
 })();
 
-// ---------- Carrossel de Imagens em Destaque no Banner Hero ----------
-(function initHeroCollageSlider() {
+// ---------- Carrossel de Banner Panorâmico em Alta Definição no Hero ----------
+(function initHeroBannerSlider() {
   const HERO_SLIDES = [
-    {
-      main: 'images/categorias/filtros.jpg',
-      secondary: 'images/categorias/eletrica.jpg',
-      tertiary: 'images/categorias/freios.jpg'
-    },
-    {
-      main: 'images/produtos/pastilha.jpg',
-      secondary: 'images/categorias/suspensao.jpg',
-      tertiary: 'images/categorias/oleos.jpg'
-    },
-    {
-      main: 'images/produtos/bobina_2.jpg',
-      secondary: 'images/categorias/sensores.jpg',
-      tertiary: 'images/categorias/correias.jpg'
-    },
-    {
-      main: 'images/categorias/iluminacao.jpg',
-      secondary: 'images/produtos/filtro.jpg',
-      tertiary: 'images/produtos/pastilha_2.jpg'
-    }
+    'images/banner-slide-1.jpg',
+    'images/banner-slide-2.jpg',
+    'images/banner-slide-3.jpg',
+    'images/banner-slide-4.jpg'
   ];
 
   let currentSlide = 0;
   let timer = null;
 
   function goToSlide(idx) {
-    const mainImg = document.getElementById('hpcMain');
-    const secImg = document.getElementById('hpcSecondary');
-    const tertImg = document.getElementById('hpcTertiary');
+    const bannerImg = document.getElementById('heroBannerImg');
     const dots = document.querySelectorAll('#heroDots span');
 
-    if (!mainImg || !secImg || !tertImg) return;
+    if (!bannerImg) return;
     currentSlide = (idx + HERO_SLIDES.length) % HERO_SLIDES.length;
-    const slide = HERO_SLIDES[currentSlide];
+    const nextSrc = HERO_SLIDES[currentSlide];
 
-    // Transição suave: fade out, troca as fotos, fade in
-    mainImg.classList.add('fading');
-    secImg.classList.add('fading');
-    tertImg.classList.add('fading');
+    // Efeito suave de transição: fade out, troca a imagem widescreen, fade in
+    bannerImg.classList.add('fading');
 
     setTimeout(() => {
-      mainImg.src = slide.main;
-      secImg.src = slide.secondary;
-      tertImg.src = slide.tertiary;
-
-      mainImg.classList.remove('fading');
-      secImg.classList.remove('fading');
-      tertImg.classList.remove('fading');
-    }, 280);
+      bannerImg.src = nextSrc;
+      bannerImg.classList.remove('fading');
+    }, 240);
 
     dots.forEach((dot, i) => {
       dot.classList.toggle('active', i === currentSlide);
@@ -2269,7 +2244,7 @@ init();
     stopRotation();
     timer = setInterval(() => {
       goToSlide(currentSlide + 1);
-    }, 3200);
+    }, 3600);
   }
 
   function stopRotation() {
@@ -2280,32 +2255,33 @@ init();
   }
 
   function init() {
-    const collage = document.getElementById('heroCollage');
+    const container = document.getElementById('heroBannerContainer');
     const dots = document.querySelectorAll('#heroDots span');
 
     dots.forEach((dot, idx) => {
       dot.style.cursor = 'pointer';
-      dot.addEventListener('click', () => {
+      dot.addEventListener('click', (e) => {
+        e.stopPropagation();
         goToSlide(idx);
         startRotation();
       });
     });
 
-    if (collage) {
-      collage.addEventListener('click', () => {
+    if (container) {
+      container.addEventListener('click', () => {
         goToSlide(currentSlide + 1);
         startRotation();
       });
-      collage.addEventListener('mouseenter', stopRotation);
-      collage.addEventListener('mouseleave', startRotation);
+      container.addEventListener('mouseenter', stopRotation);
+      container.addEventListener('mouseleave', startRotation);
 
       // Suporte a toque / swipe no celular
       let touchStartX = 0;
-      collage.addEventListener('touchstart', (e) => {
+      container.addEventListener('touchstart', (e) => {
         if (e.touches && e.touches[0]) touchStartX = e.touches[0].clientX;
         stopRotation();
       }, { passive: true });
-      collage.addEventListener('touchend', (e) => {
+      container.addEventListener('touchend', (e) => {
         if (e.changedTouches && e.changedTouches[0]) {
           const touchEndX = e.changedTouches[0].clientX;
           if (touchStartX - touchEndX > 35) {

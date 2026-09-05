@@ -14,6 +14,21 @@
   # O CDN entrega os arquivos estáticos; o Express não deve tentar servi-los.
   SERVE_STATIC = "false"
 
+# Força o acesso seguro (https). Sem isso, quem digita só "fahrenmotors.com.br"
+# é atendido em http e o navegador mostra "Não seguro". Precisa vir antes das
+# demais regras, porque o Netlify usa a primeira que casar.
+[[redirects]]
+  from = "http://fahrenmotors.com.br/*"
+  to = "https://fahrenmotors.com.br/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "http://www.fahrenmotors.com.br/*"
+  to = "https://fahrenmotors.com.br/:splat"
+  status = 301
+  force = true
+
 # Toda chamada de API vai para a função. O status 200 faz o Netlify entregar a
 # resposta da função sem redirecionar o navegador (a URL continua /api/...).
 [[redirects]]
