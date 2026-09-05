@@ -150,6 +150,7 @@ function switchTab(tabId, pushHistory = true, resetScroll = true) {
   }
 
   if (tabId === 'dashboard') updateDashboardMetrics();
+  if (tabId === 'estoque') renderProductsTable(allProducts);
   if (tabId === 'pedidos') renderOrdersTable(allOrders);
   if (tabId === 'expedicao') renderExpedicao();
   if (tabId === 'financeiro') renderFinances();
@@ -667,6 +668,27 @@ document.getElementById('stockSearch')?.addEventListener('input', (e) => {
 });
 
 // Cadastro e Edição de Peças
+document.getElementById('syncCatalogBtn')?.addEventListener('click', async () => {
+  const btn = document.getElementById('syncCatalogBtn');
+  if (btn) {
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+  }
+  showToast('Sincronizando catálogo com o banco de dados...');
+  try {
+    const res = await api('/products/sync-catalog', { method: 'POST' });
+    await refreshAllData();
+    showToast(res.message || 'Catálogo sincronizado com sucesso!');
+  } catch (err) {
+    showToast('Erro ao sincronizar catálogo: ' + (err.message || err));
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }
+  }
+});
+
 document.getElementById('newProductToggleBtn')?.addEventListener('click', () => {
   switchTab('estoque');
   resetProductForm();

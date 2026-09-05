@@ -35,10 +35,11 @@
     Cache-Control = "no-store, no-cache, must-revalidate"
 
 # Mesmos cabeçalhos de segurança que o Express aplica na API, agora também nas
-# páginas entregues pelo CDN.
+# páginas entregues pelo CDN, com no-cache para evitar telas desatualizadas no celular.
 [[headers]]
   for = "/*"
   [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"

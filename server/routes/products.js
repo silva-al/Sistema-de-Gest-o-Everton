@@ -29,15 +29,20 @@ function serialize(row) {
 
 // GET /api/products?q=&category=&min_price=&max_price=&in_stock=true
 // Busca avançada: texto (nome/código), categoria, faixa de preço, disponibilidade.
+const { syncCatalog } = require('../sync-catalog');
+
 router.get('/', async (req, res) => {
   try {
+    // Garante sincronização inicial do catálogo se o banco estiver vazio ou desatualizado
+    await syncCatalog();
+
     const { q, category, min_price, max_price, in_stock } = req.query;
     const clauses = ['active = true'];
     const params = [];
 
     if (q) {
       params.push(`%${q.trim()}%`);
-      clauses.push(`(name ILIKE $${params.length} OR code ILIKE $${params.length} OR compatibility ILIKE $${params.length} OR description ILIKE $${params.length})`);
+      clauses.push(`(name ILIKE $${params.length} OR code ILIKE $${params.length} OR compatibility ILIKE $${params.length} OR description ILIKE $${params.length} OR category ILIKE $${params.length})`);
     }
     if (category) {
       params.push(category);
@@ -63,6 +68,16 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao buscar peças.' });
+  }
+});
+
+router.post('/sync-catalog', async (_req, res) => {
+  try {
+    await syncCatalog(true);
+    res.json({ ok: true, message: 'Catálogo sincronizado com sucesso.' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erro ao sincronizar catálogo.' });
   }
 });
 

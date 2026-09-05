@@ -679,12 +679,9 @@ async function loadRecommendedProducts(product) {
 
 async function goToCategory(category) {
   show('pecas');
-  await loadCategories();
-  const select = document.getElementById('filterCategory');
-  if (select) select.value = category || '';
   const searchInput = document.getElementById('catalogSearch');
   if (searchInput) {
-    searchInput.value = '';
+    searchInput.value = category || '';
     searchInput.focus();
   }
   await loadCatalog();

@@ -174,7 +174,7 @@ router.delete('/:id', requireRole('admin'), async (req, res) => {
       const itemsRes = await client.query('SELECT * FROM order_items WHERE order_id = $1', [req.params.id]);
       for (const item of itemsRes.rows) {
         await client.query(
-          'UPDATE products SET stock_qty = stock_qty + $1, in_stock = true WHERE id = $2',
+          'UPDATE products SET stock_qty = stock_qty + $1 WHERE id = $2',
           [item.quantity, item.product_id]
         );
       }

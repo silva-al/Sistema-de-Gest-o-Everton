@@ -35,8 +35,9 @@ fs.rmSync(dist, { recursive: true, force: true });
 
 const daLoja = copiarPasta(path.join(raiz, 'public', 'loja'), dist);
 const doAdmin = copiarPasta(path.join(raiz, 'public', 'admin'), path.join(dist, 'admin'));
+const deUploads = copiarPasta(path.join(raiz, 'public', 'uploads'), path.join(dist, 'uploads'));
 
-console.log(`Build pronto: ${daLoja} arquivos da loja + ${doAdmin} do painel em dist/`);
+console.log(`Build pronto: ${daLoja} arquivos da loja + ${doAdmin} do painel + ${deUploads} uploads em dist/`);
 
 if (daLoja === 0) {
   console.error('ERRO: nenhum arquivo da loja foi copiado. O site sairia vazio.');
