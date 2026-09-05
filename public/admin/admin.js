@@ -207,8 +207,8 @@ async function refreshAllData() {
   // 2. Fetch em background para garantir os dados mais recentes do servidor
   try {
     const [productsRes, ordersRes] = await Promise.allSettled([
-      api('/products?in_stock='),
-      api('/orders')
+      api('/products?in_stock=&_t=' + Date.now()),
+      api('/orders?_t=' + Date.now())
     ]);
 
     if (productsRes.status === 'fulfilled' && productsRes.value) {
@@ -412,11 +412,11 @@ function renderProductsTable(products) {
     const pixVal = priceVal * 0.96;
     const photo = p.photoUrl || 'images/produtos/pastilha.jpg';
     return `
-      <tr>
-        <td style="width:50px">
+      <tr data-prod-row="${p.id}">
+        <td style="width:50px;cursor:pointer" data-view="${p.id}" title="Clique para ver detalhes">
           <img src="${photo}" alt="" style="width:42px;height:42px;border-radius:8px;object-fit:cover;background:#000;display:block;border:1px solid #282b30"/>
         </td>
-        <td>
+        <td style="cursor:pointer" data-view="${p.id}" title="Clique para ver detalhes">
           <strong style="color:#fff;display:block">${p.name}</strong>
           <small style="color:var(--text-muted);font-family:var(--font-mono)">${p.code || 'S/CÓD'}</small>
         </td>
@@ -437,6 +437,9 @@ function renderProductsTable(products) {
           ${p.inStock ? '<span class="status-badge pronto">● Em Estoque</span>' : '<span class="status-badge cancelado">○ Esgotado</span>'}
         </td>
         <td style="text-align:right;white-space:nowrap">
+          <button class="btn btn-secondary btn-sm" data-view="${p.id}" title="Ver detalhes completos da peça" style="margin-right:4px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="vertical-align:-2px;margin-right:3px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>Ver
+          </button>
           <button class="btn btn-secondary btn-sm" data-edit="${p.id}" title="Editar dados da peça">Editar</button>
           <button class="btn btn-sm" style="background:rgba(237,28,36,0.15);color:#ff5e65;border:1px solid rgba(237,28,36,0.3);margin-left:4px" data-remove="${p.id}" title="Excluir peça do catálogo">Excluir</button>
         </td>
@@ -444,6 +447,10 @@ function renderProductsTable(products) {
     `;
   }).join('');
 
+  tbody.querySelectorAll('[data-view]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    openProductViewModal(b.dataset.view);
+  });
   tbody.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => startEdit(b.dataset.edit));
   tbody.querySelectorAll('[data-remove]').forEach(b => b.onclick = () => removeProduct(b.dataset.remove));
   tbody.querySelectorAll('[data-open-stock]').forEach(b => b.onclick = () => openStockModal(b.dataset.openStock));
@@ -495,6 +502,78 @@ async function quickUpdateStock(id, newQty) {
     console.error('Erro ao atualizar estoque:', err);
     showToast(err.message || 'Erro ao atualizar estoque');
   }
+}
+
+// Modal de visualização completa da peça
+function openProductViewModal(id) {
+  const p = allProducts.find(item => String(item.id) === String(id));
+  if (!p) return;
+  const modal = document.getElementById('productViewModal');
+  if (!modal) return;
+
+  const priceVal = Number(p.price) || 0;
+  const pixVal = priceVal * 0.96;
+  const photo = p.photoUrl || 'images/produtos/pastilha.jpg';
+
+  const photoEl = document.getElementById('pvPhoto');
+  if (photoEl) photoEl.src = photo;
+  
+  const catEl = document.getElementById('pvCategory');
+  if (catEl) catEl.textContent = p.category || 'Geral';
+  
+  const statusEl = document.getElementById('pvStatus');
+  if (statusEl) {
+    if (p.inStock) {
+      statusEl.textContent = '● Em Estoque';
+      statusEl.className = 'status-badge pronto';
+    } else {
+      statusEl.textContent = '○ Esgotado';
+      statusEl.className = 'status-badge cancelado';
+    }
+  }
+
+  const nameEl = document.getElementById('pvName');
+  if (nameEl) nameEl.textContent = p.name;
+  
+  const codeEl = document.getElementById('pvCode');
+  if (codeEl) codeEl.textContent = p.code || 'S/CÓD';
+  
+  const pixEl = document.getElementById('pvPricePix');
+  if (pixEl) pixEl.textContent = pixVal.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  
+  const regEl = document.getElementById('pvPriceReg');
+  if (regEl) regEl.textContent = money(priceVal);
+  
+  const stockEl = document.getElementById('pvStockQty');
+  if (stockEl) stockEl.textContent = `${p.stockQty || 0} unidades`;
+  
+  const compatEl = document.getElementById('pvCompatibility');
+  if (compatEl) compatEl.textContent = p.compatibility || 'Aplicação compatível ou universal.';
+  
+  const descEl = document.getElementById('pvDescription');
+  if (descEl) descEl.textContent = p.description || 'Sem descrição cadastrada.';
+
+  const editBtn = document.getElementById('pvEditBtn');
+  if (editBtn) {
+    editBtn.onclick = () => {
+      closeProductViewModal();
+      startEdit(p.id);
+    };
+  }
+
+  const stockBtn = document.getElementById('pvAdjustStockBtn');
+  if (stockBtn) {
+    stockBtn.onclick = () => {
+      closeProductViewModal();
+      openStockModal(p.id);
+    };
+  }
+
+  modal.classList.remove('hidden');
+}
+
+function closeProductViewModal() {
+  document.getElementById('productViewModal')?.classList.add('hidden');
 }
 
 // Modal de ajuste de estoque e dados da peça

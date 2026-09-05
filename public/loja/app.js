@@ -520,9 +520,11 @@ async function loadCategoryCarousel() {
       return `<div class="card cat-card" data-product-id="${c.id || ''}" data-category="${c.category || ''}"${hidden ? ' aria-hidden="true"' : ''}>
         <div class="cat-card-img-wrap">
           <img alt="${hidden ? '' : c.name}" loading="lazy" src="${photo}">
+          ${priceVal > 0 ? `<span class="cat-card-pix-badge">-4% PIX</span>` : ''}
         </div>
         <b>${c.name}</b>
         <small>${c.category || 'Peça'}</small>
+        ${c.compatibility ? `<div class="cat-card-compat" title="${c.compatibility}"><span>🚗 ${c.compatibility}</span></div>` : ''}
         <div class="cat-card-price-block">
           <div class="cat-card-pix">${priceVal > 0 ? money(pixVal) : 'Disponível'} <span class="pix-micro-tag">no Pix</span></div>
           ${priceVal > 0 ? `<div class="cat-card-alt">ou ${money(priceVal)}</div>` : ''}
@@ -555,6 +557,17 @@ async function loadCategoryCarousel() {
                       + baseList.map(c => cardHtml(c, true)).join('') + cardAllHtml(true);
 
     track.innerHTML = htmlContent;
+
+    // Velocidade proporcional e suave: cada peça permanece legível sem passar rápido
+    const totalHalfItems = baseList.length + 1;
+    const durationSeconds = Math.max(55, Math.round(totalHalfItems * 2.8));
+    track.style.animationDuration = `${durationSeconds}s`;
+
+    // Pausa no toque (mobile) para inspecionar com facilidade
+    track.addEventListener('touchstart', () => { track.style.animationPlayState = 'paused'; }, { passive: true });
+    track.addEventListener('touchend', () => { track.style.animationPlayState = 'running'; }, { passive: true });
+    track.addEventListener('touchcancel', () => { track.style.animationPlayState = 'running'; }, { passive: true });
+
     track.querySelectorAll('.cat-card:not(.cat-card-all)').forEach(el => {
       el.onclick = () => {
         const prodId = el.dataset.productId;
@@ -669,6 +682,11 @@ async function goToCategory(category) {
   await loadCategories();
   const select = document.getElementById('filterCategory');
   if (select) select.value = category || '';
+  const searchInput = document.getElementById('catalogSearch');
+  if (searchInput) {
+    searchInput.value = '';
+    searchInput.focus();
+  }
   await loadCatalog();
 }
 
@@ -1281,6 +1299,20 @@ async function loadCatalog() {
   const category = document.getElementById('filterCategory')?.value;
   if (q) params.set('q', q);
   if (category) params.set('category', category);
+
+  // Não exibe peças soltas até o cliente pesquisar
+  if (!q) {
+    container.innerHTML = `
+      <div class="catalog-prompt-empty" style="text-align:center;padding:46px 16px;color:#8f949c;">
+        <div style="width:52px;height:52px;margin:0 auto 14px;border-radius:50%;background:rgba(237,28,36,0.1);border:1px solid rgba(237,28,36,0.25);display:flex;align-items:center;justify-content:center;color:#ed1c24;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </div>
+        <p style="font-size:15px;color:#ffffff;font-weight:700;margin:0 0 6px;">O que você procura?</p>
+        <p style="font-size:13px;color:#8f949c;margin:0 auto;max-width:320px;">Digite o nome da peça, modelo do veículo ou código para pesquisar no catálogo.</p>
+      </div>`;
+    return;
+  }
+
   try {
     const { products } = await api('/api/products?' + params.toString());
     renderProducts(container, products);
@@ -2057,11 +2089,29 @@ init();
     try {
       const res = await fetch('/api/products/categories/featured');
       const data = await res.json();
-      const items = (data.products || data.categories || []).filter(p => {
+      const allEligible = (data.products || data.categories || []).filter(p => {
         const v = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
         return v > 0 && p.inStock !== false;
-      }).slice(0, 4);
-      if (!items.length) return;
+      });
+      if (!allEligible.length) return;
+
+      // Seleciona ofertas destacadas garantindo variedade entre as categorias automotivas
+      const byCategory = new Map();
+      allEligible.forEach(p => {
+        const cat = p.category || 'Geral';
+        if (!byCategory.has(cat)) byCategory.set(cat, p);
+      });
+      let items = Array.from(byCategory.values());
+      if (items.length < 8) {
+        const usedIds = new Set(items.map(p => p.id));
+        for (const p of allEligible) {
+          if (!usedIds.has(p.id)) {
+            items.push(p);
+            usedIds.add(p.id);
+            if (items.length >= 8) break;
+          }
+        }
+      }
 
       list.innerHTML = items.map(p => {
         const photo = p.photoUrl || CATEGORY_IMAGES[p.category] || 'images/categorias/filtros.jpg';
@@ -2071,14 +2121,28 @@ init();
         return `
         <button type="button" class="offer-card" data-product-id="${p.id}">
           <div class="offer-card-text">
-            <div class="offer-card-cat">${p.category || 'Peça'}</div>
+            <div class="offer-card-badges">
+              <span class="offer-card-cat">${p.category || 'Peça'}</span>
+              <span class="offer-card-tag-pix">-4% PIX</span>
+            </div>
             <div class="offer-card-name">${p.name}</div>
-            <div class="offer-card-label">A partir de</div>
-            <div class="offer-card-price"><small>R$</small>${pixStr}</div>
-            <div class="offer-card-note">no Pix • ou ${money(priceVal)} em até 12x</div>
-            <span class="offer-card-cta">VER PEÇA</span>
+            ${p.compatibility ? `<div class="offer-card-compat" title="${p.compatibility}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.5 2.8C2 10.9 2 11.2 2 11.5V16c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg><span>${p.compatibility}</span></div>` : ''}
+            <div class="offer-card-price-block">
+              <div class="offer-card-price-main">
+                <span class="offer-card-label">À vista no Pix</span>
+                <span class="offer-card-price"><small>R$</small>${pixStr}</span>
+              </div>
+              <span class="offer-card-cta">
+                <span>VER PEÇA</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </span>
+            </div>
+            <div class="offer-card-note">ou ${money(priceVal)} em até 12x no cartão</div>
           </div>
-          <div class="offer-card-img"><img src="${photo}" alt="${p.name}" loading="lazy"></div>
+          <div class="offer-card-img">
+            <img src="${photo}" alt="${p.name}" loading="lazy">
+            <span class="offer-img-badge">OFERTA</span>
+          </div>
         </button>`;
       }).join('');
 
@@ -2089,6 +2153,10 @@ init();
           if (typeof openProductDetails === 'function') openProductDetails(id, prod);
         });
       });
+      const btnAll = section.querySelector('.btn-offers-all');
+      if (btnAll) {
+        btnAll.onclick = () => show('pecas');
+      }
       section.style.display = '';
     } catch (e) {
       console.error('Erro ao carregar ofertas:', e);

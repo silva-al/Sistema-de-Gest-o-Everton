@@ -95,7 +95,7 @@ router.get('/categories', async (_req, res) => {
 router.get('/categories/featured', async (_req, res) => {
   try {
     const result = await db.query(`
-      SELECT id, name, code, category, description, price_cents, stock_qty, photo_url, active
+      SELECT id, name, code, category, description, compatibility, price_cents, stock_qty, photo_url, active
       FROM products
       WHERE active = true
       ORDER BY updated_at DESC, id ASC

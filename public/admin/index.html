@@ -163,7 +163,7 @@
 
         <!-- CARDS DE MÉTRICAS (WMS STATS) -->
         <div class="stats-grid">
-          <div class="stat-card card-cyan">
+          <div class="stat-card card-cyan" onclick="switchTab('estoque')" style="cursor:pointer" title="Ver catálogo completo de peças">
             <div class="stat-card-top">
               <div class="stat-icon-box cyan">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
@@ -171,7 +171,7 @@
               <span class="stat-sub">Cadastrados no sistema</span>
             </div>
             <div class="stat-number" id="dashTotalProducts">0</div>
-            <div class="stat-label">Total de Peças</div>
+            <div class="stat-label">Total de Peças (Clique p/ ver)</div>
           </div>
 
           <div class="stat-card card-green">
@@ -185,7 +185,7 @@
             <div class="stat-label">Movimentações Hoje</div>
           </div>
 
-          <div class="stat-card card-red">
+          <div class="stat-card card-red" onclick="switchTab('estoque')" style="cursor:pointer" title="Ver peças no estoque">
             <div class="stat-card-top">
               <div class="stat-icon-box red">
                 <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -658,6 +658,65 @@
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
         Salvar Alterações da DANFE
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ====================================================
+     MODAL DE VISUALIZAÇÃO COMPLETA DA PEÇA
+     ==================================================== -->
+<div class="modal-overlay hidden" id="productViewModal">
+  <div class="modal-card modal-lg">
+    <div class="modal-header">
+      <div class="modal-title-box">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        <h3 id="pvModalTitle">Detalhes da Peça</h3>
+      </div>
+      <button class="modal-close" onclick="closeProductViewModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="pv-modal-grid">
+        <div class="pv-photo-wrap">
+          <img id="pvPhoto" src="" alt="Foto da peça"/>
+        </div>
+        <div class="pv-info-wrap">
+          <div class="pv-badge-row">
+            <span class="status-badge" id="pvCategory">Categoria</span>
+            <span class="status-badge pronto" id="pvStatus">● Em Estoque</span>
+          </div>
+          <h2 id="pvName" class="pv-name">Nome da Peça</h2>
+          <div class="pv-code-row">
+            <span class="pv-code-label">Código SKU:</span>
+            <strong id="pvCode" class="pv-code"></strong>
+          </div>
+          <div class="pv-price-card">
+            <div class="pv-price-pix">
+              <small>R$</small><span id="pvPricePix">0,00</span>
+              <span class="pix-micro-tag">no Pix (-4%)</span>
+            </div>
+            <div class="pv-price-reg">Preço regular: <span id="pvPriceReg">R$ 0,00</span></div>
+          </div>
+          <div class="pv-stock-box">
+            <span>Estoque disponível:</span>
+            <strong id="pvStockQty">0 unidades</strong>
+          </div>
+        </div>
+      </div>
+      
+      <div class="pv-section" style="margin-top:16px;">
+        <label class="pv-section-label">Compatibilidade Veicular (Aplicação de Modelos):</label>
+        <div class="pv-compat-box" id="pvCompatibility">Universal / Compatível</div>
+      </div>
+
+      <div class="pv-section" style="margin-top:12px;">
+        <label class="pv-section-label">Descrição e Detalhes da Peça:</label>
+        <div class="pv-desc-box" id="pvDescription">Sem descrição cadastrada.</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeProductViewModal()">Fechar</button>
+      <button class="btn btn-secondary" id="pvAdjustStockBtn">Ajustar Estoque</button>
+      <button class="btn btn-primary" id="pvEditBtn">Editar Dados da Peça</button>
     </div>
   </div>
 </div>
