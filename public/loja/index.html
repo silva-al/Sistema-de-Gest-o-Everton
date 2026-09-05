@@ -14,7 +14,84 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-<link href="styles.css?v=20260905_1" rel="stylesheet"/></head>
+<link href="styles.css?v=20260905_2" rel="stylesheet"/>
+
+<!-- Bloqueio e remoção total do badge e drawer do Netlify -->
+<style id="netlify-badge-blocker">
+  [class*="netlify" i],
+  [id*="netlify" i],
+  [data-netlify-badge],
+  [data-netlify-feedback],
+  iframe[src*="netlify" i],
+  iframe[title*="netlify" i],
+  iframe[id*="netlify" i],
+  iframe[class*="netlify" i],
+  a[href*="netlify.com" i],
+  netlify-drawer,
+  #netlify-drawer-container,
+  .netlify-drawer,
+  .netlify-badge,
+  #netlify-badge {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    max-width: 0 !important;
+    max-height: 0 !important;
+    position: absolute !important;
+    left: -99999px !important;
+    top: -99999px !important;
+    z-index: -99999 !important;
+    transform: scale(0) !important;
+  }
+  .fp-whatsapp-float {
+    z-index: 2147483647 !important;
+  }
+</style>
+<script>
+  (function(){
+    function killNetlify(){
+      var sels=['iframe[src*="netlify" i]','iframe[title*="netlify" i]','iframe[id*="netlify" i]','iframe[class*="netlify" i]','[data-netlify-badge]','[data-netlify-feedback]','#netlify-badge','.netlify-badge','netlify-drawer','#netlify-drawer-container','.netlify-drawer','[class*="netlify" i]','[id*="netlify" i]','a[href*="netlify.com" i]'];
+      for(var i=0;i<sels.length;i++){
+        try{
+          var els=document.querySelectorAll(sels[i]);
+          for(var j=0;j<els.length;j++){
+            if(els[j]&&els[j].tagName!=='SCRIPT'&&els[j].id!=='netlify-badge-blocker'){
+              els[j].remove();
+            }
+          }
+        }catch(e){}
+      }
+      try{
+        var all=document.querySelectorAll('div, a, span, button');
+        for(var k=0;k<all.length;k++){
+          var el=all[k];
+          if(!el||!el.textContent) continue;
+          var txt=el.textContent.trim();
+          if(txt==='Powered by Netlify'||txt.indexOf('Powered by Netlify')!==-1){
+            var host=el.closest('a')||el.closest('div[style*="fixed"]')||el.closest('div')||el;
+            if(host&&host!==document.body&&host!==document.documentElement){
+              host.remove();
+            }
+          }
+        }
+      }catch(e){}
+    }
+    killNetlify();
+    if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',killNetlify);}
+    window.addEventListener('load',killNetlify);
+    try{
+      var obs=new MutationObserver(function(){killNetlify();});
+      obs.observe(document.documentElement,{childList:true,subtree:true});
+      setTimeout(killNetlify,500);
+      setTimeout(killNetlify,1500);
+      setTimeout(killNetlify,3000);
+    }catch(e){}
+  })();
+</script>
+</head>
 <body>
 <!-- Splash Screen / Tela de Carregamento Oficial com Nome da Empresa -->
 <div id="splashScreen" class="splash-screen" aria-hidden="false">
@@ -430,4 +507,4 @@
 <div id="toastContainer"></div>
 <script defer="True" src="vendor/qrcode.js"></script>
 <script defer="True" src="https://sdk.mercadopago.com/js/v2"></script>
-<script defer="True" src="app.js?v=20260905_1"></script></body></html>
+<script defer="True" src="app.js?v=20260905_2"></script></body></html>

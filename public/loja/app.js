@@ -2203,3 +2203,56 @@ init();
     }
   }
 })();
+
+// Remove badge ou drawer do Netlify caso injetados dinamicamente
+(function cleanNetlifyBadges() {
+  function purge() {
+    const selectors = [
+      'iframe[src*="netlify" i]',
+      'iframe[title*="netlify" i]',
+      'iframe[id*="netlify" i]',
+      'iframe[class*="netlify" i]',
+      '[data-netlify-badge]',
+      '[data-netlify-feedback]',
+      '#netlify-badge',
+      '.netlify-badge',
+      'netlify-drawer',
+      '#netlify-drawer-container',
+      '.netlify-drawer',
+      '[class*="netlify" i]',
+      '[id*="netlify" i]',
+      'a[href*="netlify.com" i]'
+    ];
+    selectors.forEach(sel => {
+      try {
+        document.querySelectorAll(sel).forEach(el => {
+          if (el && el.tagName !== 'SCRIPT' && el.id !== 'netlify-badge-blocker') {
+            el.remove();
+          }
+        });
+      } catch (e) {}
+    });
+    try {
+      document.querySelectorAll('div, a, span, button').forEach(el => {
+        if (!el || !el.textContent) return;
+        const txt = el.textContent.trim();
+        if (txt === 'Powered by Netlify' || txt.includes('Powered by Netlify')) {
+          const container = el.closest('a') || el.closest('[style*="fixed"]') || el.closest('div') || el;
+          if (container && container !== document.body && container !== document.documentElement) {
+            container.remove();
+          }
+        }
+      });
+    } catch (e) {}
+  }
+  purge();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', purge);
+  }
+  window.addEventListener('load', purge);
+  try {
+    const obs = new MutationObserver(purge);
+    obs.observe(document.documentElement, { childList: true, subtree: true });
+  } catch (e) {}
+})();
+

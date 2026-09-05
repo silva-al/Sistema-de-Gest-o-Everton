@@ -68,7 +68,7 @@ main nav, main .nav, main .bottom-nav, main .legacy-nav, main .duplicate-nav { d
 
 
 /* ===== STYLE BLOCK ===== */
-.fp-whatsapp-float{position:fixed;right:20px;bottom:20px;width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#25D366;color:#fff;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.28);z-index:9999}.fp-whatsapp-float svg{width:27px;height:27px;fill:currentColor}.fp-wa-btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none}.fp-wa-btn svg{width:18px;height:18px;fill:currentColor}
+.fp-whatsapp-float{position:fixed;right:20px;bottom:24px;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#25D366;color:#fff;text-decoration:none;box-shadow:0 10px 28px rgba(0,0,0,.45);z-index:2147483647 !important;cursor:pointer;pointer-events:auto}.fp-whatsapp-float svg{width:28px;height:28px;fill:currentColor}.fp-wa-btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none}.fp-wa-btn svg{width:18px;height:18px;fill:currentColor}
 
 /* ===== STYLE BLOCK ===== */
 
@@ -192,8 +192,8 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
   .cart-row .qty-minus,.cart-row .qty-plus{width:34px;height:34px;order:2}
   .cart-row .remove-item{order:4;margin-left:auto}
 
-  .fp-whatsapp-float{width:46px;height:46px;right:14px;bottom:14px}
-  .fp-whatsapp-float svg{width:23px;height:23px}
+  .fp-whatsapp-float{width:50px;height:50px;right:16px;bottom:84px !important;z-index:2147483647 !important}
+  .fp-whatsapp-float svg{width:26px;height:26px}
 }
 
 @media(max-width:380px){
@@ -1994,10 +1994,11 @@ html, body {
 
   /* Botão WhatsApp Flutuante */
   .fp-whatsapp-float {
-    bottom: 16px !important;
+    bottom: 84px !important;
     right: 16px !important;
-    width: 48px !important;
-    height: 48px !important;
+    width: 50px !important;
+    height: 50px !important;
+    z-index: 2147483647 !important;
   }
   .fp-whatsapp-float svg {
     width: 26px !important;
@@ -2677,7 +2678,7 @@ html, body {
   .mobile-tabbar .mtb-badge{position:absolute;top:-2px;right:14px;background:#ed1c24;color:#fff;font-size:9px;font-weight:800;border-radius:8px;min-width:15px;height:15px;display:flex;align-items:center;justify-content:center;padding:0 3px}
 
   /* Sobe o botão flutuante do WhatsApp para não ficar em cima da barra inferior */
-  .fp-whatsapp-float{bottom:78px !important}
+  .fp-whatsapp-float{bottom:84px !important;right:16px !important;z-index:2147483647 !important}
 }
 
 /* ==========================================================================
@@ -3036,3 +3037,38 @@ html, body {
   .offer-card-cta{padding:6px 10px;font-size:9.5px}
   .btn-offers-all{width:100%;justify-content:center}
 }
+
+/* ==========================================================================
+   REMOÇÃO / OCULTAÇÃO DE BADGE E DRAWER DO NETLIFY
+   Garante que o badge "Powered by Netlify", drawer de colaboração e toolbars
+   não apareçam nem fiquem sobre o WhatsApp ou o layout.
+   ========================================================================== */
+iframe[src*="netlify" i],
+iframe[title*="netlify" i],
+iframe[id*="netlify" i],
+iframe[class*="netlify" i],
+[data-netlify-badge],
+[data-netlify-feedback],
+[class*="netlify" i],
+[id*="netlify" i],
+a[href*="netlify.com" i],
+netlify-drawer,
+#netlify-drawer-container,
+.netlify-drawer,
+.netlify-badge,
+#netlify-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  max-width: 0 !important;
+  max-height: 0 !important;
+  position: absolute !important;
+  left: -99999px !important;
+  top: -99999px !important;
+  z-index: -99999 !important;
+  transform: scale(0) !important;
+}
+
