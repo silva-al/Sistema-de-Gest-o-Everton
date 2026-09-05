@@ -2047,7 +2047,7 @@ html, body {
    ========================================================================== */
 .hero-clean {
   position: relative;
-  padding: 54px 20px 40px;
+  padding: 24px 18px 24px;
   background: 
     radial-gradient(ellipse 70% 60% at 50% 12%, rgba(237, 28, 36, 0.13) 0%, rgba(9, 10, 12, 0) 75%),
     linear-gradient(180deg, #090a0d 0%, #0d0f14 100%);
@@ -2230,20 +2230,22 @@ html, body {
 
 @media (max-width: 768px) {
   .hero-clean {
-    padding: 30px 14px 22px;
+    padding: 14px 12px 16px;
   }
   .hero-clean-tag {
-    font-size: 10px;
-    padding: 4px 10px;
-    margin-bottom: 12px;
-  }
-  .hero-clean-title {
-    font-size: 28px;
+    font-size: 9.5px;
+    padding: 3px 10px;
     margin-bottom: 8px;
   }
+  .hero-clean-title {
+    font-size: 24px;
+    line-height: 1.14;
+    margin-bottom: 6px;
+  }
   .hero-clean-sub {
-    font-size: 13.5px;
-    margin-bottom: 18px;
+    font-size: 12.5px;
+    line-height: 1.35;
+    margin-bottom: 10px;
   }
   .hero-clean-search {
     padding: 4px 4px 4px 12px;
@@ -2720,122 +2722,161 @@ html, body {
 /* ==========================================================================
    HERO — BANNER PANORÂMICO DE ALTA DEFINIÇÃO COM ROTAÇÃO CINEMÁTICA
    Formato widescreen idêntico ao modelo com cantos arredondados,
-   brilho neon sutil, dots no canto inferior e transição suave de imagens.
+   sem bordas artificiais limitantes, proporções compactas e transição fluida.
    ========================================================================== */
-.hero-clean-grid{display:block}
-.hero-clean-text{position:relative}
-
-.hero-clean-visual{display:flex;align-items:center;justify-content:center;margin-top:28px;width:100%}
-
-.hero-banner-container{
-  position:relative;
-  width:100%;
-  max-width:560px;
-  aspect-ratio:16 / 9;
-  border-radius:18px;
-  overflow:hidden;
-  background:#090a0d;
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:0 20px 48px rgba(0,0,0,.7),0 0 32px rgba(237,28,36,.14);
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
+.hero-clean-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px auto;
+  width: 100%;
 }
 
-.hero-banner-glow{
-  position:absolute;
-  inset:-20px;
-  background:radial-gradient(circle at 65% 50%, rgba(237,28,36,.28) 0%, rgba(237,28,36,.08) 48%, rgba(237,28,36,0) 70%);
-  filter:blur(10px);
-  pointer-events:none;
-  z-index:1;
+.hero-banner-container {
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  aspect-ratio: 16 / 9;
+  max-height: 220px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
 }
 
-.hero-banner-img{
-  position:relative;
-  z-index:2;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-  transition:opacity .35s ease, transform .5s cubic-bezier(0.2,0.8,0.2,1);
-  will-change:opacity, transform;
+.hero-banner-glow {
+  position: absolute;
+  inset: -15px;
+  background: radial-gradient(circle at 60% 50%, rgba(237, 28, 36, 0.2) 0%, rgba(237, 28, 36, 0.05) 50%, transparent 70%);
+  filter: blur(12px);
+  pointer-events: none;
+  z-index: 1;
 }
 
-.hero-banner-img.fading{
-  opacity:0.25;
-  transform:scale(0.97);
+.hero-banner-img {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 16px;
+  border: none !important;
+  outline: none !important;
+  transition: opacity .35s ease, transform .45s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
 }
 
-/* Dots posicionados no canto inferior conforme a foto de referência */
-.hero-banner-container .hero-dots{
-  position:absolute;
-  left:20px;
-  bottom:16px;
-  z-index:4;
-  display:flex;
-  align-items:center;
-  gap:7px;
-  margin:0;
-  padding:5px 9px;
-  background:rgba(0,0,0,.55);
-  backdrop-filter:blur(8px);
-  -webkit-backdrop-filter:blur(8px);
-  border-radius:20px;
-  border:1px solid rgba(255,255,255,.1);
+.hero-banner-img.fading {
+  opacity: 0.25;
+  transform: scale(0.98);
 }
 
-.hero-dots span{
-  width:7px;
-  height:7px;
-  border-radius:50%;
-  background:rgba(255,255,255,.32);
-  cursor:pointer;
-  transition:all .32s cubic-bezier(0.2,0.8,0.2,1);
+/* Dots posicionados no canto inferior de forma minimalista */
+.hero-banner-container .hero-dots {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 20px;
+  border: none !important;
+  outline: none !important;
 }
 
-.hero-dots span:hover{
-  background:rgba(255,255,255,.7);
+.hero-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  transition: all .3s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-.hero-dots span.active{
-  width:24px;
-  height:7px;
-  border-radius:4px;
-  background:#ed1c24;
-  box-shadow:0 0 10px rgba(237,28,36,.8);
+.hero-dots span:hover {
+  background: rgba(255, 255, 255, 0.7);
 }
 
-@media(min-width:900px){
-  .hero-clean{text-align:left}
-  .hero-clean-grid{display:grid;grid-template-columns:1fr 1.15fr;align-items:center;gap:42px;max-width:1180px;margin:0 auto}
-  .hero-clean-tag{margin-left:0}
-  .hero-clean-title,.hero-clean-sub{margin-left:0;margin-right:0;max-width:540px}
-  .hero-clean-perks{justify-content:flex-start}
-  .hero-clean-visual{margin-top:0}
-  .hero-banner-container{max-width:620px;border-radius:20px}
+.hero-dots span.active {
+  width: 18px;
+  height: 6px;
+  border-radius: 4px;
+  background: #ed1c24;
+  box-shadow: 0 0 10px rgba(237, 28, 36, 0.8);
 }
 
-@media(max-width:600px){
-  .hero-banner-container{
-    max-width:100%;
-    aspect-ratio:16 / 9;
-    border-radius:14px;
+@media (min-width: 900px) {
+  .hero-clean {
+    text-align: center;
+    padding: 24px 20px 24px;
   }
-  .hero-banner-container .hero-dots{
-    left:14px;
-    bottom:12px;
-    gap:6px;
-    padding:4px 8px;
+  .hero-clean-tag {
+    margin-left: auto;
+    margin-right: auto;
   }
-  .hero-dots span{
-    width:6px;
-    height:6px;
+  .hero-clean-title {
+    font-size: 36px;
+    line-height: 1.12;
+    margin-bottom: 8px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
   }
-  .hero-dots span.active{
-    width:18px;
-    height:6px;
+  .hero-clean-sub {
+    font-size: 14px;
+    margin-bottom: 14px;
+    max-width: 540px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .hero-clean-perks {
+    justify-content: center;
+    margin-top: 12px;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-clean-visual {
+    margin: 0 auto 10px auto;
+  }
+  .hero-banner-container {
+    max-width: 320px;
+    width: 88%;
+    max-height: 165px;
+    aspect-ratio: 16 / 9;
+    border-radius: 12px;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+  }
+  .hero-banner-img {
+    border-radius: 12px;
+  }
+  .hero-banner-container .hero-dots {
+    left: 10px;
+    bottom: 10px;
+    gap: 5px;
+    padding: 3px 7px;
+  }
+  .hero-dots span {
+    width: 5px;
+    height: 5px;
+  }
+  .hero-dots span.active {
+    width: 16px;
+    height: 5px;
   }
 }
 
