@@ -14,7 +14,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-<link href="styles.css?v=20260905_7" rel="stylesheet"/>
+<link href="styles.css?v=20260905_9" rel="stylesheet"/>
 
 <!-- Bloqueio e remoção total do badge e drawer do Netlify -->
 <style id="netlify-badge-blocker">
@@ -93,6 +93,12 @@
 </script>
 </head>
 <body>
+<script>
+  /* Aplica o tema salvo antes da pagina pintar, para nao piscar */
+  (function(){try{
+    if(localStorage.getItem('fahren-tema')==='claro'){document.body.classList.add('tema-claro');}
+  }catch(e){}})();
+</script>
 <!-- Splash Screen / Tela de Carregamento Oficial com Nome da Empresa -->
 <div id="splashScreen" class="splash-screen" aria-hidden="false">
   <div class="splash-content">
@@ -134,6 +140,11 @@
   <input type="search" id="headerSearchInput" placeholder="Pesquisar peça, modelo ou código..." autocomplete="off"/>
   <button type="button" id="headerSearchBtn">BUSCAR</button>
 </div>
+
+<button type="button" class="theme-toggle" id="themeToggle" aria-label="Alternar entre tema claro e escuro" aria-pressed="false" title="Alternar entre claro e escuro">
+  <svg class="icone-sol" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+  <svg class="icone-lua" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z"/></svg>
+</button>
 
 <nav class="nav">
 <button class="active" data-screen="inicio">Início</button>
@@ -284,7 +295,7 @@
       <input id="catalogSearch" placeholder="Pesquisar peça, código ou categoria..." autocomplete="off"/>
     </div>
     <div class="products" id="catalogResults" style="margin-top:18px">
-      <p style="color:#9da2aa">Carregando peças...</p>
+      <p style="color:var(--fp-9da2aa)">Carregando peças...</p>
     </div>
   </div>
 </section>
@@ -407,7 +418,7 @@
         <div class="fp-tab-body">
           <div id="detailFullDescription"></div>
           <div class="fp-specs-wrap" style="margin-top:24px">
-            <h3 style="font-size:16px;margin-bottom:12px;color:#fff;display:flex;align-items:center;gap:8px">
+            <h3 style="font-size:16px;margin-bottom:12px;color:var(--fp-fff);display:flex;align-items:center;gap:8px">
               <span>⚙️</span> Ficha Técnica da Peça
             </h3>
             <table class="fp-specs-table">
@@ -434,8 +445,8 @@
     <div class="fp-detail-related-section" id="detailRelatedSection" style="margin-top:36px">
       <div class="section-head">
         <div>
-          <h3 id="detailRelatedTitle" style="margin:0;font-size:18px;color:#fff">Peças Recomendadas</h3>
-          <small id="detailRelatedSubtitle" style="color:#9da2aa;font-size:12px">Mais opções na categoria de <span id="detailRelatedCategoryName" style="color:#fff;font-weight:600"></span></small>
+          <h3 id="detailRelatedTitle" style="margin:0;font-size:18px;color:var(--fp-fff)">Peças Recomendadas</h3>
+          <small id="detailRelatedSubtitle" style="color:var(--fp-9da2aa);font-size:12px">Mais opções na categoria de <span id="detailRelatedCategoryName" style="color:var(--fp-fff);font-weight:600"></span></small>
         </div>
         <button class="ver-todas" id="detailRelatedSeeCategoryBtn" type="button">
           <span>VER TODAS</span>
@@ -472,9 +483,9 @@
   </div>
 </div>
 
-<section class="screen" id="cadastro"><div class="form-wrap"><div class="panel"><div class="kicker">FAHREN MOTORS</div><h2 id="authTitle">Cadastro de cliente</h2><p id="authSubtitle" style="color:#9da2aa">Crie sua conta para consultar peças e acompanhar seus pedidos.</p>
+<section class="screen" id="cadastro"><div class="form-wrap"><div class="panel"><div class="kicker">FAHREN MOTORS</div><h2 id="authTitle">Cadastro de cliente</h2><p id="authSubtitle" style="color:var(--fp-9da2aa)">Crie sua conta para consultar peças e acompanhar seus pedidos.</p>
 <div id="registerForm">
-<div class="field"><label>Nome completo</label><input autocomplete="name" id="registerName" placeholder="Seu nome"/></div><div class="field"><label>WhatsApp</label><input autocomplete="tel" id="registerPhone" placeholder="(00) 00000-0000"/></div><div class="field"><label>E-mail</label><input autocomplete="email" id="registerEmail" placeholder="seu@email.com" type="email"/></div><div class="field"><label>CPF/CNPJ <span id="registerCpfCnpjType" style="color:#9da2aa;font-weight:400;text-transform:none"></span></label><input autocomplete="off" id="registerCpfCnpj" inputmode="numeric" placeholder="CPF (000.000.000-00) ou CNPJ (00.000.000/0000-00)"/></div><div class="field password-field"><label>Senha</label><input autocomplete="new-password" id="registerPassword" placeholder="Crie uma senha" type="password"/><button aria-label="Mostrar senha" class="password-toggle" data-target="registerPassword" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button></div><div class="field password-field"><label>Confirmar senha</label><input autocomplete="new-password" id="registerPassword2" placeholder="Repita sua senha" type="password"/><button aria-label="Mostrar confirmação de senha" class="password-toggle" data-target="registerPassword2" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button></div><p class="form-help">Seus dados ficam salvos neste aplicativo para manter sua conta ativa neste dispositivo.</p><button class="btn" id="createAccount" style="width:100%;margin-top:8px">CRIAR CADASTRO</button>
+<div class="field"><label>Nome completo</label><input autocomplete="name" id="registerName" placeholder="Seu nome"/></div><div class="field"><label>WhatsApp</label><input autocomplete="tel" id="registerPhone" placeholder="(00) 00000-0000"/></div><div class="field"><label>E-mail</label><input autocomplete="email" id="registerEmail" placeholder="seu@email.com" type="email"/></div><div class="field"><label>CPF/CNPJ <span id="registerCpfCnpjType" style="color:var(--fp-9da2aa);font-weight:400;text-transform:none"></span></label><input autocomplete="off" id="registerCpfCnpj" inputmode="numeric" placeholder="CPF (000.000.000-00) ou CNPJ (00.000.000/0000-00)"/></div><div class="field password-field"><label>Senha</label><input autocomplete="new-password" id="registerPassword" placeholder="Crie uma senha" type="password"/><button aria-label="Mostrar senha" class="password-toggle" data-target="registerPassword" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button></div><div class="field password-field"><label>Confirmar senha</label><input autocomplete="new-password" id="registerPassword2" placeholder="Repita sua senha" type="password"/><button aria-label="Mostrar confirmação de senha" class="password-toggle" data-target="registerPassword2" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M2.5 12s3.5-5 9.5-5 9.5 5 9.5 5-3.5 5-9.5 5-9.5-5-9.5-5Z"></path><circle cx="12" cy="12" r="2.5"></circle></svg></button></div><p class="form-help">Seus dados ficam salvos neste aplicativo para manter sua conta ativa neste dispositivo.</p><button class="btn" id="createAccount" style="width:100%;margin-top:8px">CRIAR CADASTRO</button>
 <div style="text-align:center;margin-top:10px"><button class="fp-link" id="showLogin">Já tenho cadastro</button></div>
 </div>
 <div class="fp-login" id="fpLogin">
@@ -486,11 +497,11 @@
 <div class="fp-message" id="loginMessage"></div><div class="fp-error" id="loginError"></div>
 </div>
 </div></div></section>
-<section class="screen" id="perfil"><div class="form-wrap"><div class="panel"><div class="kicker">MINHA CONTA</div><h2>Perfil</h2><p style="color:#9da2aa">Suas informações de cadastro e pedidos.</p><div class="field"><label>Nome completo</label><input id="profileName" placeholder="Seu nome"/></div><div class="field"><label>E-mail</label><input id="profileEmail" placeholder="seu@email.com" type="email"/></div><div class="field"><label>CPF/CNPJ <span id="profileCpfCnpjType" style="color:#9da2aa;font-weight:400;text-transform:none"></span></label><input autocomplete="off" id="profileCpfCnpj" inputmode="numeric" placeholder="CPF (000.000.000-00) ou CNPJ (00.000.000/0000-00)"/></div><div class="field"><label>WhatsApp</label><input placeholder="(00) 00000-0000"/></div><div class="field"><label>Endereço de entrega</label><input id="profileAddressSummary" placeholder="Nenhum endereço cadastrado" readonly=""/></div><button class="fp-link" id="editAddressBtn" style="display:block;width:100%;margin-top:10px">Alterar endereço de entrega</button><button class="btn" style="width:100%">SALVAR ALTERAÇÕES</button><button class="fp-link" id="logoutBtn" style="display:block;width:100%;margin-top:14px">Sair da conta</button></div>
-<div class="panel" style="margin-top:16px"><div class="kicker">PEDIDOS</div><h2 style="margin:6px 0 12px">Meus pedidos</h2><div id="myOrders"><p style="color:#9da2aa">Carregando...</p></div></div>
+<section class="screen" id="perfil"><div class="form-wrap"><div class="panel"><div class="kicker">MINHA CONTA</div><h2>Perfil</h2><p style="color:var(--fp-9da2aa)">Suas informações de cadastro e pedidos.</p><div class="field"><label>Nome completo</label><input id="profileName" placeholder="Seu nome"/></div><div class="field"><label>E-mail</label><input id="profileEmail" placeholder="seu@email.com" type="email"/></div><div class="field"><label>CPF/CNPJ <span id="profileCpfCnpjType" style="color:var(--fp-9da2aa);font-weight:400;text-transform:none"></span></label><input autocomplete="off" id="profileCpfCnpj" inputmode="numeric" placeholder="CPF (000.000.000-00) ou CNPJ (00.000.000/0000-00)"/></div><div class="field"><label>WhatsApp</label><input placeholder="(00) 00000-0000"/></div><div class="field"><label>Endereço de entrega</label><input id="profileAddressSummary" placeholder="Nenhum endereço cadastrado" readonly=""/></div><button class="fp-link" id="editAddressBtn" style="display:block;width:100%;margin-top:10px">Alterar endereço de entrega</button><button class="btn" style="width:100%">SALVAR ALTERAÇÕES</button><button class="fp-link" id="logoutBtn" style="display:block;width:100%;margin-top:14px">Sair da conta</button></div>
+<div class="panel" style="margin-top:16px"><div class="kicker">PEDIDOS</div><h2 style="margin:6px 0 12px">Meus pedidos</h2><div id="myOrders"><p style="color:var(--fp-9da2aa)">Carregando...</p></div></div>
 </div></section>
-<section class="screen" id="endereco"><div class="form-wrap"><div class="panel"><div class="kicker">ENTREGA</div><h2>Onde devemos entregar?</h2><p style="color:#9da2aa">Informe o CEP e complete os dados do endereço para finalizar seu pedido.</p><div class="field"><label>CEP</label><input id="deliveryCep" inputmode="numeric" maxlength="9" placeholder="00000-000"/></div><div class="field"><label>Rua</label><input id="deliveryStreet" placeholder="Nome da rua"/></div><div class="field"><label>Número</label><input id="deliveryNumber" inputmode="numeric" placeholder="Número"/></div><div class="field"><label>Complemento</label><input id="deliveryComplement" placeholder="Apartamento, sala, referência (opcional)"/></div><div class="field"><label>Bairro</label><input id="deliveryNeighborhood" placeholder="Bairro"/></div><div class="field"><label>Cidade</label><input id="deliveryCity" placeholder="Cidade"/></div><div class="field"><label>Estado</label><input id="deliveryState" maxlength="2" placeholder="SP"/></div><button class="btn" id="saveDeliveryAddress" style="width:100%;margin-top:8px">CONFIRMAR ENDEREÇO</button><p class="form-help" id="addressSavedMsg" style="display:none">Endereço salvo no seu perfil para as próximas compras.</p></div></div></section>
-<section class="screen" id="carrinho"><div class="section"><div class="kicker">FAHREN MOTORS</div><h2>Carrinho de compras <span id="cartHeaderCount" style="color:#9da2aa;font-size:16px;font-weight:400;margin-left:8px"></span></h2><div class="panel" id="cartContent"><p style="color:#9da2aa">Seu carrinho está vazio. Adicione peças pelo catálogo para continuar.</p><button class="btn" data-go="pecas">VER PEÇAS</button></div></div></section>
+<section class="screen" id="endereco"><div class="form-wrap"><div class="panel"><div class="kicker">ENTREGA</div><h2>Onde devemos entregar?</h2><p style="color:var(--fp-9da2aa)">Informe o CEP e complete os dados do endereço para finalizar seu pedido.</p><div class="field"><label>CEP</label><input id="deliveryCep" inputmode="numeric" maxlength="9" placeholder="00000-000"/></div><div class="field"><label>Rua</label><input id="deliveryStreet" placeholder="Nome da rua"/></div><div class="field"><label>Número</label><input id="deliveryNumber" inputmode="numeric" placeholder="Número"/></div><div class="field"><label>Complemento</label><input id="deliveryComplement" placeholder="Apartamento, sala, referência (opcional)"/></div><div class="field"><label>Bairro</label><input id="deliveryNeighborhood" placeholder="Bairro"/></div><div class="field"><label>Cidade</label><input id="deliveryCity" placeholder="Cidade"/></div><div class="field"><label>Estado</label><input id="deliveryState" maxlength="2" placeholder="SP"/></div><button class="btn" id="saveDeliveryAddress" style="width:100%;margin-top:8px">CONFIRMAR ENDEREÇO</button><p class="form-help" id="addressSavedMsg" style="display:none">Endereço salvo no seu perfil para as próximas compras.</p></div></div></section>
+<section class="screen" id="carrinho"><div class="section"><div class="kicker">FAHREN MOTORS</div><h2>Carrinho de compras <span id="cartHeaderCount" style="color:var(--fp-9da2aa);font-size:16px;font-weight:400;margin-left:8px"></span></h2><div class="panel" id="cartContent"><p style="color:var(--fp-9da2aa)">Seu carrinho está vazio. Adicione peças pelo catálogo para continuar.</p><button class="btn" data-go="pecas">VER PEÇAS</button></div></div></section>
 </main>
 <div class="footer-note">Fahren Motors • Rua Florianópolis, 165 – Hortolândia/SP • Atendimento: 08h às 18h</div>
 </div>
@@ -510,4 +521,4 @@
 <div id="toastContainer"></div>
 <script defer="True" src="vendor/qrcode.js"></script>
 <script defer="True" src="https://sdk.mercadopago.com/js/v2"></script>
-<script defer="True" src="app.js?v=20260905_7"></script></body></html>
+<script defer="True" src="app.js?v=20260905_9"></script></body></html>

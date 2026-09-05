@@ -609,7 +609,7 @@ async function loadRecommendedProducts(product) {
     seeCatBtn.onclick = () => goToCategory(categoryName);
   }
 
-  grid.innerHTML = '<p style="color:#9da2aa;grid-column:1/-1;padding:20px 0">Buscando peças recomendadas...</p>';
+  grid.innerHTML = '<p style="color:var(--fp-9da2aa);grid-column:1/-1;padding:20px 0">Buscando peças recomendadas...</p>';
 
   try {
     let items = [];
@@ -692,7 +692,7 @@ async function goToCategory(category) {
 
 function renderProducts(container, products) {
   if (!products.length) {
-    container.innerHTML = '<p style="color:#9da2aa">Nenhuma peça encontrada com esses filtros.</p>';
+    container.innerHTML = '<p style="color:var(--fp-9da2aa)">Nenhuma peça encontrada com esses filtros.</p>';
     return;
   }
   container.innerHTML = products.map(p => {
@@ -921,14 +921,14 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
   const fullDesc = document.getElementById('detailFullDescription');
   if (fullDesc) {
     fullDesc.innerHTML = `
-      <p style="font-size:15px;line-height:1.6;color:#e1e4ea">
+      <p style="font-size:15px;line-height:1.6;color:var(--fp-e1e4ea)">
         ${product.description ? product.description : `A peça <strong>${product.name}</strong> é desenvolvida atendendo aos mais rigorosos padrões de qualidade e especificações técnicas de montadoras automotivas.`}
       </p>
-      <p style="margin-top:12px;color:#9da2aa;line-height:1.5">
+      <p style="margin-top:12px;color:var(--fp-9da2aa);line-height:1.5">
         Item essencial para o correto funcionamento e durabilidade do veículo. Proporciona alto rendimento, durabilidade prolongada e encaixe preciso de fábrica sem necessidade de adaptações.
       </p>
-      <div style="margin-top:16px;padding:12px 14px;background:#14171e;border-left:3px solid #ed1c24;border-radius:6px;font-size:13.5px;color:#cbd0d8">
-        <strong style="color:#fff">⚠️ Recomendação de Instalação:</strong> Para garantir a segurança e a validade da garantia de 90 dias com Nota Fiscal, a instalação deve ser realizada por um profissional ou centro automotivo especializado.
+      <div style="margin-top:16px;padding:12px 14px;background:var(--fp-14171e);border-left:3px solid #ed1c24;border-radius:6px;font-size:13.5px;color:var(--fp-cbd0d8)">
+        <strong style="color:var(--fp-fff)">⚠️ Recomendação de Instalação:</strong> Para garantir a segurança e a validade da garantia de 90 dias com Nota Fiscal, a instalação deve ser realizada por um profissional ou centro automotivo especializado.
       </div>
     `;
   }
@@ -948,48 +948,48 @@ async function openProductDetails(productId, cachedProduct = null, push = true) 
     const hasCustomCompat = Boolean(product.compatibility && product.compatibility.trim());
     compatBody.innerHTML = `
       <div class="fp-compat-header" style="margin-bottom:18px">
-        <h3 style="font-size:17px;color:#fff;margin-bottom:6px;display:flex;align-items:center;gap:8px">
+        <h3 style="font-size:17px;color:var(--fp-fff);margin-bottom:6px;display:flex;align-items:center;gap:8px">
           <span>🚗</span> Aplicação e Veículos Compatíveis
         </h3>
-        <p style="color:#9da2aa;font-size:13.5px">
+        <p style="color:var(--fp-9da2aa);font-size:13.5px">
           ${hasCustomCompat 
             ? 'Esta peça possui as seguintes aplicações veiculares e modelos compatíveis homologados:'
             : 'Aplicações compatíveis com as linhas de montadoras que utilizam esta especificação:'}
         </p>
       </div>
 
-      <div class="fp-compat-detail-box" style="background:#111319;border:1px solid #292d37;border-radius:12px;padding:18px;margin-bottom:18px">
+      <div class="fp-compat-detail-box" style="background:var(--fp-111319);border:1px solid var(--fp-292d37);border-radius:12px;padding:18px;margin-bottom:18px">
         ${hasCustomCompat ? `
-          <div style="white-space:pre-line;color:#f0f2f5;font-size:14.5px;line-height:1.7;font-weight:500">
+          <div style="white-space:pre-line;color:var(--fp-f0f2f5);font-size:14.5px;line-height:1.7;font-weight:500">
             ${product.compatibility.trim()}
           </div>
         ` : `
           <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px">
             <div>
-              <span style="color:#8e949c;font-size:11.5px;text-transform:uppercase;display:block">Referência / Código:</span>
-              <strong style="color:#fff;font-size:14.5px">${product.code || ('FP-00' + product.id)}</strong>
+              <span style="color:var(--fp-8e949c);font-size:11.5px;text-transform:uppercase;display:block">Referência / Código:</span>
+              <strong style="color:var(--fp-fff);font-size:14.5px">${product.code || ('FP-00' + product.id)}</strong>
             </div>
             <div>
-              <span style="color:#8e949c;font-size:11.5px;text-transform:uppercase;display:block">Sistema do Veículo:</span>
-              <strong style="color:#fff;font-size:14.5px">${product.category || 'Peças Automotivas'}</strong>
+              <span style="color:var(--fp-8e949c);font-size:11.5px;text-transform:uppercase;display:block">Sistema do Veículo:</span>
+              <strong style="color:var(--fp-fff);font-size:14.5px">${product.category || 'Peças Automotivas'}</strong>
             </div>
             <div>
-              <span style="color:#8e949c;font-size:11.5px;text-transform:uppercase;display:block">Padrão de Fabricação:</span>
+              <span style="color:var(--fp-8e949c);font-size:11.5px;text-transform:uppercase;display:block">Padrão de Fabricação:</span>
               <strong style="color:#3fb950;font-size:14.5px">Encaixe Original 100% Plug & Play</strong>
             </div>
           </div>
-          <p style="margin-top:14px;color:#a0a5ae;font-size:13px;border-top:1px solid #20242e;padding-top:12px">
+          <p style="margin-top:14px;color:var(--fp-a0a5ae);font-size:13px;border-top:1px solid var(--fp-20242e);padding-top:12px">
             Peça de primeira linha compatível com montadoras que adotam este padrão. Ao cadastrar novas peças ou atualizá-las no painel administrativo, os detalhes de modelos, motorizações e anos compatíveis serão listados aqui.
           </p>
         `}
       </div>
 
-      <div class="fp-compat-cta" style="background:#141720;border-left:4px solid #ed1c24;border-radius:8px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div class="fp-compat-cta" style="background:var(--fp-141720);border-left:4px solid #ed1c24;border-radius:8px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
         <div>
-          <strong style="color:#fff;font-size:14px;display:block">Dúvida sobre o chassi, motor ou ano do seu carro?</strong>
-          <span style="color:#9da2aa;font-size:12.5px">Nossa equipe confirma na hora pelo catálogo técnico da montadora.</span>
+          <strong style="color:var(--fp-fff);font-size:14px;display:block">Dúvida sobre o chassi, motor ou ano do seu carro?</strong>
+          <span style="color:var(--fp-9da2aa);font-size:12.5px">Nossa equipe confirma na hora pelo catálogo técnico da montadora.</span>
         </div>
-        <a href="https://wa.me/5519989932064?text=${encodeURIComponent('Olá! Gostaria de confirmar a compatibilidade da peça ' + product.name + ' (Código: ' + (product.code || product.id) + ') com o modelo do meu carro.')}" target="_blank" rel="noopener" style="background:#238636;color:#fff;padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .15s">
+        <a href="https://wa.me/5519989932064?text=${encodeURIComponent('Olá! Gostaria de confirmar a compatibilidade da peça ' + product.name + ' (Código: ' + (product.code || product.id) + ') com o modelo do meu carro.')}" target="_blank" rel="noopener" style="background:#238636;color:var(--fp-fff);padding:8px 16px;border-radius:6px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .15s">
           <span>💬</span> Confirmar no WhatsApp
         </a>
       </div>
@@ -1288,12 +1288,12 @@ async function loadCatalog() {
   // Não exibe peças soltas até o cliente pesquisar
   if (!q) {
     container.innerHTML = `
-      <div class="catalog-prompt-empty" style="text-align:center;padding:46px 16px;color:#8f949c;">
+      <div class="catalog-prompt-empty" style="text-align:center;padding:46px 16px;color:var(--fp-8f949c);">
         <div style="width:52px;height:52px;margin:0 auto 14px;border-radius:50%;background:rgba(237,28,36,0.1);border:1px solid rgba(237,28,36,0.25);display:flex;align-items:center;justify-content:center;color:#ed1c24;">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
         </div>
-        <p style="font-size:15px;color:#ffffff;font-weight:700;margin:0 0 6px;">O que você procura?</p>
-        <p style="font-size:13px;color:#8f949c;margin:0 auto;max-width:320px;">Digite o nome da peça, modelo do veículo ou código para pesquisar no catálogo.</p>
+        <p style="font-size:15px;color:var(--fp-ffffff);font-weight:700;margin:0 0 6px;">O que você procura?</p>
+        <p style="font-size:13px;color:var(--fp-8f949c);margin:0 auto;max-width:320px;">Digite o nome da peça, modelo do veículo ou código para pesquisar no catálogo.</p>
       </div>`;
     return;
   }
@@ -1470,10 +1470,10 @@ function renderFallbackCardForm(amounts, container, statusEl) {
   }
 
   container.innerHTML = `
-    <div class="card-fallback-form" style="background:#0c0e11;border:1px solid #282b30;border-radius:14px;padding:20px;margin-top:12px">
+    <div class="card-fallback-form" style="background:var(--fp-0c0e11);border:1px solid var(--fp-282b30);border-radius:14px;padding:20px;margin-top:12px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <span style="font-size:12px;font-weight:700;color:#9da2aa;text-transform:uppercase">Dados do Cartão de Crédito</span>
-        <span id="detectedBrandBadge" style="background:#202328;color:#39c979;font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;border:1px solid #34373d">CARTÃO</span>
+        <span style="font-size:12px;font-weight:700;color:var(--fp-9da2aa);text-transform:uppercase">Dados do Cartão de Crédito</span>
+        <span id="detectedBrandBadge" style="background:var(--fp-202328);color:#39c979;font-size:11px;font-weight:800;padding:4px 10px;border-radius:6px;border:1px solid var(--fp-34373d)">CARTÃO</span>
       </div>
 
       <div class="field" style="margin:12px 0">
@@ -1505,7 +1505,7 @@ function renderFallbackCardForm(amounts, container, statusEl) {
       <div class="field" style="margin:12px 0">
         <label>Opções de Parcelamento</label>
         <div style="margin-top:6px">
-          <select id="customCardInstallments" style="width:100%;padding:14px;border-radius:10px;border:1px solid #34373d;background:#121418;color:#fff;font-size:15px;cursor:pointer">
+          <select id="customCardInstallments" style="width:100%;padding:14px;border-radius:10px;border:1px solid var(--fp-34373d);background:var(--fp-121418);color:var(--fp-fff);font-size:15px;cursor:pointer">
             ${optionsHtml}
           </select>
         </div>
@@ -1515,7 +1515,7 @@ function renderFallbackCardForm(amounts, container, statusEl) {
         PAGAR R$ ${money(subtotal).replace('R$', '').trim()} COM CARTÃO
       </button>
 
-      <div style="margin-top:14px;display:flex;align-items:center;gap:8px;font-size:11px;color:#8f949c;line-height:1.4">
+      <div style="margin-top:14px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--fp-8f949c);line-height:1.4">
         <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#39c979;flex-shrink:0"></span>
         <span>Ambiente criptografado com SSL. Transação segura.</span>
       </div>
@@ -1706,7 +1706,7 @@ function renderCart() {
   updateCartBadge();
   const el = document.getElementById('cartContent');
   if (!cart.length) {
-    el.innerHTML = '<p style="color:#9da2aa">Seu carrinho está vazio. Adicione peças pelo catálogo para continuar.</p><button class="btn" data-go="pecas">VER PEÇAS</button>';
+    el.innerHTML = '<p style="color:var(--fp-9da2aa)">Seu carrinho está vazio. Adicione peças pelo catálogo para continuar.</p><button class="btn" data-go="pecas">VER PEÇAS</button>';
     el.querySelector('[data-go]')?.addEventListener('click', () => show('pecas'));
     return;
   }
@@ -1720,11 +1720,11 @@ function renderCart() {
     <div class="cart-items">
       ${cart.map(i => `
         <div class="cart-row" data-id="${i.productId}" style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);flex-wrap:wrap">
-          <div style="flex:1;min-width:180px"><b>${i.name}</b><div style="color:#9da2aa;font-size:13px">${money(i.price)} un.</div></div>
-          <div style="display:flex;align-items:center;gap:4px;background:#0c0e11;padding:3px 6px;border-radius:6px;border:1px solid #282b30">
-            <button class="qty-minus" style="background:#202226;color:#fff;border:0;border-radius:4px;width:26px;height:26px;cursor:pointer;font-weight:bold;font-size:14px" title="Diminuir">−</button>
+          <div style="flex:1;min-width:180px"><b>${i.name}</b><div style="color:var(--fp-9da2aa);font-size:13px">${money(i.price)} un.</div></div>
+          <div style="display:flex;align-items:center;gap:4px;background:var(--fp-0c0e11);padding:3px 6px;border-radius:6px;border:1px solid var(--fp-282b30)">
+            <button class="qty-minus" style="background:var(--fp-202226);color:var(--fp-fff);border:0;border-radius:4px;width:26px;height:26px;cursor:pointer;font-weight:bold;font-size:14px" title="Diminuir">−</button>
             <span style="min-width:28px;text-align:center;font-weight:800;font-size:14px">${i.quantity}</span>
-            <button class="qty-plus" style="background:#202226;color:#fff;border:0;border-radius:4px;width:26px;height:26px;cursor:pointer;font-weight:bold;font-size:14px" title="Aumentar">+</button>
+            <button class="qty-plus" style="background:var(--fp-202226);color:var(--fp-fff);border:0;border-radius:4px;width:26px;height:26px;cursor:pointer;font-weight:bold;font-size:14px" title="Aumentar">+</button>
           </div>
           <div style="min-width:90px;text-align:right;font-weight:700">${money(i.price * i.quantity)}</div>
           <button class="remove-item" style="background:none;color:#e06a6a;border:0;cursor:pointer;font-size:13px;padding:4px 6px">Remover</button>
@@ -1735,7 +1735,7 @@ function renderCart() {
     </div>
 
     <div class="payment-select" style="margin-top:22px">
-      <p style="color:#9da2aa;font-size:13px;margin:0 0 10px">Escolha a forma de pagamento:</p>
+      <p style="color:var(--fp-9da2aa);font-size:13px;margin:0 0 10px">Escolha a forma de pagamento:</p>
       <label class="payment-option selected">
         <input checked name="paymentMethod" type="radio" value="pix"/>
         <span class="payment-option-body">
@@ -1796,10 +1796,10 @@ function renderPaymentInfo(method, amounts, scroll) {
     panel.innerHTML = `
       <div class="panel payment-panel">
         <div class="kicker">PAGAMENTO VIA PIX (4% DE DESCONTO)</div>
-        <p style="margin:8px 0 14px;color:#c7c9cd">Total no Pix: <b style="color:#39c979">${money(amounts.pixTotal)}</b></p>
-        ${qrSvg ? `<div class="pix-qr-box">${qrSvg}</div><p style="text-align:center;color:#9da2aa;font-size:12px;margin:10px 0 18px">Escaneie com a câmera do app do seu banco</p>` : ''}
-        <label style="display:block;font-size:12px;font-weight:800;color:#aeb2b8;margin-bottom:7px;text-transform:uppercase">Ou use o Pix Copia e Cola</label>
-        <textarea id="pixCode" readonly style="width:100%;min-height:80px;padding:12px;border-radius:10px;border:1px solid #34373d;background:#0c0e11;color:#fff;font-size:12px;resize:none">${code}</textarea>
+        <p style="margin:8px 0 14px;color:var(--fp-c7c9cd)">Total no Pix: <b style="color:#39c979">${money(amounts.pixTotal)}</b></p>
+        ${qrSvg ? `<div class="pix-qr-box">${qrSvg}</div><p style="text-align:center;color:var(--fp-9da2aa);font-size:12px;margin:10px 0 18px">Escaneie com a câmera do app do seu banco</p>` : ''}
+        <label style="display:block;font-size:12px;font-weight:800;color:var(--fp-aeb2b8);margin-bottom:7px;text-transform:uppercase">Ou use o Pix Copia e Cola</label>
+        <textarea id="pixCode" readonly style="width:100%;min-height:80px;padding:12px;border-radius:10px;border:1px solid var(--fp-34373d);background:var(--fp-0c0e11);color:var(--fp-fff);font-size:12px;resize:none">${code}</textarea>
         <button class="btn dark" id="copyPixBtn" style="width:100%;margin-top:10px" type="button">COPIAR CÓDIGO PIX</button>
         <p class="form-help">Escaneie o QR Code ou copie o código e cole na opção "Pix Copia e Cola" do app do seu banco. Depois de pagar, finalize o pedido abaixo — a loja confirma o pagamento em seguida.</p>
       </div>`;
@@ -1815,7 +1815,7 @@ function renderPaymentInfo(method, amounts, scroll) {
     panel.innerHTML = `
       <div class="panel payment-panel">
         <div class="kicker">PAGAMENTO NO CARTÃO DE CRÉDITO</div>
-        <p style="margin:8px 0 14px;color:#c7c9cd">Total: <b>${money(amounts.subtotal)}</b> em até 12x de ${money(amounts.installment)} sem juros</p>
+        <p style="margin:8px 0 14px;color:var(--fp-c7c9cd)">Total: <b>${money(amounts.subtotal)}</b> em até 12x de ${money(amounts.installment)} sem juros</p>
         <div id="cardPaymentBrick">
           <p class="form-help">Carregando formulário de pagamento...</p>
         </div>
@@ -1829,7 +1829,7 @@ function renderPaymentInfo(method, amounts, scroll) {
     panel.innerHTML = `
       <div class="panel payment-panel">
         <div class="kicker">PAGAR NA RETIRADA / ENTREGA</div>
-        <p style="margin:8px 0;color:#c7c9cd">Total: <b>${money(amounts.subtotal)}</b></p>
+        <p style="margin:8px 0;color:var(--fp-c7c9cd)">Total: <b>${money(amounts.subtotal)}</b></p>
         <p class="form-help">Pague em dinheiro ou cartão no momento de receber suas peças.</p>
       </div>`;
   }
@@ -1884,11 +1884,11 @@ async function loadMyOrders() {
   if (!el) return;
   try {
     const { orders } = await api('/api/orders/mine');
-    if (!orders.length) { el.innerHTML = '<p style="color:#9da2aa">Você ainda não fez nenhum pedido.</p>'; return; }
+    if (!orders.length) { el.innerHTML = '<p style="color:var(--fp-9da2aa)">Você ainda não fez nenhum pedido.</p>'; return; }
     el.innerHTML = orders.map(o => `
       <div style="padding:10px 0;border-bottom:1px solid rgba(255,255,255,.08)">
         <div style="display:flex;justify-content:space-between"><b>Pedido #${o.id}</b><span class="chip">${ORDER_STATUS_LABEL[o.status] || o.status}</span></div>
-        <div style="color:#9da2aa;font-size:13px;margin-top:4px">${new Date(o.createdAt).toLocaleDateString('pt-BR')} • ${o.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</div>
+        <div style="color:var(--fp-9da2aa);font-size:13px;margin-top:4px">${new Date(o.createdAt).toLocaleDateString('pt-BR')} • ${o.items.map(i => `${i.quantity}x ${i.name}`).join(', ')}</div>
         <div style="margin-top:4px"><b>${money(o.total)}</b></div>
       </div>`).join('');
   } catch (err) {
@@ -2429,5 +2429,45 @@ init();
     document.addEventListener('DOMContentLoaded', start);
   } else {
     start();
+  }
+})();
+
+/* ==========================================================================
+   TEMA CLARO / ESCURO
+   O site abre no escuro. O botão do cabeçalho troca para o claro e a
+   escolha fica guardada no navegador para a próxima visita.
+   ========================================================================== */
+(function alternadorDeTema() {
+  const CHAVE = 'fahren-tema';
+  const CORES_BARRA = { escuro: '#090a0c', claro: '#f4f6f9' };
+  let temaAtual = 'escuro';
+
+  try { temaAtual = localStorage.getItem(CHAVE) === 'claro' ? 'claro' : 'escuro'; } catch (e) {}
+
+  function aplicar(tema) {
+    temaAtual = tema;
+    document.body.classList.toggle('tema-claro', tema === 'claro');
+    const botao = document.getElementById('themeToggle');
+    if (botao) {
+      botao.setAttribute('aria-pressed', tema === 'claro' ? 'true' : 'false');
+      botao.title = tema === 'claro' ? 'Mudar para o tema escuro' : 'Mudar para o tema claro';
+    }
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', CORES_BARRA[tema]);
+  }
+
+  function iniciar() {
+    aplicar(temaAtual);
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+      const novo = temaAtual === 'claro' ? 'escuro' : 'claro';
+      try { localStorage.setItem(CHAVE, novo); } catch (e) {}
+      aplicar(novo);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+  } else {
+    iniciar();
   }
 })();
