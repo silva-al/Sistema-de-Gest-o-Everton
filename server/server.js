@@ -20,13 +20,19 @@ async function ensureDatabaseSchema() {
 }
 
 const PORT = process.env.PORT || 3000;
-ensureDatabaseSchema()
-  .catch((err) => {
-    console.error('Falha ao atualizar a estrutura do banco de dados:', err);
-  })
-  .finally(() => {
-    app.listen(PORT, () => {
-      console.log(`Fahren Parts rodando em http://localhost:${PORT}`);
-      console.log(`Painel de gestão em http://localhost:${PORT}/admin`);
+
+if (process.env.VERCEL) {
+  module.exports = app;
+} else {
+  ensureDatabaseSchema()
+    .catch((err) => {
+      console.error('Falha ao atualizar a estrutura do banco de dados:', err);
+    })
+    .finally(() => {
+      app.listen(PORT, () => {
+        console.log(`Fahren Parts rodando em http://localhost:${PORT}`);
+        console.log(`Painel de gestão em http://localhost:${PORT}/admin`);
+      });
     });
-  });
+}
+

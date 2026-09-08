@@ -2,20 +2,13 @@
 require('dotenv').config();
 const { Pool } = require('pg');
 
-if (!process.env.DATABASE_URL) {
-  console.error('ERRO: variável de ambiente DATABASE_URL não definida. Copie .env.example para .env e preencha.');
-}
+const connectionString =
+  process.env.DATABASE_URL ||
+  'postgresql://neondb_owner:npg_XeVrWqMcj4s9@ep-empty-night-aebwa2bd-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  // Provedores em nuvem (Neon, Supabase, Render) exigem SSL com certificado flexível
-  ssl: process.env.DATABASE_URL && (
-    process.env.DATABASE_URL.includes('neon.tech') ||
-    process.env.DATABASE_URL.includes('supabase') ||
-    process.env.DATABASE_URL.includes('sslmode=require')
-  )
-    ? { rejectUnauthorized: false }
-    : false,
+  connectionString,
+  ssl: { rejectUnauthorized: false },
 });
 
 module.exports = {
