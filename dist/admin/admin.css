@@ -3849,3 +3849,201 @@ body.tema-claro .fiscal-actions-group {
   gap: 5px !important;
   width: 130px !important;
 }
+
+/* ===================================================================
+   CORREÇÃO COMPLETA DE CONTRASTE E COMPONENTES NO TEMA CLARO WMS
+   =================================================================== */
+
+/* 1. LOGO E CABEÇALHO LATERAL */
+body.tema-claro .brand-info strong {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+}
+body.tema-claro .brand-info strong span {
+  color: #ed1c24 !important;
+}
+body.tema-claro .brand-info small {
+  color: #64748b !important;
+}
+
+/* 2. BARRA DE BUSCA SUPERIOR (TOPBAR SEARCH) */
+body.tema-claro .topbar-search {
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+body.tema-claro .topbar-search:focus-within {
+  background: #ffffff !important;
+  border-color: #ed1c24 !important;
+  box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12) !important;
+}
+body.tema-claro .topbar-search svg {
+  color: #64748b !important;
+  stroke: #64748b !important;
+}
+body.tema-claro .topbar-search input {
+  background: transparent !important;
+  border: none !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 0 !important;
+}
+body.tema-claro .topbar-search input::placeholder {
+  color: #64748b !important;
+}
+
+/* 3. CAMPO DE URL/ANEXO DE FOTO (ESTOQUE / PRODUTOS) */
+body.tema-claro .photo-input-wrap {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 9px !important;
+  padding: 4px 6px !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
+}
+body.tema-claro .photo-input-wrap:focus-within {
+  border-color: #ed1c24 !important;
+  box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12) !important;
+}
+body.tema-claro .photo-input-wrap input {
+  background: transparent !important;
+  border: none !important;
+  color: #0f172a !important;
+  font-weight: 500 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+body.tema-claro .photo-input-wrap input::placeholder {
+  color: #94a3b8 !important;
+}
+body.tema-claro .btn-attach-photo {
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+body.tema-claro .btn-attach-photo:hover {
+  background: #ed1c24 !important;
+  border-color: #ed1c24 !important;
+  color: #ffffff !important;
+}
+body.tema-claro .btn-attach-photo svg {
+  stroke: currentColor !important;
+}
+
+/* 4. ÍCONES ATIVOS NA SIDEBAR EM TODAS AS ABAS */
+body.tema-claro .sidebar-nav .nav-item.active svg,
+html[data-active-tab="dashboard"] body.tema-claro .sidebar-nav button[data-tab="dashboard"] svg,
+html[data-active-tab="estoque"] body.tema-claro .sidebar-nav button[data-tab="estoque"] svg,
+html[data-active-tab="pedidos"] body.tema-claro .sidebar-nav button[data-tab="pedidos"] svg,
+html[data-active-tab="expedicao"] body.tema-claro .sidebar-nav button[data-tab="expedicao"] svg,
+html[data-active-tab="financeiro"] body.tema-claro .sidebar-nav button[data-tab="financeiro"] svg,
+html[data-active-tab="notas-fiscais"] body.tema-claro .sidebar-nav button[data-tab="notas-fiscais"] svg {
+  stroke: #ffffff !important;
+}
+
+/* 5. TITULARES E TEXTOS DE CARDS & PAINÉIS */
+body.tema-claro .stat-number {
+  color: #0f172a !important;
+}
+body.tema-claro .panel-header h3 {
+  color: #0f172a !important;
+}
+body.tema-claro .wms-panel {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 12px rgba(15, 23, 42, 0.04) !important;
+}
+
+/* 6. SELECTS E FILTROS EM TODAS AS ABAS */
+body.tema-claro .wms-select-modern {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+body.tema-claro .filter-pill {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #475569 !important;
+}
+body.tema-claro .filter-pill:hover {
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
+}
+body.tema-claro .filter-pill.active {
+  background: #ed1c24 !important;
+  border-color: #ed1c24 !important;
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(237, 28, 36, 0.25) !important;
+}
+
+/* 7. MODAIS E CONTROLES DE ESTOQUE / VISUALIZAÇÃO */
+body.tema-claro .stock-modal-info {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+body.tema-claro .stock-stepper input {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+body.tema-claro .btn-stepper {
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+body.tema-claro .btn-stepper:hover {
+  background: #ed1c24 !important;
+  border-color: #ed1c24 !important;
+  color: #ffffff !important;
+}
+body.tema-claro .tag-qty {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+body.tema-claro .tag-qty:hover {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+body.tema-claro .tag-qty.tag-red {
+  background: #fff1f2 !important;
+  border-color: #fecdd3 !important;
+  color: #e11d48 !important;
+}
+body.tema-claro .cce-nf-summary {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+body.tema-claro .pv-photo-wrap {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+body.tema-claro .pv-name {
+  color: #0f172a !important;
+}
+body.tema-claro .pv-code-row strong {
+  color: #0f172a !important;
+}
+body.tema-claro .pv-price-card {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+body.tema-claro .pv-stock-box strong {
+  color: #0f172a !important;
+}
+body.tema-claro .pv-compat-box {
+  background: #f0fdf4 !important;
+  border: 1px solid #bbf7d0 !important;
+  color: #166534 !important;
+}
+body.tema-claro .pv-desc-box {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+}

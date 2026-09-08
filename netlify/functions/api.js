@@ -15,4 +15,4 @@ const handler = serverless(app, {
   binary: ['image/*', 'application/octet-stream', 'multipart/form-data'],
 });
 
-module.exports.handler = handler;
+module.exports.handler = handler;
