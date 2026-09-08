@@ -2689,13 +2689,86 @@ html, body {
   .products {
     grid-template-columns: 1fr !important;
     gap: 14px !important;
+    margin-bottom: 24px !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
   }
   .product {
     padding: 14px !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
   }
   .product b,
   .product-name {
+    display: block !important;
+    -webkit-line-clamp: unset !important;
+    line-clamp: unset !important;
+    overflow: visible !important;
+    font-size: 15px !important;
+    line-height: 1.35 !important;
     min-height: auto !important;
+    word-break: break-word !important;
+  }
+  .product small,
+  .product-meta {
+    display: block !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+    word-break: break-word !important;
+    margin-top: 4px !important;
+  }
+  .product-price-block {
+    min-height: auto !important;
+    margin: 8px 0 8px !important;
+  }
+  .product-alt-price {
+    font-size: 11.5px !important;
+    white-space: normal !important;
+    word-break: break-word !important;
+  }
+  .product .product-qty-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    margin-top: 8px !important;
+    padding-top: 8px !important;
+  }
+  .product .qty-label {
+    font-size: 11px !important;
+  }
+  .product .qty-control {
+    gap: 2px !important;
+    padding: 2px 4px !important;
+    flex-shrink: 0 !important;
+  }
+  .product .btn-qty-btn {
+    width: 28px !important;
+    height: 28px !important;
+    font-size: 16px !important;
+    flex-shrink: 0 !important;
+  }
+  .product .product-qty-val {
+    width: 34px !important;
+    height: 28px !important;
+    font-size: 14px !important;
+    padding: 0 !important;
+    text-align: center !important;
+  }
+  .screen,
+  #pecas,
+  #inicio,
+  #carrinho,
+  #perfil,
+  #endereco,
+  #produto {
+    padding-bottom: 120px !important;
   }
 }
 
@@ -3730,8 +3803,8 @@ netlify-drawer,
   .fp-qty-picker-row{gap:10px;row-gap:10px}
   .fp-qty-picker-label{font-size:11.5px}
   .fp-detail-qty-control{flex-shrink:0}
-  .btn-qty-btn{width:38px !important;height:38px !important;font-size:20px !important}
-  .product-qty-val{width:54px !important;height:38px !important;font-size:19px !important;color:#fff !important;opacity:1 !important}
+  .fp-detail-qty-control .btn-qty-btn{width:38px !important;height:38px !important;font-size:20px !important}
+  .fp-detail-qty-control .product-qty-val{width:54px !important;height:38px !important;font-size:19px !important;color:#fff !important;opacity:1 !important}
   .fp-qty-subtotal{font-size:13.5px;margin-left:auto;white-space:nowrap}
 
   /* Caixa de preço e botões sem estourar */

@@ -158,6 +158,13 @@ function switchTab(tabId, pushHistory = true, resetScroll = true) {
   if (tabId === 'expedicao') renderExpedicao();
   if (tabId === 'financeiro') renderFinances();
   if (tabId === 'notas-fiscais') renderFiscalTable();
+  if (tabId === 'relatorios') renderRelatorios();
+  if (tabId === 'armazem') {
+    setTimeout(() => {
+      const rackEl = document.querySelector('.rack-widget-card');
+      if (rackEl) rackEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 120);
+  }
 }
 
 window.switchTab = switchTab;
@@ -206,6 +213,8 @@ async function refreshAllData() {
       renderFiscalTable();
       renderExpedicao();
       renderVendas();
+      renderRelatorios();
+      updateStockTabsBadges();
     }
   } catch (e) {}
 
@@ -237,6 +246,8 @@ async function refreshAllData() {
     renderFiscalTable();
     renderExpedicao();
     renderVendas();
+    renderRelatorios();
+    updateStockTabsBadges();
 
     // Mantém a rolagem exatamente no mesmo lugar onde o usuário estava
     if (currentY > 0) {
@@ -468,20 +479,47 @@ function selectWarehouseLocation(loc, prodName = '') {
 }
 window.selectWarehouseLocation = selectWarehouseLocation;
 
+function updateStockTabsBadges() {
+  const total = allProducts.length;
+  const inStock = allProducts.filter(p => Number(p.stockQty) > 5).length;
+  const lowStock = allProducts.filter(p => Number(p.stockQty) > 0 && Number(p.stockQty) <= 5).length;
+  const outStock = allProducts.filter(p => Number(p.stockQty) <= 0).length;
+
+  const bAll = document.getElementById('stockBadgeAll');
+  if (bAll) bAll.textContent = total;
+  const bLow = document.getElementById('stockBadgeLow');
+  if (bLow) bLow.textContent = lowStock;
+  const bZero = document.getElementById('stockBadgeZero');
+  if (bZero) bZero.textContent = outStock;
+
+  // Atualiza também os badges do relatório
+  const rAll = document.getElementById('repBadgeAll');
+  if (rAll) rAll.textContent = total;
+  const rZero = document.getElementById('repBadgeZero');
+  if (rZero) rZero.textContent = outStock;
+  const rLow = document.getElementById('repBadgeLow');
+  if (rLow) rLow.textContent = lowStock;
+  const rNormal = document.getElementById('repBadgeNormal');
+  if (rNormal) rNormal.textContent = inStock;
+}
+window.updateStockTabsBadges = updateStockTabsBadges;
+
+let currentStockFilter = '';
 function filterProductsByStock(type) {
+  currentStockFilter = type || '';
   document.querySelectorAll('.est-tabs-bar .est-tab-btn').forEach(btn => {
-    btn.classList.toggle('active', (btn.dataset.filter || '') === (type || ''));
+    btn.classList.toggle('active', (btn.dataset.filter || '') === currentStockFilter);
   });
 
   let filtered = allProducts;
-  if (type === 'in_stock') {
+  if (currentStockFilter === 'in_stock') {
     filtered = allProducts.filter(p => Number(p.stockQty) > 5);
-  } else if (type === 'low_stock' || type === 'baixo') {
+  } else if (currentStockFilter === 'low_stock' || currentStockFilter === 'baixo') {
     filtered = allProducts.filter(p => Number(p.stockQty) > 0 && Number(p.stockQty) <= 5);
-  } else if (type === 'out_of_stock' || type === 'zero' || type === 'zerado') {
+  } else if (currentStockFilter === 'out_of_stock' || currentStockFilter === 'zero' || currentStockFilter === 'zerado') {
     filtered = allProducts.filter(p => Number(p.stockQty) <= 0);
   }
-  renderProductsTable(filtered);
+  renderProductsTable(filtered, currentStockFilter);
 }
 window.filterProductsByStock = filterProductsByStock;
 
@@ -531,7 +569,7 @@ function openAllLocationsModal() {
 }
 window.openAllLocationsModal = openAllLocationsModal;
 
-function renderProductsTable(products) {
+function renderProductsTable(products, activeFilter = null) {
   const tbody = document.getElementById('productsTableBody');
   const summary = document.getElementById('stockTableSummary');
   if (summary) summary.textContent = `${products.length} peça(s) encontrada(s)`;
@@ -551,6 +589,9 @@ function renderProductsTable(products) {
   const elOutStock = document.getElementById('estOutStockVal');
   if (elOutStock) elOutStock.textContent = outStock;
 
+  // Atualiza badges em tempo real
+  updateStockTabsBadges();
+
   // Inicializa o widget de localização com o primeiro produto se ainda não tiver
   if (!window._rackInitialized && products.length > 0) {
     window._rackInitialized = true;
@@ -560,7 +601,27 @@ function renderProductsTable(products) {
   if (!tbody) return;
 
   if (!products.length) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma peça encontrada no catálogo.</td></tr>';
+    const filter = activeFilter !== null ? activeFilter : currentStockFilter;
+    if (filter === 'out_of_stock' || filter === 'zero' || filter === 'zerado') {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" style="text-align:center;padding:45px 20px;">
+            <div style="max-width:460px;margin:0 auto;padding:26px 22px;background:rgba(255,255,255,0.03);border:1px solid var(--panel-border);border-radius:14px;">
+              <div style="font-size:38px;margin-bottom:12px;">🎉</div>
+              <h3 style="margin:0 0 8px;font-size:16px;color:var(--text-primary,#fff);font-weight:700;">Nenhuma peça com estoque zerado!</h3>
+              <p style="margin:0 0 16px;font-size:13px;color:var(--text-muted,#8c929a);line-height:1.5;">
+                Excelente! Todas as <strong>${total}</strong> peças cadastradas possuem saldo em estoque no armazém da Fahren Motors.
+              </p>
+              <button class="btn btn-secondary btn-sm" onclick="filterProductsByStock('')" style="display:inline-flex;align-items:center;gap:6px;">
+                Ver Todas as Peças (${total})
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    } else {
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhuma peça encontrada no catálogo.</td></tr>';
+    }
     return;
   }
 
@@ -671,6 +732,8 @@ async function quickUpdateStock(id, newQty) {
     prod.stockQty = qty;
     prod.inStock = qty > 0;
     renderProductsTable(allProducts);
+    renderRelatorios();
+    updateStockTabsBadges();
     updateDashboardMetrics();
     showToast(`Estoque de "${prod.name}" atualizado para ${qty} un.`);
   } catch (err) {
@@ -678,6 +741,168 @@ async function quickUpdateStock(id, newQty) {
     showToast(err.message || 'Erro ao atualizar estoque');
   }
 }
+window.quickUpdateStock = quickUpdateStock;
+
+// Adição rápida de estoque (+5, +10, etc.) no relatório e WMS
+async function quickAddStock(productId, amount) {
+  const prod = allProducts.find(x => String(x.id) === String(productId));
+  if (!prod) return;
+  const current = Number(prod.stockQty) || 0;
+  const newQty = Math.max(0, current + amount);
+  await quickUpdateStock(productId, newQty);
+}
+window.quickAddStock = quickAddStock;
+
+// ---------- 8. RELATÓRIOS GERENCIAIS & AUDITORIA DE ESTOQUE WMS ----------
+let currentRepFilter = 'all';
+
+function filterRelatorios(filter) {
+  currentRepFilter = filter || 'all';
+  document.querySelectorAll('#repFilterButtons button').forEach(btn => {
+    btn.classList.toggle('active', (btn.dataset.repFilter || '') === currentRepFilter);
+  });
+  renderRelatorios();
+}
+window.filterRelatorios = filterRelatorios;
+
+function applyRelatoriosFilter() {
+  renderRelatorios();
+}
+window.applyRelatoriosFilter = applyRelatoriosFilter;
+
+function renderRelatorios() {
+  const tbody = document.getElementById('relatoriosTableBody');
+  if (!tbody) return;
+
+  const total = allProducts.length;
+  const inStock = allProducts.filter(p => Number(p.stockQty) > 5).length;
+  const lowStock = allProducts.filter(p => Number(p.stockQty) > 0 && Number(p.stockQty) <= 5).length;
+  const outStock = allProducts.filter(p => Number(p.stockQty) <= 0).length;
+  const totalValue = allProducts.reduce((sum, p) => sum + ((Number(p.stockQty) || 0) * (Number(p.price) || 0)), 0);
+
+  // Atualiza KPIs do painel de relatórios
+  const elTotal = document.getElementById('repTotalProducts');
+  if (elTotal) elTotal.textContent = total;
+  const elNormal = document.getElementById('repNormalStock');
+  if (elNormal) elNormal.textContent = inStock;
+  const elLow = document.getElementById('repLowStock');
+  if (elLow) elLow.textContent = lowStock;
+  const elZero = document.getElementById('repZeroStock');
+  if (elZero) elZero.textContent = outStock;
+  const elVal = document.getElementById('repTotalStockValue');
+  if (elVal) elVal.textContent = money(totalValue);
+
+  // Atualiza Badges dos botões de filtro
+  const bAll = document.getElementById('repBadgeAll');
+  if (bAll) bAll.textContent = total;
+  const bZero = document.getElementById('repBadgeZero');
+  if (bZero) bZero.textContent = outStock;
+  const bLow = document.getElementById('repBadgeLow');
+  if (bLow) bLow.textContent = lowStock;
+  const bNormal = document.getElementById('repBadgeNormal');
+  if (bNormal) bNormal.textContent = inStock;
+
+  // Filtragem
+  let list = allProducts;
+  if (currentRepFilter === 'zero') {
+    list = allProducts.filter(p => Number(p.stockQty) <= 0);
+  } else if (currentRepFilter === 'baixo') {
+    list = allProducts.filter(p => Number(p.stockQty) > 0 && Number(p.stockQty) <= 5);
+  } else if (currentRepFilter === 'normal') {
+    list = allProducts.filter(p => Number(p.stockQty) > 5);
+  }
+
+  const search = (document.getElementById('repSearchInput')?.value || '').toLowerCase().trim();
+  if (search) {
+    list = list.filter(p => {
+      const name = (p.name || '').toLowerCase();
+      const code = (p.code || '').toLowerCase();
+      const cat = (p.category || '').toLowerCase();
+      const loc = getProductLocation(p).toLowerCase();
+      return name.includes(search) || code.includes(search) || cat.includes(search) || loc.includes(search);
+    });
+  }
+
+  if (!list.length) {
+    if (currentRepFilter === 'zero') {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" style="text-align:center;padding:45px 20px;">
+            <div style="max-width:500px;margin:0 auto;padding:28px 24px;background:rgba(255,255,255,0.03);border:1px solid var(--panel-border);border-radius:14px;">
+              <div style="font-size:42px;margin-bottom:12px;">✅</div>
+              <h3 style="margin:0 0 8px;font-size:17px;color:var(--text-primary,#fff);font-weight:700;">Estoque 100% Abastecido!</h3>
+              <p style="margin:0 0 16px;font-size:13px;color:var(--text-muted,#8c929a);line-height:1.5;">
+                Nenhuma peça está com estoque zerado no momento. Todas as <strong>${total}</strong> peças cadastradas possuem saldo físico disponível no armazém da Fahren Motors.
+              </p>
+              <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+                <button class="btn btn-secondary btn-sm" onclick="filterRelatorios('baixo')">Ver Estoque Baixo (${lowStock})</button>
+                <button class="btn btn-primary btn-sm" onclick="filterRelatorios('all')">Ver Todas as Peças (${total})</button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      `;
+    } else {
+      tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:35px;color:var(--text-muted)">Nenhuma peça encontrada com os filtros selecionados.</td></tr>';
+    }
+    return;
+  }
+
+  tbody.innerHTML = list.map(p => {
+    const loc = getProductLocation(p);
+    const stock = Number(p.stockQty) || 0;
+    const price = Number(p.price) || 0;
+    const totalItemValue = stock * price;
+    const safeName = (p.name || '').replace(/'/g, "\\'");
+
+    let statusBadge = '';
+    let stockBadge = '';
+    if (stock <= 0) {
+      statusBadge = '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-weight:700">⚠️ ZERADO</span>';
+      stockBadge = '<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:#fef2f2;color:#dc2626;font-weight:800;border:1px solid #fecaca">0 un</span>';
+    } else if (stock <= 5) {
+      statusBadge = '<span class="status-badge em_preparacao" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;font-weight:700">▲ BAIXO</span>';
+      stockBadge = `<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:#fffbeb;color:#d97706;font-weight:800;border:1px solid #fde68a">${stock} un</span>`;
+    } else {
+      statusBadge = '<span class="status-badge pronto" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-weight:700">● NORMAL</span>';
+      stockBadge = `<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:#ecfdf5;color:#059669;font-weight:800;border:1px solid #a7f3d0">${stock} un</span>`;
+    }
+
+    return `
+      <tr>
+        <td><strong style="font-family:monospace;font-size:12px;color:#cbd5e1">${p.code || 'S/CÓD'}</strong></td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openProductViewModal(${p.id})">
+            <img src="${p.photoUrl || '/loja/images/categorias/freios.jpg'}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid var(--panel-border)" onerror="this.src='/loja/images/categorias/freios.jpg'"/>
+            <div>
+              <strong style="font-size:13px;display:block;color:var(--text-primary,#fff)">${p.name}</strong>
+              <small style="font-size:11px;color:var(--text-muted,#8c929a)">${p.compatibility ? p.compatibility.slice(0, 45) + '...' : 'Compatível'}</small>
+            </div>
+          </div>
+        </td>
+        <td><span class="cat-pill-badge">${p.category || 'Geral'}</span></td>
+        <td>
+          <span class="location-badge" style="cursor:pointer" onclick="switchTab('armazem');selectWarehouseLocation('${loc}', '${safeName}')" title="Ver no armazém 3D">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            ${loc}
+          </span>
+        </td>
+        <td style="text-align:center">${stockBadge}</td>
+        <td><strong style="font-size:12.5px">${money(price)}</strong></td>
+        <td><strong style="font-size:12.5px;color:#cbd5e1">${money(totalItemValue)}</strong></td>
+        <td>${statusBadge}</td>
+        <td style="text-align:right;white-space:nowrap">
+          <div style="display:inline-flex;gap:4px">
+            <button class="btn btn-secondary btn-sm" onclick="quickAddStock(${p.id}, 5)" title="Adicionar 5 unidades rapidamente" style="padding:4px 8px;font-size:11px;font-weight:700">+5</button>
+            <button class="btn btn-secondary btn-sm" onclick="quickAddStock(${p.id}, 10)" title="Adicionar 10 unidades rapidamente" style="padding:4px 8px;font-size:11px;font-weight:700">+10</button>
+            <button class="btn btn-secondary btn-sm" onclick="openStockModal(${p.id})" title="Ajustar estoque completo" style="padding:4px 8px;font-size:11px">Ajustar</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+window.renderRelatorios = renderRelatorios;
 
 // Modal de visualização completa da peça
 function openProductViewModal(id) {
@@ -815,6 +1040,8 @@ document.getElementById('btnSaveStockModal')?.addEventListener('click', async ()
     if (payload.description !== undefined) prod.description = payload.description;
 
     renderProductsTable(allProducts);
+    renderRelatorios();
+    updateStockTabsBadges();
     updateDashboardMetrics();
     closeStockModal();
     showToast(`Peça "${prod.name}" atualizada com sucesso!`);
