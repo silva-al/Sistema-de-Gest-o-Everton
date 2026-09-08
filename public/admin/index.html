@@ -19,6 +19,14 @@
     var _s = localStorage.getItem('fm_admin_active_tab') || 'dashboard';
     var _t = _vt.indexOf(_h) !== -1 ? _h : (_vt.indexOf(_s) !== -1 ? _s : 'dashboard');
     document.documentElement.setAttribute('data-active-tab', _t);
+    
+    /* Aplica o tema salvo no admin antes de pintar. Padrao: claro */
+    var _tema = localStorage.getItem('fahren-tema-admin') || localStorage.getItem('fahren-tema');
+    if (_tema === 'escuro') {
+      document.documentElement.classList.remove('tema-claro');
+    } else {
+      document.documentElement.classList.add('tema-claro');
+    }
   } catch (e) {}
 </script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -103,6 +111,10 @@
 
 <!-- TELA DE LOGIN -->
 <div class="login-wrap" id="loginScreen">
+  <button type="button" class="theme-toggle-admin login-theme-toggle" id="loginThemeToggle" aria-label="Alternar entre tema claro e escuro" title="Alternar entre claro e escuro">
+    <svg class="icone-sol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+    <svg class="icone-lua" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z"/></svg>
+  </button>
   <div class="login-panel">
     <div class="login-brand">
       <div class="brand-avatar-glow">
@@ -206,6 +218,10 @@
           <span class="live-time" id="liveClockText">21:54:41</span>
         </div>
 
+        <button class="topbar-btn theme-toggle-admin" id="topbarThemeToggle" title="Alternar entre claro e escuro">
+          <svg class="icone-sol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
+          <svg class="icone-lua" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z"/></svg>
+        </button>
         <button class="topbar-btn" id="refreshBtn" title="Atualizar dados do sistema">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
         </button>

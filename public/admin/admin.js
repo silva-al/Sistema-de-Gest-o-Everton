@@ -2135,3 +2135,52 @@ initAdmin();
   } catch (e) {}
 })();
 
+// ===================================================================
+// ALTERNADOR DE TEMA (CLARO / ESCURO) NO PAINEL ADMIN
+// ===================================================================
+(function alternadorDeTemaAdmin() {
+  const CHAVE = 'fahren-tema-admin';
+  let temaAtual = 'claro';
+
+  try {
+    const salvo = localStorage.getItem(CHAVE) || localStorage.getItem('fahren-tema');
+    temaAtual = salvo === 'escuro' ? 'escuro' : 'claro';
+  } catch (e) {}
+
+  function aplicar(tema) {
+    temaAtual = tema;
+    const ehClaro = tema === 'claro';
+    document.documentElement.classList.toggle('tema-claro', ehClaro);
+    document.body.classList.toggle('tema-claro', ehClaro);
+    
+    document.querySelectorAll('.theme-toggle-admin').forEach(btn => {
+      btn.setAttribute('aria-pressed', ehClaro ? 'true' : 'false');
+      btn.title = ehClaro ? 'Mudar para o tema escuro' : 'Mudar para o tema claro';
+    });
+
+    const meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', ehClaro ? '#f4f6f9' : '#090a0c');
+  }
+
+  function alternar() {
+    const novo = temaAtual === 'claro' ? 'escuro' : 'claro';
+    try {
+      localStorage.setItem(CHAVE, novo);
+      localStorage.setItem('fahren-tema', novo);
+    } catch (e) {}
+    aplicar(novo);
+  }
+
+  function iniciar() {
+    aplicar(temaAtual);
+    document.getElementById('loginThemeToggle')?.addEventListener('click', alternar);
+    document.getElementById('topbarThemeToggle')?.addEventListener('click', alternar);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+  } else {
+    iniciar();
+  }
+})();
+

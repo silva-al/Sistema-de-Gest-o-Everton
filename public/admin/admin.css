@@ -2652,4 +2652,202 @@ netlify-drawer,
   transform: scale(0) !important;
 }
 
+/* ===================================================================
+   BOTÃO DE ALTERNAR TEMA E MODO CLARO (BRANCO) NO PAINEL ADMIN
+   =================================================================== */
+.theme-toggle-admin svg {
+  display: block;
+}
+.theme-toggle-admin .icone-lua {
+  display: none;
+}
+html.tema-claro .theme-toggle-admin .icone-sol,
+body.tema-claro .theme-toggle-admin .icone-sol {
+  display: none;
+}
+html.tema-claro .theme-toggle-admin .icone-lua,
+body.tema-claro .theme-toggle-admin .icone-lua {
+  display: block;
+}
+
+/* Botão de tema flutuante na tela de login */
+.login-theme-toggle {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  z-index: 100;
+}
+.login-theme-toggle:hover {
+  background: rgba(237, 28, 36, 0.15);
+  border-color: #ed1c24;
+  color: #ed1c24;
+  transform: scale(1.06);
+}
+
+/* ===================================================================
+   REGRAS COMPLETAS DO TEMA CLARO (BRANCO) DO PAINEL ADMIN
+   =================================================================== */
+html.tema-claro,
+body.tema-claro {
+  --bg-dark: #f0f2f5;
+  --bg-main: #f8fafc;
+  --sidebar-bg: #ffffff;
+  --panel-bg: #ffffff;
+  --panel-border: #e2e8f0;
+  --panel-hover: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  background: var(--bg-main) !important;
+  color: var(--text-primary);
+}
+
+body.tema-claro .login-wrap {
+  background: radial-gradient(circle at 50% 15%, rgba(237, 28, 36, 0.12) 0%, #edf1f7 70%);
+}
+
+body.tema-claro .login-panel {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08), 0 0 35px rgba(237, 28, 36, 0.05);
+}
+
+body.tema-claro .login-theme-toggle {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  color: #334155;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+body.tema-claro .login-theme-toggle:hover {
+  background: #f1f5f9;
+  border-color: #ed1c24;
+  color: #ed1c24;
+}
+
+body.tema-claro .field label {
+  color: #334155;
+}
+
+body.tema-claro .field input,
+body.tema-claro .field select,
+body.tema-claro .field textarea,
+body.tema-claro .topbar-search input {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+}
+
+body.tema-claro .field input:focus,
+body.tema-claro .field select:focus,
+body.tema-claro .field textarea:focus,
+body.tema-claro .topbar-search input:focus {
+  background: #ffffff;
+  border-color: #ed1c24;
+  box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12);
+}
+
+body.tema-claro .wms-sidebar {
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+}
+
+body.tema-claro .wms-topbar {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+body.tema-claro .topbar-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #334155;
+}
+body.tema-claro .topbar-btn:hover {
+  background: #e2e8f0;
+  color: #ed1c24;
+  border-color: rgba(237, 28, 36, 0.3);
+}
+
+body.tema-claro .live-clock-badge {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+body.tema-claro .live-date {
+  color: #64748b;
+}
+body.tema-claro .live-time {
+  color: #0f172a;
+}
+
+body.tema-claro .nav-item {
+  color: #475569;
+}
+body.tema-claro .nav-item:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+body.tema-claro .nav-item.active {
+  background: rgba(237, 28, 36, 0.08);
+  color: #ed1c24;
+  border-color: rgba(237, 28, 36, 0.2);
+}
+
+body.tema-claro .user-profile {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+body.tema-claro .user-info strong {
+  color: #0f172a;
+}
+body.tema-claro .user-info small {
+  color: #64748b;
+}
+
+body.tema-claro .stat-card,
+body.tema-claro .table-panel,
+body.tema-claro .filter-panel,
+body.tema-claro .modal-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.04);
+}
+
+body.tema-claro .stat-label {
+  color: #64748b;
+}
+body.tema-claro .stat-val {
+  color: #0f172a;
+}
+
+body.tema-claro table thead th {
+  background: #f8fafc;
+  color: #475569;
+  border-bottom: 1.5px solid #e2e8f0;
+}
+body.tema-claro table tbody td {
+  border-bottom: 1px solid #f1f5f9;
+  color: #334155;
+}
+body.tema-claro table tbody tr:hover td {
+  background: #f8fafc;
+}
+
+body.tema-claro .page-title {
+  color: #0f172a;
+}
+body.tema-claro .page-sub {
+  color: #64748b;
+}
+
+
 
