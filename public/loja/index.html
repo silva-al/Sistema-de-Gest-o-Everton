@@ -92,11 +92,16 @@
   })();
 </script>
 </head>
-<body>
+<body class="tema-claro">
 <script>
-  /* Aplica o tema salvo antes da pagina pintar, para nao piscar */
+  /* Aplica o tema salvo antes da pagina pintar, para nao piscar. Padrao: claro */
   (function(){try{
-    if(localStorage.getItem('fahren-tema')==='claro'){document.body.classList.add('tema-claro');}
+    var t = localStorage.getItem('fahren-tema');
+    if (t === 'escuro') {
+      document.body.classList.remove('tema-claro');
+    } else {
+      document.body.classList.add('tema-claro');
+    }
   }catch(e){}})();
 </script>
 <!-- Splash Screen / Tela de Carregamento Oficial com Nome da Empresa -->

@@ -2440,9 +2440,9 @@ init();
 (function alternadorDeTema() {
   const CHAVE = 'fahren-tema';
   const CORES_BARRA = { escuro: '#090a0c', claro: '#f4f6f9' };
-  let temaAtual = 'escuro';
+  let temaAtual = 'claro';
 
-  try { temaAtual = localStorage.getItem(CHAVE) === 'claro' ? 'claro' : 'escuro'; } catch (e) {}
+  try { temaAtual = localStorage.getItem(CHAVE) === 'escuro' ? 'escuro' : 'claro'; } catch (e) {}
 
   function aplicar(tema) {
     temaAtual = tema;
