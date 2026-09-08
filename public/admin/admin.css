@@ -4136,3 +4136,979 @@ body.tema-claro .pv-desc-box {
   border: 1px solid #e2e8f0 !important;
   color: #334155 !important;
 }
+
+/* ==========================================================================
+   FAHREN MOTORS WMS: DESIGN OFICIAL DE ALTA FIDELIDADE
+   1. ÍCONES EM QUADRADO VERMELHO NOS CABEÇALHOS
+   2. PEDIDOS (OPERACIONAL): 5 KPIS, BARRA DE FILTROS, GRID 2 COLUNAS & RESUMO
+   3. VENDAS (ANALYTICS): 4 KPIS, ÁREA DE VENDAS, DONUT, BARRAS E RANKING
+   4. PRODUTOS & ESTOQUE: TABELA COM LOCALIZAÇÃO (A-02-03) E RACK ISOMÉTRICO 3D
+   ========================================================================== */
+
+/* Ícone quadrado vermelho padrão dos módulos */
+.page-title-icon.red-square {
+  width: 38px;
+  height: 38px;
+  background: #ed1c24;
+  color: #ffffff;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(237, 28, 36, 0.35);
+  flex-shrink: 0;
+}
+.page-title-icon.red-square svg {
+  stroke: #ffffff !important;
+  stroke-width: 2.2 !important;
+}
+
+/* ----------------------------------------------------
+   MÓDULO: PEDIDOS (OPERACIONAL)
+   ---------------------------------------------------- */
+.pedidos-kpis-bar {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 1080px) {
+  .pedidos-kpis-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.ped-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  transition: all .2s ease;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+.ped-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
+}
+.ped-kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.icon-red-cart { background: #fee2e2; color: #dc2626; }
+.icon-red-clock { background: #fee2e2; color: #dc2626; }
+.icon-orange-gear { background: #fef3c7; color: #d97706; }
+.icon-blue-check { background: #dbeafe; color: #2563eb; }
+.icon-green-truck { background: #dcfce7; color: #16a34a; }
+
+.ped-kpi-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.ped-kpi-label {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.ped-kpi-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+.ped-kpi-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.mini-sparkline {
+  width: 54px;
+  height: 18px;
+  flex-shrink: 0;
+}
+.ped-kpi-trend {
+  font-size: 10.5px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.trend-up { color: #16a34a; }
+.trend-red { color: #dc2626; }
+.trend-orange { color: #d97706; }
+.trend-blue { color: #2563eb; }
+.trend-green { color: #16a34a; }
+
+/* Grid de duas colunas em Pedidos */
+.pedidos-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1100px) {
+  .pedidos-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.pedidos-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.wms-input-clean {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #0f172a;
+  outline: none;
+  font-family: inherit;
+  transition: border-color .15s;
+}
+.wms-input-clean:focus {
+  border-color: #ed1c24;
+}
+.ped-date-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 600;
+}
+.ped-date-range svg { stroke: #64748b; }
+.ped-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+}
+.ped-search-wrap svg {
+  position: absolute;
+  left: 10px;
+  stroke: #64748b;
+  pointer-events: none;
+}
+.ped-search-wrap input {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 12px 8px 32px;
+  font-size: 12px;
+  color: #0f172a;
+  outline: none;
+  font-family: inherit;
+}
+.ped-search-wrap input:focus {
+  border-color: #ed1c24;
+}
+
+/* Status pills em Pedidos */
+.ped-status-pills {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  margin-bottom: 14px;
+  padding-bottom: 4px;
+}
+.ped-pill {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.ped-pill:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+.ped-pill.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+}
+
+/* Coluna direita de Pedidos */
+.ped-banner-card {
+  background: radial-gradient(circle at 80% 20%, rgba(237, 28, 36, 0.18) 0%, transparent 60%), #0c1222;
+  border-radius: 12px;
+  padding: 20px 16px;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(12, 18, 34, 0.25);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.ped-banner-truck-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+  color: #ffffff;
+}
+.ped-banner-title {
+  font-size: 14px;
+  font-weight: 800;
+  margin: 0 0 6px;
+  color: #ffffff;
+}
+.ped-banner-sub {
+  font-size: 11px;
+  color: #94a3b8;
+  margin: 0 0 16px;
+  line-height: 1.4;
+}
+.btn-ped-realtime {
+  width: 100%;
+  background: #ed1c24;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s;
+}
+.btn-ped-realtime:hover {
+  background: #c8131a;
+}
+
+.ped-resumo-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+.ped-resumo-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.ped-resumo-header svg { stroke: #64748b; }
+.ped-resumo-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.ped-resumo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.ped-resumo-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #475569;
+}
+.resumo-item-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ped-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dot-blue { background: #3b82f6; }
+.dot-orange { background: #f59e0b; }
+.dot-green { background: #10b981; }
+.dot-red { background: #ef4444; }
+.resumo-item-val {
+  font-weight: 800;
+  color: #0f172a;
+  font-size: 13px;
+}
+
+/* ----------------------------------------------------
+   MÓDULO: VENDAS (ANALYTICS COMERCIAL & FINANCEIRO)
+   ---------------------------------------------------- */
+.vendas-kpis-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 900px) {
+  .vendas-kpis-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.venda-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+.venda-kpi-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.venda-kpi-icon-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.venda-kpi-icon-circle.green { background: #dcfce7; color: #16a34a; }
+.venda-kpi-icon-circle.blue { background: #dbeafe; color: #2563eb; }
+.venda-kpi-icon-circle.blue-alt { background: #e0f2fe; color: #0284c7; }
+.venda-kpi-icon-circle.cyan { background: #ecfeff; color: #0891b2; }
+
+.venda-kpi-texts {
+  display: flex;
+  flex-direction: column;
+}
+.venda-kpi-label {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+.venda-kpi-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.venda-kpi-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 10px;
+}
+.venda-kpi-trend {
+  font-size: 10.5px;
+  font-weight: 600;
+}
+.venda-kpi-trend.green { color: #16a34a; }
+
+/* Grid de 4 Gráficos em Vendas */
+.vendas-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+@media (max-width: 960px) {
+  .vendas-charts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.vendas-chart-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+.vendas-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.vendas-card-header h3 {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.card-action-link {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #2563eb;
+  text-decoration: none;
+}
+.card-action-link:hover { text-decoration: underline; }
+
+.vendas-period-pills {
+  display: inline-flex;
+  background: #f1f5f9;
+  border-radius: 20px;
+  padding: 3px;
+  gap: 2px;
+}
+.v-pill {
+  background: transparent;
+  border: none;
+  border-radius: 16px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: all .15s;
+}
+.v-pill.active {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+/* Área Vetorial */
+.vendas-area-chart-container {
+  position: relative;
+  width: 100%;
+}
+.vendas-area-svg {
+  width: 100%;
+  height: 180px;
+  display: block;
+}
+.vendas-tooltip-badge {
+  background: #0f172a;
+  color: #ffffff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.chart-x-labels {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 8px;
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Donut Formas de Pagamento */
+.vendas-donut-body {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  justify-content: center;
+}
+@media (max-width: 500px) {
+  .vendas-donut-body {
+    flex-direction: column;
+  }
+}
+.donut-chart-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.donut-center-text {
+  position: absolute;
+  text-align: center;
+  pointer-events: none;
+}
+.donut-center-text strong {
+  display: block;
+  font-size: 13px;
+  color: #0f172a;
+  font-weight: 800;
+}
+.donut-center-text small {
+  font-size: 10px;
+  color: #64748b;
+}
+.donut-legend-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+.donut-legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  color: #334155;
+  gap: 8px;
+}
+.legend-color-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.legend-name { flex: 1; font-weight: 500; }
+.legend-pct { font-weight: 800; color: #0f172a; }
+
+/* Barras de Categorias */
+.cat-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.cat-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.cat-bar-labels {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #334155;
+}
+.cat-name { font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+.cat-pct { color: #64748b; font-weight: 600; font-size: 11px; margin-left: auto; margin-right: 12px; }
+.cat-val { color: #0f172a; font-weight: 800; }
+.cat-bar-track {
+  width: 100%;
+  height: 7px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.cat-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+/* Ranking de Produtos */
+.top-prods-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.top-prod-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+.top-prod-item:last-child { border-bottom: none; }
+.top-prod-rank {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.top-prod-rank.rank-1 { background: #fef3c7; color: #d97706; }
+.top-prod-rank.rank-2 { background: #e2e8f0; color: #334155; }
+.top-prod-rank.rank-3 { background: #ffedd5; color: #c2410c; }
+.top-prod-thumb {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #090a0d;
+  flex-shrink: 0;
+}
+.top-prod-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.top-prod-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+.top-prod-info strong {
+  font-size: 12px;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.top-prod-cat {
+  font-size: 10.5px;
+  color: #64748b;
+}
+.top-prod-qty {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+.top-prod-revenue {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* ----------------------------------------------------
+   MÓDULO: PRODUTOS & PEÇAS / ESTOQUE & LOCALIZAÇÃO
+   ---------------------------------------------------- */
+.estoque-kpis-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 860px) {
+  .estoque-kpis-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.est-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all .2s;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+.est-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+}
+.est-kpi-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.icon-blue-box { background: #dbeafe; color: #2563eb; }
+.icon-green-check { background: #dcfce7; color: #16a34a; }
+.icon-orange-alert { background: #fef3c7; color: #d97706; }
+.icon-red-x { background: #fee2e2; color: #dc2626; }
+
+.est-kpi-content {
+  display: flex;
+  flex-direction: column;
+}
+.est-kpi-label {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 600;
+}
+.est-kpi-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+}
+
+/* Grid Estoque 2 Colunas (Tabela + Rack) */
+.estoque-main-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 1120px) {
+  .estoque-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.est-tabs-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  margin-bottom: 12px;
+}
+.est-tab-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+.est-tab-btn.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff;
+}
+
+.est-filters-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.est-search-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+}
+.est-search-wrap svg {
+  position: absolute;
+  left: 10px;
+  stroke: #64748b;
+  pointer-events: none;
+}
+.est-search-wrap input {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 8px 12px 8px 32px;
+  font-size: 12px;
+  color: #0f172a;
+  outline: none;
+}
+.est-search-wrap input:focus { border-color: #ed1c24; }
+
+/* Badge de Localização (A-02-03) */
+.location-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #0f172a;
+  font-family: monospace;
+  cursor: pointer;
+  transition: all .15s;
+}
+.location-badge:hover {
+  background: #fee2e2;
+  border-color: #ed1c24;
+  color: #dc2626;
+}
+
+/* Status pills no Estoque */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.status-pill.disponivel {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.status-pill.baixo {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+.status-pill.zerado {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #fecdd3;
+}
+
+/* Card de Localização do Armazém com Diagrama Isométrico 3D */
+.rack-location-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+.rack-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.rack-card-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.rack-card-title svg { stroke: #2563eb; }
+.rack-card-link {
+  font-size: 11px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 600;
+}
+.rack-card-link:hover { text-decoration: underline; }
+
+.rack-badge-hero {
+  font-size: 26px;
+  font-weight: 900;
+  color: #0f172a;
+  font-family: monospace;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+.rack-hierarchy-pills {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+.rh-pill {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 2px 6px;
+  font-size: 10px;
+  color: #64748b;
+}
+.rh-pill b { color: #0f172a; font-weight: 800; }
+
+.rack-diagram-viewport {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 10px;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.rack-isometric-svg {
+  width: 100%;
+  height: 140px;
+  display: block;
+}
+.pin-pulse {
+  animation: pinPulseAnim 1.8s infinite ease-in-out;
+}
+@keyframes pinPulseAnim {
+  0%, 100% { r: 14px; opacity: 0.18; }
+  50% { r: 20px; opacity: 0.35; }
+}
+
+.rack-explanation {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 11px;
+}
+.rack-exp-title {
+  display: block;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 4px;
+}
+.rack-exp-items {
+  display: flex;
+  gap: 12px;
+  color: #475569;
+  margin-bottom: 6px;
+}
+.rack-exp-footer {
+  margin: 0;
+  color: #64748b;
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+/* 4 Ações Rápidas no Rodapé de Estoque */
+.estoque-quick-actions-bar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+  gap: 12px;
+  margin-top: 16px;
+  align-items: center;
+}
+@media (max-width: 900px) {
+  .estoque-quick-actions-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.est-qa-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.est-qa-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+}
+.est-qa-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.est-qa-info strong {
+  display: block;
+  font-size: 12px;
+  color: #0f172a;
+}
+.est-qa-info small {
+  font-size: 10px;
+  color: #64748b;
+}
+.btn-download-rep {
+  padding: 10px 14px;
+  font-size: 11.5px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+

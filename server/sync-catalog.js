@@ -16,6 +16,7 @@ async function syncCatalog(force = false) {
   try {
     // 1. Garante colunas no banco se ainda não existirem
     await db.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS compatibility TEXT;`);
+    await db.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS location TEXT;`);
     await db.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS active BOOLEAN NOT NULL DEFAULT true;`);
     await db.query(`ALTER TABLE customers ADD COLUMN IF NOT EXISTS cpf_cnpj TEXT;`);
 
@@ -28,8 +29,8 @@ async function syncCatalog(force = false) {
       console.log(`[SyncCatalog] Sincronizando catálogo oficial (${INITIAL_PRODUCTS.length} peças)...`);
       for (const p of INITIAL_PRODUCTS) {
         await db.query(
-          `INSERT INTO products (name, code, category, description, compatibility, price_cents, stock_qty, photo_url, active)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, true)
+          `INSERT INTO products (name, code, category, description, compatibility, price_cents, stock_qty, photo_url, location, active)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)
            ON CONFLICT (code) DO UPDATE SET
              name = EXCLUDED.name,
              category = EXCLUDED.category,
@@ -38,8 +39,9 @@ async function syncCatalog(force = false) {
              price_cents = EXCLUDED.price_cents,
              stock_qty = EXCLUDED.stock_qty,
              photo_url = EXCLUDED.photo_url,
+             location = COALESCE(products.location, EXCLUDED.location),
              active = true;`,
-          [p.name, p.code, p.category, p.description, p.compatibility || '', p.price_cents, p.stock_qty, p.photo_url]
+          [p.name, p.code, p.category, p.description, p.compatibility || '', p.price_cents, p.stock_qty, p.photo_url, p.location || null]
         );
       }
       console.log(`[SyncCatalog] Catálogo sincronizado com sucesso.`);

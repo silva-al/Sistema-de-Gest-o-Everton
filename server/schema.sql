@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS products (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 ALTER TABLE products ADD COLUMN IF NOT EXISTS compatibility TEXT;
+ALTER TABLE products ADD COLUMN IF NOT EXISTS location TEXT;
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category);
 CREATE INDEX IF NOT EXISTS idx_products_name ON products USING GIN (to_tsvector('portuguese', name));
 

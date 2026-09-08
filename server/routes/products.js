@@ -23,6 +23,7 @@ function serialize(row) {
     stockQty: row.stock_qty,
     inStock: row.stock_qty > 0,
     photoUrl: row.photo_url,
+    location: row.location || null,
     active: row.active,
   };
 }
@@ -42,7 +43,7 @@ router.get('/', async (req, res) => {
 
     if (q) {
       params.push(`%${q.trim()}%`);
-      clauses.push(`(name ILIKE $${params.length} OR code ILIKE $${params.length} OR compatibility ILIKE $${params.length} OR description ILIKE $${params.length} OR category ILIKE $${params.length})`);
+      clauses.push(`(name ILIKE $${params.length} OR code ILIKE $${params.length} OR description ILIKE $${params.length})`);
     }
     if (category) {
       params.push(category);
@@ -110,17 +111,28 @@ router.get('/categories', async (_req, res) => {
 router.get('/categories/featured', async (_req, res) => {
   try {
     const result = await db.query(`
-      SELECT id, name, code, category, description, compatibility, price_cents, stock_qty, photo_url, active
+      SELECT DISTINCT ON (category)
+        category, id, name, code, price_cents, stock_qty, photo_url
       FROM products
-      WHERE active = true
-      ORDER BY updated_at DESC, id ASC
-      LIMIT 40
+      WHERE category IS NOT NULL AND active = true
+      ORDER BY category, (photo_url IS NOT NULL AND photo_url != '') DESC, id ASC
     `);
-    const list = result.rows.map(serialize);
-    res.json({ categories: list, products: list });
+    res.json({
+      featured: result.rows.map((r) => ({
+        category: r.category,
+        product: {
+          id: r.id,
+          name: r.name,
+          code: r.code,
+          price: toReais(r.price_cents),
+          stockQty: r.stock_qty,
+          photoUrl: r.photo_url,
+        },
+      })),
+    });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Erro ao buscar peças em destaque.' });
+    res.status(500).json({ error: 'Erro ao buscar peças em destaque por categoria.' });
   }
 });
 
@@ -134,14 +146,14 @@ router.get('/:id', async (req, res) => {
 
 router.post('/', requireRole('admin'), async (req, res) => {
   try {
-    const { name, code, category, description, compatibility, price, stockQty, photoUrl } = req.body || {};
+    const { name, code, category, description, compatibility, price, stockQty, photoUrl, location } = req.body || {};
     if (!name || price === undefined) {
       return res.status(400).json({ error: 'Nome e preço são obrigatórios.' });
     }
     const result = await db.query(
-      `INSERT INTO products (name, code, category, description, compatibility, price_cents, stock_qty, photo_url)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [name.trim(), code || null, category || null, description || null, compatibility || null, toCents(price), stockQty || 0, photoUrl || null]
+      `INSERT INTO products (name, code, category, description, compatibility, price_cents, stock_qty, photo_url, location)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+      [name.trim(), code || null, category || null, description || null, compatibility || null, toCents(price), stockQty || 0, photoUrl || null, location || null]
     );
     res.status(201).json({ product: serialize(result.rows[0]) });
   } catch (err) {
@@ -153,7 +165,7 @@ router.post('/', requireRole('admin'), async (req, res) => {
 
 router.put('/:id', requireRole('admin'), async (req, res) => {
   try {
-    const { name, code, category, description, compatibility, price, stockQty, photoUrl, active } = req.body || {};
+    const { name, code, category, description, compatibility, price, stockQty, photoUrl, location, active } = req.body || {};
     const result = await db.query(
       `UPDATE products SET
          name = COALESCE($1, name),
@@ -164,9 +176,10 @@ router.put('/:id', requireRole('admin'), async (req, res) => {
          price_cents = COALESCE($6, price_cents),
          stock_qty = COALESCE($7, stock_qty),
          photo_url = COALESCE($8, photo_url),
-         active = COALESCE($9, active),
+         location = COALESCE($9, location),
+         active = COALESCE($10, active),
          updated_at = now()
-       WHERE id = $10 RETURNING *`,
+       WHERE id = $11 RETURNING *`,
       [
         name?.trim() ?? null,
         code ?? null,
@@ -176,6 +189,7 @@ router.put('/:id', requireRole('admin'), async (req, res) => {
         price !== undefined ? toCents(price) : null,
         stockQty !== undefined ? stockQty : null,
         photoUrl ?? null,
+        location ?? null,
         active !== undefined ? active : null,
         req.params.id,
       ]
