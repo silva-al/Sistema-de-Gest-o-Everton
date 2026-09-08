@@ -4517,9 +4517,6 @@ body.tema-claro header.header .header-cat-btn{
   border:1px solid rgba(15,23,42,0.076) !important;
 }
 }
-body.tema-claro .topbar-note span{
-  color:rgba(18,21,27,.9);
-}
 body.tema-claro .quick-action{
   background:#ffffff;
   border:1px solid #dfe3ea;
@@ -4611,9 +4608,6 @@ body.tema-claro .theme-toggle:hover{
   background:#eef1f5;
   color:#12151b;
 }
-body.tema-claro.tema-claro .topbar-note,
-body.tema-claro.tema-claro .topbar-note strong,
-body.tema-claro.tema-claro .topbar-note span,
 body.tema-claro.tema-claro .btn,
 body.tema-claro.tema-claro .vehicle-finder-btn,
 body.tema-claro.tema-claro .header-search button,
