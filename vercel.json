@@ -1,22 +1,17 @@
 {
-  "version": 2,
-  "buildCommand": "node scripts/build-netlify.js",
   "outputDirectory": "dist",
-  "routes": [
+  "rewrites": [
     {
-      "src": "/api/(.*)",
-      "dest": "/api/index.js"
+      "source": "/api/(.*)",
+      "destination": "/api"
     },
     {
-      "handle": "filesystem"
+      "source": "/admin/(.*)",
+      "destination": "/admin/index.html"
     },
     {
-      "src": "/admin.*",
-      "dest": "/admin/index.html"
-    },
-    {
-      "src": "/.*",
-      "dest": "/index.html"
+      "source": "/admin",
+      "destination": "/admin/index.html"
     }
   ]
 }
