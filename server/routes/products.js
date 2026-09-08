@@ -110,24 +110,21 @@ router.get('/categories', async (_req, res) => {
 // Prioriza a peça com foto cadastrada; sem foto, o site usa uma foto padrão da categoria.
 router.get('/categories/featured', async (_req, res) => {
   try {
+    await syncCatalog();
     const result = await db.query(`
-      SELECT DISTINCT ON (category)
-        category, id, name, code, price_cents, stock_qty, photo_url
+      SELECT id, name, code, category, description, compatibility, price_cents, stock_qty, photo_url, location, active
       FROM products
-      WHERE category IS NOT NULL AND active = true
-      ORDER BY category, (photo_url IS NOT NULL AND photo_url != '') DESC, id ASC
+      WHERE active = true
+      ORDER BY updated_at DESC, id ASC
+      LIMIT 40
     `);
+    const list = result.rows.map(serialize);
     res.json({
-      featured: result.rows.map((r) => ({
-        category: r.category,
-        product: {
-          id: r.id,
-          name: r.name,
-          code: r.code,
-          price: toReais(r.price_cents),
-          stockQty: r.stock_qty,
-          photoUrl: r.photo_url,
-        },
+      categories: list,
+      products: list,
+      featured: list.map((p) => ({
+        category: p.category,
+        product: p,
       })),
     });
   } catch (err) {

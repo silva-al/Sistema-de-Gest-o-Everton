@@ -474,6 +474,30 @@ const CATEGORY_IMAGES = {
   'Óleos e fluidos': 'images/categorias/oleos.jpg',
 };
 
+// Catálogo fallback oficial para exibição instantânea sem depender de tempo de rede
+const CATALOG_FALLBACK_PRODUCTS = [
+  { id: 1, name: 'Jogo de Pastilhas de Freio Dianteiras Bosch Cerâmica', code: 'BOSCH-0986-BR', category: 'Freios', description: 'Pastilhas de cerâmica de alta durabilidade, frenagem silenciosa.', compatibility: 'Volkswagen Gol, Voyage, Fox, Polo, Saveiro (2012 em diante)', price: 149.90, stockQty: 18, inStock: true, photoUrl: 'images/produtos/pastilha.jpg' },
+  { id: 2, name: 'Par de Discos de Freio Ventilados Dianteiros Fremax Carbon+', code: 'BD-5290-FRE', category: 'Freios', description: 'Discos com acabamento anti-corrosão Pintura Preta e liga de alto carbono.', compatibility: 'Toyota Corolla, Honda Civic, Chevrolet Cruze', price: 289.00, stockQty: 12, inStock: true, photoUrl: 'images/categorias/freios.jpg' },
+  { id: 3, name: 'Fluido de Freio DOT 4 LV Bosch Alta Performance 500ml', code: 'DOT4-BOSCH-500', category: 'Freios', description: 'Fluido de freio sintético de baixa viscosidade para ABS e ESP.', compatibility: 'Universal para sistemas hidráulicos DOT 4 / DOT 4 LV', price: 42.00, stockQty: 25, inStock: true, photoUrl: 'images/categorias/oleos.jpg' },
+  { id: 4, name: 'Par de Amortecedores Dianteiros Monroe Pressurizados OESpectrum', code: 'MON-SP089-PR', category: 'Suspensão', description: 'Tecnologia exclusiva Twin Technology com estabilidade superior.', compatibility: 'Chevrolet Onix, Prisma, Spin, Tracker (2013 a 2019)', price: 589.00, stockQty: 8, inStock: true, photoUrl: 'images/categorias/suspensao.jpg' },
+  { id: 5, name: 'Kit Batente, Coifa e Coxim do Amortecedor Dianteiro Axios', code: 'AXIOS-BT021', category: 'Suspensão', description: 'Kit de fixação superior da coluna com rolamento integrado.', compatibility: 'Hyundai HB20, HB20S, Creta 1.6', price: 89.90, stockQty: 20, inStock: true, photoUrl: 'images/categorias/suspensao.jpg' },
+  { id: 6, name: 'Par de Bieletas da Barra Estabilizadora Dianteira Nakata', code: 'NAK-BL4102', category: 'Suspensão', description: 'Bieletas reforçadas de articulação esférica selada anti-ruído.', compatibility: 'Honda Civic G9/G10, Fit, City', price: 115.00, stockQty: 15, inStock: true, photoUrl: 'images/categorias/suspensao.jpg' },
+  { id: 7, name: 'Jogo de 4 Velas de Ignição Iridium NGK Laser', code: 'NGK-ILZKR7B11', category: 'Elétrica e ignição', description: 'Eletrodo ultrafino de Iridium soldado a laser, partida imediata e economia.', compatibility: 'Honda Civic 1.8/2.0, Fit 1.5, HR-V, City i-VTEC Flex', price: 229.00, stockQty: 16, inStock: true, photoUrl: 'images/produtos/bobina_2.jpg' },
+  { id: 8, name: 'Bobina de Ignição Eletrônica Magneti Marelli Individual', code: 'MM-BI0048', category: 'Elétrica e ignição', description: 'Bobina tipo caneta com isolamento térmico de alta densidade.', compatibility: 'Volkswagen Gol, Fox, Voyage, Saveiro 1.6 MSI e EA211', price: 279.50, stockQty: 10, inStock: true, photoUrl: 'images/produtos/bobina.jpg' },
+  { id: 9, name: 'Motor de Partida / Arranque Remanufaturado Original Valeo 12V', code: 'VAL-MP1201', category: 'Elétrica e ignição', description: 'Motor de arranque de alto torque e partida suave certificado.', compatibility: 'Fiat Palio, Uno, Siena, Strada motores Fire 1.0 e 1.4', price: 460.00, stockQty: 5, inStock: true, photoUrl: 'images/categorias/eletrica.jpg' },
+  { id: 10, name: 'Kit Revisão 4 Filtros (Óleo + Ar + Combustível + Cabine) Mann-Filter', code: 'MANN-KIT4-VW', category: 'Filtros', description: 'Kit completo para revisão periódica com filtros de alta eficiência.', compatibility: 'Volkswagen Polo, Virtus, Nivus, T-Cross motores 1.0 200 TSI', price: 168.90, stockQty: 22, inStock: true, photoUrl: 'images/produtos/filtro.jpg' },
+  { id: 11, name: 'Filtro de Ar Condicionado / Cabine com Carvão Ativado Mahle', code: 'MAHLE-LAK855', category: 'Filtros', description: 'Filtro antialérgico com camada tripla de carvão ativado contra odores.', compatibility: 'Jeep Renegade, Compass, Fiat Toro, Argo, Cronos', price: 54.90, stockQty: 35, inStock: true, photoUrl: 'images/categorias/filtros.jpg' },
+  { id: 12, name: 'Filtro de Combustível Injeção Eletrônica Blindado Tecfil', code: 'TECFIL-GI50/7', category: 'Filtros', description: 'Corpo blindado em aço inox resistente à corrosão do etanol.', compatibility: 'Chevrolet Celta, Corsa, Montana, Agile, Astra Flex', price: 38.00, stockQty: 40, inStock: true, photoUrl: 'images/categorias/filtros.jpg' },
+  { id: 13, name: 'Kit Correia Dentada e Tensor Gates PowerGrip', code: 'GATES-KS104', category: 'Correias', description: 'Kit sincronizador mestre com correia de alta resistência térmica.', compatibility: 'Motores GM Família 1 - Onix, Prisma, Cobalt, Spin 1.0, 1.4 e 1.8', price: 195.50, stockQty: 14, inStock: true, photoUrl: 'images/categorias/correias.jpg' },
+  { id: 14, name: 'Correia do Alternador Poly-V Continental Contitech EPDM', code: 'CONT-6PK1825', category: 'Correias', description: 'Correia de acessórios em borracha EPDM anti-ruído de alta tração.', compatibility: 'Ford Ka, Fiesta, Ecosport motores 1.5 e 1.6 Sigma', price: 78.00, stockQty: 25, inStock: true, photoUrl: 'images/categorias/correias.jpg' },
+  { id: 15, name: 'Sonda Lambda Sensor de Oxigênio Pré-Catalisador Bosch Planar', code: 'BOSCH-025801', category: 'Sensores e injeção', description: 'Sensor aquecido de 4 fios com cerâmica de resposta rápida.', compatibility: 'Volkswagen, Fiat, Chevrolet e Ford motores 1.0 e 1.6 Flex', price: 310.00, stockQty: 9, inStock: true, photoUrl: 'images/categorias/sensores.jpg' },
+  { id: 16, name: 'Sensor de Rotação do Virabrequim Hall Magneti Marelli', code: 'MM-SR0109', category: 'Sensores e injeção', description: 'Sensor magnético de alta precisão para controle da injeção e ignição.', compatibility: 'Ford Ka 1.0 3C Ti-VCT, Ecosport, Fiesta Rocam', price: 139.00, stockQty: 12, inStock: true, photoUrl: 'images/categorias/sensores.jpg' },
+  { id: 17, name: 'Óleo de Motor 100% Sintético Motul 8100 X-cess 5W-40 1L', code: 'MOTUL-8100-5W40', category: 'Óleos e fluidos', description: 'Lubrificante sintético premium de alto desempenho.', compatibility: 'VW 502.00, MB 229.5, BMW LL-01, Porsche A40, Renault RN0710', price: 68.00, stockQty: 50, inStock: true, photoUrl: 'images/categorias/oleos.jpg' },
+  { id: 18, name: 'Aditivo de Radiador Concentrado Orgânico Tirreno Long Life 1L', code: 'TIRR-LL-ORG1', category: 'Óleos e fluidos', description: 'Fluido protetor anticorrosivo com tecnologia OAT.', compatibility: 'Universal para sistemas de arrefecimento nacionais e importados', price: 36.90, stockQty: 30, inStock: true, photoUrl: 'images/categorias/oleos.jpg' },
+  { id: 19, name: 'Par de Lâmpadas H7 Philips CrystalVision Ultra 4300K Branco Nobre', code: 'PHIL-H7-CVU', category: 'Iluminação', description: 'Efeito xênon elegante de 4300K com vidro de quartzo UV-Block.', compatibility: 'Encaixe universal H7 (Farol baixo ou alto)', price: 159.90, stockQty: 18, inStock: true, photoUrl: 'images/categorias/iluminacao.jpg' },
+  { id: 20, name: 'Kit Par de Lâmpadas LED Osram LEDriving H4 6000K Branco Frio', code: 'OSRAM-LED-H4', category: 'Iluminação', description: 'Linha de corte perfeita, dissipador em alumínio aeronáutico e 50% menos consumo.', compatibility: 'Encaixe universal H4 Farol Alto/Baixo Integrado (12V)', price: 349.00, stockQty: 7, inStock: true, photoUrl: 'images/categorias/iluminacao.jpg' }
+];
+
 function money(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
 async function loadCategories() {
@@ -504,8 +528,25 @@ async function loadCategoryCarousel() {
   const track = document.getElementById('categoryCarouselTrack');
   if (!track) return;
   try {
-    const res = await api('/api/products/categories/featured');
-    const items = res.products || res.categories || [];
+    let items = [];
+    try {
+      const res = await api('/api/products/categories/featured');
+      items = res.products || res.categories || (Array.isArray(res.featured) ? res.featured.map(f => f.product || f) : []);
+    } catch (e) {
+      console.warn('Tentando fallback para carrossel:', e);
+    }
+
+    if (!items || !items.length) {
+      try {
+        const pRes = await api('/api/products');
+        items = pRes.products || [];
+      } catch (_) {}
+    }
+
+    if (!items || !items.length) {
+      items = (typeof CATALOG_FALLBACK_PRODUCTS !== 'undefined') ? CATALOG_FALLBACK_PRODUCTS.slice() : [];
+    }
+
     if (!items.length) {
       if (wrap) wrap.style.display = 'none';
       return;
@@ -622,7 +663,9 @@ async function loadRecommendedProducts(product) {
     if (items.length < 4) {
       try {
         const altRes = await api('/api/products/categories/featured');
-        const alts = (altRes.products || altRes.categories || []).filter(
+        const rawAlts = altRes.products || altRes.categories || (Array.isArray(altRes.featured) ? altRes.featured.map(f => f.product || f) : []);
+        const fallbackAlts = rawAlts.length ? rawAlts : ((typeof CATALOG_FALLBACK_PRODUCTS !== 'undefined') ? CATALOG_FALLBACK_PRODUCTS : []);
+        const alts = fallbackAlts.filter(
           p => String(p.id) !== String(product.id) && !items.some(i => String(i.id) === String(p.id))
         );
         items = items.concat(alts);
@@ -2072,9 +2115,26 @@ init();
     const list = document.getElementById('offersList');
     if (!section || !list) return;
     try {
-      const res = await fetch('/api/products/categories/featured');
-      const data = await res.json();
-      const allEligible = (data.products || data.categories || []).filter(p => {
+      let rawEligible = [];
+      try {
+        const res = await fetch('/api/products/categories/featured');
+        const data = await res.json();
+        rawEligible = data.products || data.categories || (Array.isArray(data.featured) ? data.featured.map(f => f.product || f) : []);
+      } catch (_) {}
+
+      if (!rawEligible || !rawEligible.length) {
+        try {
+          const r2 = await fetch('/api/products');
+          const d2 = await r2.json();
+          rawEligible = d2.products || [];
+        } catch (_) {}
+      }
+
+      if (!rawEligible || !rawEligible.length) {
+        rawEligible = (typeof CATALOG_FALLBACK_PRODUCTS !== 'undefined') ? CATALOG_FALLBACK_PRODUCTS.slice() : [];
+      }
+
+      const allEligible = rawEligible.filter(p => {
         const v = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
         return v > 0 && p.inStock !== false;
       });
@@ -2374,6 +2434,7 @@ init();
     }
 
     function render() {
+      if (!items.length) return;
       const slice = [];
       for (let i = 0; i < SLOTS; i++) slice.push(items[(offset + i) % items.length]);
       box.innerHTML = slice.map(cardHtml).join('');
@@ -2396,33 +2457,65 @@ init();
       }, 250);
     }
 
-    fetch('/api/products/categories/featured')
-      .then((r) => r.json())
-      .then((data) => {
-        const eligible = (data.products || data.categories || []).filter((p) => {
-          const v = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
-          return v > 0 && p.inStock !== false;
-        });
-        // Intercala as categorias para que os três cards visíveis nunca
-        // fiquem todos da mesma categoria.
-        const buckets = new Map();
-        eligible.forEach((p) => {
-          const cat = p.category || 'Geral';
-          if (!buckets.has(cat)) buckets.set(cat, []);
-          buckets.get(cat).push(p);
-        });
-        const lists = Array.from(buckets.values());
-        items = [];
-        for (let i = 0; items.length < eligible.length; i++) {
-          lists.forEach((l) => { if (l[i]) items.push(l[i]); });
-        }
-        if (items.length < SLOTS) return;
-        render();
-        timer = setInterval(rotate, 4500);
-        box.addEventListener('mouseenter', () => { if (timer) { clearInterval(timer); timer = null; } });
-        box.addEventListener('mouseleave', () => { if (!timer) timer = setInterval(rotate, 4500); });
-      })
-      .catch((e) => console.error('Erro ao carregar peças do banner:', e));
+    async function fetchProducts() {
+      let rawList = [];
+      try {
+        const r = await fetch('/api/products/categories/featured');
+        const data = await r.json();
+        rawList = data.products || data.categories || (Array.isArray(data.featured) ? data.featured.map(f => f.product || f) : []);
+      } catch (e) {
+        console.warn('Falha ao buscar hero side cards na API:', e);
+      }
+
+      if (!rawList || !rawList.length) {
+        try {
+          const r2 = await fetch('/api/products');
+          const d2 = await r2.json();
+          rawList = d2.products || [];
+        } catch (_) {}
+      }
+
+      if (!rawList || !rawList.length) {
+        rawList = (typeof CATALOG_FALLBACK_PRODUCTS !== 'undefined') ? CATALOG_FALLBACK_PRODUCTS.slice() : [];
+      }
+
+      const eligible = rawList.filter((p) => {
+        const v = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
+        return v > 0 && p.inStock !== false;
+      });
+
+      // Intercala as categorias para que os três cards visíveis nunca
+      // fiquem todos da mesma categoria.
+      const buckets = new Map();
+      eligible.forEach((p) => {
+        const cat = p.category || 'Geral';
+        if (!buckets.has(cat)) buckets.set(cat, []);
+        buckets.get(cat).push(p);
+      });
+      const lists = Array.from(buckets.values());
+      items = [];
+      for (let i = 0; items.length < eligible.length; i++) {
+        lists.forEach((l) => { if (l[i]) items.push(l[i]); });
+      }
+      if (items.length < SLOTS) {
+        items = eligible.slice();
+      }
+      if (items.length === 0) return;
+      render();
+
+      if (timer) clearInterval(timer);
+      timer = setInterval(rotate, 4500);
+      box.addEventListener('mouseenter', () => { if (timer) { clearInterval(timer); timer = null; } });
+      box.addEventListener('mouseleave', () => { if (!timer) timer = setInterval(rotate, 4500); });
+    }
+
+    // Inicialização instantânea com catálogo fallback para não deixar espaço vazio
+    if (typeof CATALOG_FALLBACK_PRODUCTS !== 'undefined' && CATALOG_FALLBACK_PRODUCTS.length) {
+      items = CATALOG_FALLBACK_PRODUCTS.slice();
+      render();
+      if (!timer) timer = setInterval(rotate, 4500);
+    }
+    fetchProducts();
   }
 
   if (document.readyState === 'loading') {
