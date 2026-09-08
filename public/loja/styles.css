@@ -2746,14 +2746,15 @@ html, body {
 .header-inner{position:relative}
 
 /* --- Cabeçalho: botão Categorias + menu suspenso --- */
+.header-cat-dropdown{position:relative;display:inline-flex;align-items:center}
 .header-cat-btn{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);color:#fff;font-size:14px;font-weight:700;padding:9px 14px;border-radius:9px;cursor:pointer;white-space:nowrap;transition:all .2s ease}
 .header-cat-btn:hover{background:rgba(237,28,36,.14);border-color:rgba(237,28,36,.4)}
 .header-cat-chevron{transition:transform .2s ease}
 .header-cat-btn[aria-expanded="true"] .header-cat-chevron{transform:rotate(180deg)}
-.header-cat-menu{position:absolute;top:100%;left:0;margin-top:8px;background:#12151b;border:1px solid #282d38;border-radius:12px;padding:10px;display:none;flex-direction:column;gap:2px;min-width:220px;box-shadow:0 20px 45px rgba(0,0,0,.5);z-index:40}
+.header-cat-menu{position:absolute;top:calc(100% + 8px);left:0;margin-top:0;background:#12151b;border:1px solid #282d38;border-radius:12px;padding:8px;display:none;flex-direction:column;gap:3px;min-width:215px;box-shadow:0 20px 45px rgba(0,0,0,.55);z-index:100}
 .header-cat-menu.open{display:flex}
-.header-cat-menu .clean-chip{width:100%;text-align:left;border-radius:8px;background:transparent;border:1px solid transparent}
-.header-cat-menu .clean-chip:hover,.header-cat-menu .clean-chip.active{background:rgba(237,28,36,.14);border-color:rgba(237,28,36,.35)}
+.header-cat-menu .clean-chip{width:100%;text-align:left;border-radius:8px;background:transparent;border:1px solid transparent;padding:9px 14px;font-size:13.5px;font-weight:600;color:#e2e8f0;display:flex;align-items:center;cursor:pointer;transition:all .18s ease}
+.header-cat-menu .clean-chip:hover,.header-cat-menu .clean-chip.active{background:rgba(237,28,36,.14);border-color:rgba(237,28,36,.35);color:#ff4d56}
 
 /* --- Cabeçalho: barra de busca desktop --- */
 .header-search{display:flex;align-items:center;flex:1;max-width:420px;background:#12151b;border:1px solid #282d38;border-radius:10px;padding:0 6px 0 14px;gap:8px;transition:all .2s ease}
@@ -3098,6 +3099,12 @@ html, body {
   header.header .logo-badge-inner{font-size:10.5px !important}
 
   /* Botão de categorias vira um ícone de menu (hambúrguer) à esquerda */
+  header.header .header-cat-dropdown{
+    order: 1 !important;
+    display: flex !important;
+    position: relative !important;
+    flex-shrink: 0 !important;
+  }
   header.header .header-cat-btn{
     display: flex !important;
     background: rgba(255,255,255,.05) !important;
@@ -3109,10 +3116,14 @@ html, body {
     align-items: center !important;
     justify-content: center !important;
     flex-shrink: 0 !important;
-    order: 1 !important;
   }
   header.header .header-cat-label,
   header.header .header-cat-chevron{display:none !important}
+  header.header .header-cat-menu{
+    left: 0 !important;
+    top: calc(100% + 6px) !important;
+    min-width: 200px !important;
+  }
 
   /* Carrinho continua visível, sozinho, no canto superior direito */
   header.header nav.nav{

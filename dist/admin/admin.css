@@ -3513,6 +3513,40 @@ body.tema-claro .orders-table tbody tr:hover td {
    MODERNIZAÇÃO GERAL DE TODAS AS ABAS DO WMS (ALTO CONTRASTE)
    =================================================================== */
 
+/* --- HEADER E SIDEBAR GERAL --- */
+body.tema-claro .brand-info strong {
+  color: #0f172a !important;
+}
+body.tema-claro .brand-info strong span {
+  color: #ed1c24 !important;
+}
+body.tema-claro .brand-info small {
+  color: #64748b !important;
+}
+body.tema-claro .topbar-search {
+  background: #f8fafc !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+}
+body.tema-claro .topbar-search svg {
+  color: #64748b !important;
+  stroke: #64748b !important;
+}
+body.tema-claro .topbar-search input {
+  background: transparent !important;
+  border: none !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+body.tema-claro .topbar-search input::placeholder {
+  color: #64748b !important;
+}
+body.tema-claro .topbar-search:focus-within {
+  background: #ffffff !important;
+  border-color: #ed1c24 !important;
+  box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12) !important;
+}
+
 /* --- ABA 1: DASHBOARD --- */
 body.tema-claro .dash-recent-item {
   background: #ffffff !important;
@@ -3574,6 +3608,46 @@ body.tema-claro .form-grid .field select:focus,
 body.tema-claro .form-grid .field textarea:focus {
   border-color: #ed1c24 !important;
   box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12) !important;
+}
+body.tema-claro .photo-input-wrap {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 9px !important;
+  padding: 4px 6px !important;
+}
+body.tema-claro .photo-input-wrap:focus-within {
+  border-color: #ed1c24 !important;
+  box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12) !important;
+}
+body.tema-claro .photo-input-wrap input {
+  background: transparent !important;
+  border: none !important;
+  color: #0f172a !important;
+  box-shadow: none !important;
+}
+body.tema-claro .photo-input-wrap input::placeholder {
+  color: #64748b !important;
+}
+body.tema-claro .btn-attach-photo {
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+body.tema-claro .btn-attach-photo:hover {
+  background: #ed1c24 !important;
+  border-color: #ed1c24 !important;
+  color: #ffffff !important;
+}
+body.tema-claro .btn-attach-photo svg {
+  stroke: currentColor !important;
+}
+body.tema-claro .photo-preview-wrap {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+}
+body.tema-claro .photo-preview-name {
+  color: #0f172a !important;
 }
 body.tema-claro #syncCatalogBtn {
   background: #ffffff !important;
@@ -3855,33 +3929,40 @@ body.tema-claro .fiscal-actions-group {
    =================================================================== */
 
 /* 1. LOGO E CABEÇALHO LATERAL */
+.tema-claro .brand-info strong,
 body.tema-claro .brand-info strong {
   color: #0f172a !important;
   font-weight: 900 !important;
 }
+.tema-claro .brand-info strong span,
 body.tema-claro .brand-info strong span {
   color: #ed1c24 !important;
 }
+.tema-claro .brand-info small,
 body.tema-claro .brand-info small {
   color: #64748b !important;
 }
 
 /* 2. BARRA DE BUSCA SUPERIOR (TOPBAR SEARCH) */
+.tema-claro .topbar-search,
 body.tema-claro .topbar-search {
   background: #f1f5f9 !important;
   border: 1.5px solid #cbd5e1 !important;
   border-radius: 10px !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
 }
+.tema-claro .topbar-search:focus-within,
 body.tema-claro .topbar-search:focus-within {
   background: #ffffff !important;
   border-color: #ed1c24 !important;
   box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12) !important;
 }
+.tema-claro .topbar-search svg,
 body.tema-claro .topbar-search svg {
   color: #64748b !important;
   stroke: #64748b !important;
 }
+.tema-claro .topbar-search input,
 body.tema-claro .topbar-search input {
   background: transparent !important;
   border: none !important;
@@ -3891,11 +3972,13 @@ body.tema-claro .topbar-search input {
   outline: none !important;
   padding: 0 !important;
 }
+.tema-claro .topbar-search input::placeholder,
 body.tema-claro .topbar-search input::placeholder {
   color: #64748b !important;
 }
 
 /* 3. CAMPO DE URL/ANEXO DE FOTO (ESTOQUE / PRODUTOS) */
+.tema-claro .photo-input-wrap,
 body.tema-claro .photo-input-wrap {
   background: #ffffff !important;
   border: 1.5px solid #cbd5e1 !important;
@@ -3903,10 +3986,12 @@ body.tema-claro .photo-input-wrap {
   padding: 4px 6px !important;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03) !important;
 }
+.tema-claro .photo-input-wrap:focus-within,
 body.tema-claro .photo-input-wrap:focus-within {
   border-color: #ed1c24 !important;
   box-shadow: 0 0 0 3px rgba(237, 28, 36, 0.12) !important;
 }
+.tema-claro .photo-input-wrap input,
 body.tema-claro .photo-input-wrap input {
   background: transparent !important;
   border: none !important;
@@ -3915,20 +4000,24 @@ body.tema-claro .photo-input-wrap input {
   box-shadow: none !important;
   outline: none !important;
 }
+.tema-claro .photo-input-wrap input::placeholder,
 body.tema-claro .photo-input-wrap input::placeholder {
   color: #94a3b8 !important;
 }
+.tema-claro .btn-attach-photo,
 body.tema-claro .btn-attach-photo {
   background: #f1f5f9 !important;
   border: 1.5px solid #cbd5e1 !important;
   color: #0f172a !important;
   font-weight: 700 !important;
 }
+.tema-claro .btn-attach-photo:hover,
 body.tema-claro .btn-attach-photo:hover {
   background: #ed1c24 !important;
   border-color: #ed1c24 !important;
   color: #ffffff !important;
 }
+.tema-claro .btn-attach-photo svg,
 body.tema-claro .btn-attach-photo svg {
   stroke: currentColor !important;
 }

@@ -1983,7 +1983,7 @@ init();
       catBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
     document.addEventListener('click', (e) => {
-      if (!catMenu.contains(e.target) && e.target !== catBtn) {
+      if (!catMenu.contains(e.target) && !catBtn.contains(e.target)) {
         catMenu.classList.remove('open');
         catBtn.setAttribute('aria-expanded', 'false');
       }

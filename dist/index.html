@@ -21,7 +21,7 @@
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-<link href="styles.css?v=20260905_9" rel="stylesheet"/>
+<link href="styles.css?v=20260908_1" rel="stylesheet"/>
 
 <!-- Bloqueio e remoção total do badge e drawer do Netlify -->
 <style id="netlify-badge-blocker">
@@ -133,18 +133,20 @@
 <button aria-label="Voltar" class="back-btn" id="backBtn" title="Voltar" type="button"><svg aria-hidden="true" viewbox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.3"></path></svg></button>
 <div class="logo" id="logoBtn" role="button" tabindex="0" title="Ir para o início" style="cursor:pointer;user-select:none"><div class="logo-badge"><div class="logo-badge-inner">FM</div></div><div class="logo-text">FAHREN<span>MOTORS</span></div></div>
 
-<button type="button" class="header-cat-btn" id="headerCatBtn" aria-haspopup="true" aria-expanded="false">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
-  <span class="header-cat-label">Categorias</span>
-  <svg class="header-cat-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-</button>
-<div class="header-cat-menu" id="headerCatMenu">
-  <button type="button" class="clean-chip" data-cat="">Todas as Peças</button>
-  <button type="button" class="clean-chip" data-cat="Freios">Freios</button>
-  <button type="button" class="clean-chip" data-cat="Elétrica e Ignição">Ignição</button>
-  <button type="button" class="clean-chip" data-cat="Suspensão">Suspensão</button>
-  <button type="button" class="clean-chip" data-cat="Motor">Motor</button>
-  <button type="button" class="clean-chip" data-cat="Filtros">Filtros</button>
+<div class="header-cat-dropdown" id="headerCatDropdown">
+  <button type="button" class="header-cat-btn" id="headerCatBtn" aria-haspopup="true" aria-expanded="false">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    <span class="header-cat-label">Categorias</span>
+    <svg class="header-cat-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+  </button>
+  <div class="header-cat-menu" id="headerCatMenu">
+    <button type="button" class="clean-chip" data-cat="">Todas as Peças</button>
+    <button type="button" class="clean-chip" data-cat="Freios">Freios</button>
+    <button type="button" class="clean-chip" data-cat="Elétrica e Ignição">Ignição</button>
+    <button type="button" class="clean-chip" data-cat="Suspensão">Suspensão</button>
+    <button type="button" class="clean-chip" data-cat="Motor">Motor</button>
+    <button type="button" class="clean-chip" data-cat="Filtros">Filtros</button>
+  </div>
 </div>
 
 <div class="header-search">
