@@ -2034,7 +2034,7 @@ init();
       els.forEach((el) => {
         const cat = el.dataset.countFor;
         const n = counts[cat] || 0;
-        el.textContent = n === 1 ? '1 item' : `${n} itens`;
+        el.textContent = n === 1 ? '1 produto disponível' : `${n} produtos disponíveis`;
       });
     } catch (e) {
       els.forEach((el) => { el.textContent = ''; });

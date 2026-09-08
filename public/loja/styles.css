@@ -4422,15 +4422,19 @@ body.tema-claro .cat-grid-count{
   color:#ed1c24;
   background:rgba(237,28,36,0.08);
 }
+/* Card "Ver catálogo": mantém o mesmo fundo vermelho/preto nos dois temas —
+   sem isso ele herdava o fundo branco de .cat-grid-item no tema claro e o
+   texto vermelho ficava quase ilegível. */
 body.tema-claro .cat-grid-item.cat-grid-all{
-  background:linear-gradient(135deg,rgba(237,28,36,0.08) 0%,rgba(237,28,36,0.02) 100%);
-  border:1.5px dashed rgba(237,28,36,0.35);
+  background:linear-gradient(135deg,#1a1d24 0%,#12151b 100%) !important;
+  border:1.5px solid rgba(237,28,36,0.5) !important;
 }
 body.tema-claro .cat-grid-item.cat-grid-all .cat-grid-icon{
-  background:rgba(237,28,36,0.14);
+  background:rgba(237,28,36,0.18) !important;
+  color:#ed1c24 !important;
 }
 body.tema-claro .cat-grid-item.cat-grid-all .cat-grid-name{
-  color:#ed1c24;
+  color:#ff3b44 !important;
 }
 body.tema-claro .trust-row{
   border-top:1px solid rgba(15,23,42,0.051);

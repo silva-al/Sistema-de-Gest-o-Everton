@@ -1,17 +1,53 @@
-// Conexão com o banco de dados Postgres (Supabase em produção).
+// Conexão com o banco de dados Postgres (Neon em produção).
 require('dotenv').config();
 const { Pool } = require('pg');
 
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgresql://neondb_owner:npg_XeVrWqMcj4s9@ep-empty-night-aebwa2bd-pooler.c-2.us-east-2.aws.neon.tech/neondb?sslmode=require';
+const connectionString = process.env.DATABASE_URL;
+
+if (!connectionString) {
+  console.error('ERRO: variável de ambiente DATABASE_URL não definida.');
+}
+
+// Ambiente serverless (Vercel/Netlify): cada invocação é curta, então basta
+// 1 conexão. Servidor tradicional (Render, VPS): mantém um pool pequeno com
+// keepAlive, já que o processo fica de pé por mais tempo.
+const isServerless = Boolean(process.env.VERCEL || process.env.NETLIFY);
 
 const pool = new Pool({
   connectionString,
   ssl: { rejectUnauthorized: false },
+  max: isServerless ? 1 : 5,
+  keepAlive: !isServerless,
 });
 
+// Sem este listener, quando o pooler do Neon encerra uma conexão ociosa
+// (comportamento normal), o Node derruba o processo inteiro e o site sai do
+// ar. Aqui só registramos o erro e deixamos o pool se recuperar sozinho.
+pool.on('error', (err) => {
+  console.error('Erro inesperado no pool do Postgres (conexão ociosa provavelmente encerrada pelo servidor):', err.message);
+});
+
+// Refaz a consulta uma vez se a conexão cair no meio da query — cobre o caso
+// de a conexão ser encerrada exatamente durante o uso, não só quando ociosa.
+async function query(text, params) {
+  try {
+    return await pool.query(text, params);
+  } catch (err) {
+    const isConnectionDrop =
+      err.code === 'ECONNRESET' ||
+      err.code === '57P01' || // admin_shutdown
+      /Connection terminated/i.test(err.message || '');
+
+    if (isConnectionDrop) {
+      console.warn('Conexão com o banco caiu durante a query, tentando novamente uma vez...');
+      return pool.query(text, params);
+    }
+
+    throw err;
+  }
+}
+
 module.exports = {
-  query: (text, params) => pool.query(text, params),
+  query,
   pool,
 };
