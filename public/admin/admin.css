@@ -1006,27 +1006,29 @@ html[data-active-tab="configuracoes"] .sidebar-nav button[data-tab="configuracoe
 }
 
 .btn-secondary {
-  background: #0e1013;
-  color: var(--text-secondary);
-  border: 1px solid var(--panel-border);
+  background: #1e293b;
+  color: #f1f5f9;
+  border: 1.5px solid #334155;
+  font-weight: 700;
 }
 
 .btn-secondary:hover {
-  background: var(--panel-hover);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.15);
+  background: #334155;
+  color: #ffffff;
+  border-color: #475569;
 }
 
 body.tema-claro .btn-secondary {
-  background: #ffffff;
-  color: #1e293b;
-  border: 1px solid #cbd5e1;
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1.5px solid #cbd5e1 !important;
+  font-weight: 700 !important;
 }
 
 body.tema-claro .btn-secondary:hover {
-  background: #f1f5f9;
-  color: #0f172a;
-  border-color: #94a3b8;
+  background: #e2e8f0 !important;
+  color: #0f172a !important;
+  border-color: #94a3b8 !important;
 }
 
 .btn-sm {
@@ -2685,7 +2687,8 @@ body:not(.tema-claro) .modal-title-box h3 {
 }
 
 /* BOTÃO FECHAR MODERNO (X) */
-.modal-close {
+.modal-close,
+.btn-close-modal {
   width: 36px !important;
   height: 36px !important;
   border-radius: 50% !important;
@@ -2699,10 +2702,13 @@ body:not(.tema-claro) .modal-title-box h3 {
   transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
   padding: 0 !important;
   flex-shrink: 0 !important;
+  font-size: 16px !important;
+  line-height: 1 !important;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04) !important;
 }
 
-.modal-close:hover {
+.modal-close:hover,
+.btn-close-modal:hover {
   background: #fee2e2 !important;
   border-color: #fca5a5 !important;
   color: #dc2626 !important;
@@ -2710,13 +2716,15 @@ body:not(.tema-claro) .modal-title-box h3 {
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
 }
 
-body:not(.tema-claro) .modal-close {
+body:not(.tema-claro) .modal-close,
+body:not(.tema-claro) .btn-close-modal {
   background: #1e293b !important;
   border-color: #334155 !important;
   color: #94a3b8 !important;
 }
 
-body:not(.tema-claro) .modal-close:hover {
+body:not(.tema-claro) .modal-close:hover,
+body:not(.tema-claro) .btn-close-modal:hover {
   background: rgba(239, 68, 68, 0.2) !important;
   border-color: #f87171 !important;
   color: #f87171 !important;
@@ -2800,24 +2808,66 @@ body:not(.tema-claro) .modal-footer {
   box-sizing: border-box !important;
   text-decoration: none !important;
   line-height: 1.2 !important;
+}
+
+.modal-footer .btn-primary {
   color: #ffffff !important;
 }
 
-/* 1. Botão Fechar */
+/* 1. Botão Fechar / Cancelar Padronizado em Todos os Modais */
+.modal-footer .btn-secondary,
 .modal-footer .btn-modal-close,
-.modal-footer button[onclick*="closeProductViewModal"] {
-  background: #475569 !important;
-  color: #ffffff !important;
-  border: 1px solid #334155 !important;
-  box-shadow: 0 2px 8px rgba(71, 85, 105, 0.2) !important;
+.modal-footer .btn-stock-cancel,
+.modal-footer button[onclick*="close"],
+.modal-footer button[onclick*="Close"],
+.btn-modal-close,
+.btn-stock-cancel {
+  background: #f1f5f9 !important;
+  color: #1e293b !important;
+  border: 1.5px solid #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
+  font-weight: 700 !important;
 }
 
+.modal-footer .btn-secondary:hover,
 .modal-footer .btn-modal-close:hover,
-.modal-footer button[onclick*="closeProductViewModal"]:hover {
-  background: #334155 !important;
-  border-color: #1e293b !important;
+.modal-footer .btn-stock-cancel:hover,
+.modal-footer button[onclick*="close"]:hover,
+.modal-footer button[onclick*="Close"]:hover,
+.btn-modal-close:hover,
+.btn-stock-cancel:hover {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3) !important;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.1) !important;
+}
+
+body:not(.tema-claro) .modal-footer .btn-secondary,
+body:not(.tema-claro) .modal-footer .btn-modal-close,
+body:not(.tema-claro) .modal-footer .btn-stock-cancel,
+body:not(.tema-claro) .modal-footer button[onclick*="close"],
+body:not(.tema-claro) .modal-footer button[onclick*="Close"],
+body:not(.tema-claro) .btn-modal-close,
+body:not(.tema-claro) .btn-stock-cancel {
+  background: #1e293b !important;
+  color: #f1f5f9 !important;
+  border: 1.5px solid #334155 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+body:not(.tema-claro) .modal-footer .btn-secondary:hover,
+body:not(.tema-claro) .modal-footer .btn-modal-close:hover,
+body:not(.tema-claro) .modal-footer .btn-stock-cancel:hover,
+body:not(.tema-claro) .modal-footer button[onclick*="close"]:hover,
+body:not(.tema-claro) .modal-footer button[onclick*="Close"]:hover,
+body:not(.tema-claro) .btn-modal-close:hover,
+body:not(.tema-claro) .btn-stock-cancel:hover {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 /* 2. Botão Ajustar Estoque */
