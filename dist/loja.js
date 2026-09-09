@@ -500,6 +500,16 @@ const CATALOG_FALLBACK_PRODUCTS = [
 
 function money(v) { return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
 
+function normalizeLojaPhoto(url, fallback = '/images/categorias/filtros.jpg') {
+  if (!url) return fallback;
+  url = String(url).trim();
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+  if (url.startsWith('/loja/')) url = url.replace(/^\/loja\//, '/');
+  else if (url.startsWith('loja/')) url = url.replace(/^loja\//, '/');
+  if (!url.startsWith('/')) url = '/' + url;
+  return url;
+}
+
 async function loadCategories() {
   const select = document.getElementById('filterCategory');
   if (!select) return;
@@ -554,13 +564,13 @@ async function loadCategoryCarousel() {
     if (wrap) wrap.style.display = '';
 
     const cardHtml = (c, hidden) => {
-      const photo = c.photoUrl || CATEGORY_IMAGES[c.category] || 'images/categorias/filtros.jpg';
+      const photo = normalizeLojaPhoto(c.photoUrl || CATEGORY_IMAGES[c.category] || '/images/categorias/filtros.jpg');
       const priceVal = typeof c.price === 'number' ? c.price : (c.price_cents ? c.price_cents / 100 : 0);
       const pixVal = priceVal > 0 ? (priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04))) : 0;
       const installmentVal = priceVal > 0 ? priceVal / 6 : 0;
       return `<div class="card cat-card" data-product-id="${c.id || ''}" data-category="${c.category || ''}"${hidden ? ' aria-hidden="true"' : ''}>
         <div class="cat-card-img-wrap">
-          <img alt="${hidden ? '' : c.name}" loading="lazy" src="${photo}">
+          <img alt="${hidden ? '' : c.name}" loading="lazy" src="${photo}" onerror="this.onerror=null; this.src='/images/categorias/filtros.jpg';">
           ${priceVal > 0 ? `<span class="cat-card-pix-badge">-4% PIX</span>` : ''}
         </div>
         <b>${c.name}</b>
@@ -681,13 +691,13 @@ async function loadRecommendedProducts(product) {
 
     section.style.display = 'block';
     grid.innerHTML = recommended.map(p => {
-      const photo = p.photoUrl || CATEGORY_IMAGES[p.category] || 'images/categorias/filtros.jpg';
+      const photo = normalizeLojaPhoto(p.photoUrl || CATEGORY_IMAGES[p.category] || '/images/categorias/filtros.jpg');
       const priceVal = typeof p.price === 'number' ? p.price : (p.price_cents ? p.price_cents / 100 : 0);
       const pixVal = priceVal > 0 ? (priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04))) : 0;
       return `
         <div class="fp-rec-card" data-rec-id="${p.id}" role="button" tabindex="0">
           <div class="fp-rec-card-img-wrap">
-            <img src="${photo}" alt="${p.name}" loading="lazy" />
+            <img src="${photo}" alt="${p.name}" loading="lazy" onerror="this.onerror=null; this.src='/images/categorias/filtros.jpg';" />
           </div>
           <div class="fp-rec-card-body">
             <span class="fp-rec-card-cat">${p.category || 'Peça'}</span>
@@ -739,13 +749,14 @@ function renderProducts(container, products) {
     return;
   }
   container.innerHTML = products.map(p => {
-    const img = p.photoUrl || CATEGORY_IMAGES[p.category];
+    const rawImg = p.photoUrl || CATEGORY_IMAGES[p.category];
+    const img = rawImg ? normalizeLojaPhoto(rawImg) : '';
     const maxQty = p.stockQty || 99;
     const priceVal = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
     const pixVal = priceVal > 0 ? (priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04))) : 0;
     return `
     <div class="product" data-product-id="${p.id}">
-      <div class="part-photo">${img ? `<img src="${img}" alt="${p.name}" loading="lazy">` : '🔩'}</div>
+      <div class="part-photo">${img ? `<img src="${img}" alt="${p.name}" loading="lazy" onerror="this.onerror=null; this.src='/images/categorias/filtros.jpg';">` : '🔩'}</div>
       <div class="product-info-wrap">
         <b class="product-name" title="${p.name}">${p.name}</b>
         <small class="product-meta">${p.description || p.category || 'Aplicação compatível'}</small>
@@ -2159,7 +2170,7 @@ init();
       }
 
       list.innerHTML = items.map(p => {
-        const photo = p.photoUrl || CATEGORY_IMAGES[p.category] || 'images/categorias/filtros.jpg';
+        const photo = normalizeLojaPhoto(p.photoUrl || CATEGORY_IMAGES[p.category] || '/images/categorias/filtros.jpg');
         const priceVal = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
         const pixVal = priceVal * (1 - (PIX_DISCOUNT_RATE || 0.04));
         const pixStr = money(pixVal).replace('R$', '').trim();
@@ -2185,7 +2196,7 @@ init();
             <div class="offer-card-note">ou ${money(priceVal)} em até 12x no cartão</div>
           </div>
           <div class="offer-card-img">
-            <img src="${photo}" alt="${p.name}" loading="lazy">
+            <img src="${photo}" alt="${p.name}" loading="lazy" onerror="this.onerror=null; this.src='/images/categorias/filtros.jpg';">
             <span class="offer-img-badge">OFERTA</span>
           </div>
         </button>`;
@@ -2350,57 +2361,6 @@ init();
 })();
 
 
-// Remove badge ou drawer do Netlify caso injetados dinamicamente
-(function cleanNetlifyBadges() {
-  function purge() {
-    const selectors = [
-      'iframe[src*="netlify" i]',
-      'iframe[title*="netlify" i]',
-      'iframe[id*="netlify" i]',
-      'iframe[class*="netlify" i]',
-      '[data-netlify-badge]',
-      '[data-netlify-feedback]',
-      '#netlify-badge',
-      '.netlify-badge',
-      'netlify-drawer',
-      '#netlify-drawer-container',
-      '.netlify-drawer',
-      '[class*="netlify" i]',
-      '[id*="netlify" i]',
-      'a[href*="netlify.com" i]'
-    ];
-    selectors.forEach(sel => {
-      try {
-        document.querySelectorAll(sel).forEach(el => {
-          if (el && el.tagName !== 'SCRIPT' && el.id !== 'netlify-badge-blocker') {
-            el.remove();
-          }
-        });
-      } catch (e) {}
-    });
-    try {
-      document.querySelectorAll('div, a, span, button').forEach(el => {
-        if (!el || !el.textContent) return;
-        const txt = el.textContent.trim();
-        if (txt === 'Powered by Netlify' || txt.includes('Powered by Netlify')) {
-          const container = el.closest('a') || el.closest('[style*="fixed"]') || el.closest('div') || el;
-          if (container && container !== document.body && container !== document.documentElement) {
-            container.remove();
-          }
-        }
-      });
-    } catch (e) {}
-  }
-  purge();
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', purge);
-  }
-  window.addEventListener('load', purge);
-  try {
-    const obs = new MutationObserver(purge);
-    obs.observe(document.documentElement, { childList: true, subtree: true });
-  } catch (e) {}
-})();
 
 
 /* ==========================================================================
@@ -2419,12 +2379,12 @@ init();
     let timer = null;
 
     function cardHtml(p) {
-      const photo = p.photoUrl || (typeof CATEGORY_IMAGES !== 'undefined' && CATEGORY_IMAGES[p.category]) || 'images/categorias/filtros.jpg';
+      const photo = normalizeLojaPhoto(p.photoUrl || (typeof CATEGORY_IMAGES !== 'undefined' && CATEGORY_IMAGES[p.category]) || '/images/categorias/filtros.jpg');
       const priceVal = typeof p.price === 'number' ? p.price : parseFloat(p.price) || 0;
       const pixVal = priceVal * (1 - (typeof PIX_DISCOUNT_RATE !== 'undefined' ? PIX_DISCOUNT_RATE : 0.04));
       return `
         <button type="button" class="hero-side-card" data-product-id="${p.id}" title="${p.name}">
-          <span class="hsc-img"><img src="${photo}" alt="${p.name}" loading="lazy"></span>
+          <span class="hsc-img"><img src="${photo}" alt="${p.name}" loading="lazy" onerror="this.onerror=null; this.src='/images/categorias/filtros.jpg';"></span>
           <span class="hsc-text">
             <span class="hsc-cat">${p.category || 'Peça'}</span>
             <span class="hsc-name">${p.name}</span>

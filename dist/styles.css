@@ -3513,39 +3513,6 @@ html, body {
   .btn-offers-all{width:100%;justify-content:center}
 }
 
-/* ==========================================================================
-   REMOÇÃO / OCULTAÇÃO DE BADGE E DRAWER DO NETLIFY
-   Garante que o badge "Powered by Netlify", drawer de colaboração e toolbars
-   não apareçam nem fiquem sobre o WhatsApp ou o layout.
-   ========================================================================== */
-iframe[src*="netlify" i],
-iframe[title*="netlify" i],
-iframe[id*="netlify" i],
-iframe[class*="netlify" i],
-[data-netlify-badge],
-[data-netlify-feedback],
-[class*="netlify" i],
-[id*="netlify" i],
-a[href*="netlify.com" i],
-netlify-drawer,
-#netlify-drawer-container,
-.netlify-drawer,
-.netlify-badge,
-#netlify-badge {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  max-width: 0 !important;
-  max-height: 0 !important;
-  position: absolute !important;
-  left: -99999px !important;
-  top: -99999px !important;
-  z-index: -99999 !important;
-  transform: scale(0) !important;
-}
 
 
 /* ==========================================================================

@@ -8,10 +8,8 @@ if (!connectionString) {
   console.error('ERRO: variável de ambiente DATABASE_URL não definida.');
 }
 
-// Ambiente serverless (Vercel/Netlify): cada invocação é curta, então basta
-// 1 conexão. Servidor tradicional (Render, VPS): mantém um pool pequeno com
-// keepAlive, já que o processo fica de pé por mais tempo.
-const isServerless = Boolean(process.env.VERCEL || process.env.NETLIFY);
+// Configuração do pool de conexão
+const isServerless = Boolean(process.env.VERCEL);
 
 const pool = new Pool({
   connectionString,

@@ -44,6 +44,24 @@ function formatDate(isoStr) {
   return d.toLocaleDateString('pt-BR') + ' ' + d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 }
 
+function getProductPhoto(p) {
+  let photo = (p && (p.photoUrl || p.photo_url)) || '';
+  if (!photo) return '/images/categorias/freios.jpg';
+  photo = String(photo).trim();
+  if (photo.startsWith('http://') || photo.startsWith('https://') || photo.startsWith('data:')) {
+    return photo;
+  }
+  if (photo.startsWith('/loja/')) {
+    photo = photo.replace(/^\/loja\//, '/');
+  } else if (photo.startsWith('loja/')) {
+    photo = photo.replace(/^loja\//, '/');
+  }
+  if (!photo.startsWith('/')) {
+    photo = '/' + photo;
+  }
+  return photo;
+}
+
 // ---------- Controle de Telas (Login vs Main) ----------
 function showLogin() {
   document.documentElement.classList.remove('has-admin-session');
@@ -188,6 +206,7 @@ document.querySelectorAll('.sidebar-nav .nav-item').forEach(btn => {
 
 // ---------- Carregamento Global de Dados ----------
 async function refreshAllData() {
+  const initialTab = currentTabId;
   const currentY = window.pageYOffset || document.documentElement.scrollTop || 0;
   
   // 1. Renderização Otimista: carrega instantaneamente do cache local para não haver tela vazia no F5
@@ -249,8 +268,8 @@ async function refreshAllData() {
     renderRelatorios();
     updateStockTabsBadges();
 
-    // Mantém a rolagem exatamente no mesmo lugar onde o usuário estava
-    if (currentY > 0) {
+    // Mantém a rolagem exatamente no mesmo lugar onde o usuário estava SOMENTE se ainda estiver na mesma aba
+    if (currentY > 0 && currentTabId === initialTab) {
       setTimeout(() => {
         window.scrollTo({ top: currentY, behavior: 'instant' });
       }, 50);
@@ -626,7 +645,7 @@ function renderProductsTable(products, activeFilter = null) {
   }
 
   tbody.innerHTML = products.map(p => {
-    const photo = p.photoUrl || '/loja/images/categorias/freios.jpg';
+    const photo = getProductPhoto(p);
     const loc = getProductLocation(p);
     const stockNum = Number(p.stockQty) || 0;
 
@@ -644,7 +663,7 @@ function renderProductsTable(products, activeFilter = null) {
     return `
       <tr data-prod-row="${p.id}" class="prod-row" onclick="selectWarehouseLocation('${loc}', '${safeName}')">
         <td style="width:40px;cursor:pointer" data-view="${p.id}" title="Clique para ver detalhes">
-          <img src="${photo}" alt="" class="prod-thumb-img" onerror="this.src='/loja/images/categorias/freios.jpg'"/>
+          <img src="${photo}" alt="" class="prod-thumb-img" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/>
         </td>
         <td style="cursor:pointer" data-view="${p.id}" title="Clique para ver detalhes">
           <strong class="prod-name-strong">${p.name}</strong>
@@ -873,7 +892,7 @@ function renderRelatorios() {
         <td><strong style="font-family:monospace;font-size:12px;color:#cbd5e1">${p.code || 'S/CÓD'}</strong></td>
         <td>
           <div style="display:flex;align-items:center;gap:10px;cursor:pointer" onclick="openProductViewModal(${p.id})">
-            <img src="${p.photoUrl || '/loja/images/categorias/freios.jpg'}" style="width:34px;height:34px;border-radius:6px;object-fit:cover;border:1px solid var(--panel-border)" onerror="this.src='/loja/images/categorias/freios.jpg'"/>
+            <img src="${getProductPhoto(p)}" style="width:34px;height:34px;min-width:34px;min-height:34px;border-radius:6px;object-fit:cover;border:1px solid var(--panel-border);aspect-ratio:1;flex-shrink:0" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/>
             <div>
               <strong style="font-size:13px;display:block;color:var(--text-primary,#fff)">${p.name}</strong>
               <small style="font-size:11px;color:var(--text-muted,#8c929a)">${p.compatibility ? p.compatibility.slice(0, 45) + '...' : 'Compatível'}</small>
@@ -913,10 +932,13 @@ function openProductViewModal(id) {
 
   const priceVal = Number(p.price) || 0;
   const pixVal = priceVal * 0.96;
-  const photo = p.photoUrl || 'images/produtos/pastilha.jpg';
+  const photo = getProductPhoto(p);
 
   const photoEl = document.getElementById('pvPhoto');
-  if (photoEl) photoEl.src = photo;
+  if (photoEl) {
+    photoEl.src = photo;
+    photoEl.onerror = function() { this.onerror = null; this.src = '/images/categorias/freios.jpg'; };
+  }
   
   const catEl = document.getElementById('pvCategory');
   if (catEl) catEl.textContent = p.category || 'Geral';
@@ -1674,11 +1696,11 @@ function renderTopProductsRanking() {
   if (!listEl) return;
 
   const topCandidates = (allProducts.length ? allProducts : [
-    { name: 'Bobina de Ignição', category: 'Ignição & Elétrica', price: 268.13, photoUrl: '/loja/images/categorias/eletrica.jpg' },
-    { name: 'Pastilha de Freio Cerâmica', category: 'Sistema de Freios', price: 240.00, photoUrl: '/loja/images/categorias/freios.jpg' },
-    { name: 'Filtro de Óleo', category: 'Filtros Automotivos', price: 160.00, photoUrl: '/loja/images/categorias/filtros.jpg' },
-    { name: 'Sensor ABS Dianteiro', category: 'Sensores & Injeção', price: 180.00, photoUrl: '/loja/images/categorias/sensores.jpg' },
-    { name: 'Amortecedor Dianteiro', category: 'Suspensão & Direção', price: 212.85, photoUrl: '/loja/images/categorias/suspensao.jpg' }
+    { name: 'Bobina de Ignição', category: 'Ignição & Elétrica', price: 268.13, photoUrl: '/images/categorias/eletrica.jpg' },
+    { name: 'Pastilha de Freio Cerâmica', category: 'Sistema de Freios', price: 240.00, photoUrl: '/images/categorias/freios.jpg' },
+    { name: 'Filtro de Óleo', category: 'Filtros Automotivos', price: 160.00, photoUrl: '/images/categorias/filtros.jpg' },
+    { name: 'Sensor ABS Dianteiro', category: 'Sensores & Injeção', price: 180.00, photoUrl: '/images/categorias/sensores.jpg' },
+    { name: 'Amortecedor Dianteiro', category: 'Suspensão & Direção', price: 212.85, photoUrl: '/images/categorias/suspensao.jpg' }
   ]).slice(0, 5);
 
   const mockSales = [32, 28, 24, 19, 14];
@@ -1686,13 +1708,13 @@ function renderTopProductsRanking() {
   listEl.innerHTML = topCandidates.map((p, idx) => {
     const qty = mockSales[idx] || (15 - idx * 2);
     const revenue = Number(p.price || 150) * qty;
-    const photo = p.photoUrl || '/loja/images/categorias/freios.jpg';
+    const photo = getProductPhoto(p);
     const rankClass = idx === 0 ? 'rank-1' : (idx === 1 ? 'rank-2' : (idx === 2 ? 'rank-3' : ''));
 
     return `
       <div class="top-prod-item">
         <span class="top-prod-rank ${rankClass}">${idx + 1}</span>
-        <div class="top-prod-thumb"><img src="${photo}" alt="${p.name}" onerror="this.src='/loja/images/categorias/freios.jpg'"/></div>
+        <div class="top-prod-thumb"><img src="${photo}" alt="${p.name}" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/></div>
         <div class="top-prod-info">
           <strong>${p.name}</strong>
           <span class="top-prod-cat">${p.category || 'Geral'}</span>
@@ -2775,58 +2797,6 @@ async function initAdmin() {
 }
 
 initAdmin();
-
-// Remove badge ou drawer do Netlify no painel admin
-(function cleanNetlifyBadgesAdmin() {
-  function purge() {
-    const selectors = [
-      'iframe[src*="netlify" i]',
-      'iframe[title*="netlify" i]',
-      'iframe[id*="netlify" i]',
-      'iframe[class*="netlify" i]',
-      '[data-netlify-badge]',
-      '[data-netlify-feedback]',
-      '#netlify-badge',
-      '.netlify-badge',
-      'netlify-drawer',
-      '#netlify-drawer-container',
-      '.netlify-drawer',
-      '[class*="netlify" i]',
-      '[id*="netlify" i]',
-      'a[href*="netlify.com" i]'
-    ];
-    selectors.forEach(sel => {
-      try {
-        document.querySelectorAll(sel).forEach(el => {
-          if (el && el.tagName !== 'SCRIPT' && el.id !== 'netlify-badge-blocker-admin') {
-            el.remove();
-          }
-        });
-      } catch (e) {}
-    });
-    try {
-      document.querySelectorAll('div, a, span, button').forEach(el => {
-        if (!el || !el.textContent) return;
-        const txt = el.textContent.trim();
-        if (txt === 'Powered by Netlify' || txt.includes('Powered by Netlify')) {
-          const container = el.closest('a') || el.closest('[style*="fixed"]') || el.closest('div') || el;
-          if (container && container !== document.body && container !== document.documentElement) {
-            container.remove();
-          }
-        }
-      });
-    } catch (e) {}
-  }
-  purge();
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', purge);
-  }
-  window.addEventListener('load', purge);
-  try {
-    const obs = new MutationObserver(purge);
-    obs.observe(document.documentElement, { childList: true, subtree: true });
-  } catch (e) {}
-})();
 
 // ===================================================================
 // ALTERNADOR DE TEMA (CLARO / ESCURO) NO PAINEL ADMIN

@@ -1,5 +1,5 @@
 // Sincronização automática do catálogo no banco de dados.
-// Garante que o banco (inclusive em produção no Netlify) tenha as colunas
+// Garante que o banco de dados tenha as colunas
 // necessárias e todas as peças oficiais cadastradas.
 
 const db = require('./db');

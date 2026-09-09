@@ -1,21 +1,8 @@
 // Upload de imagens para produtos (restrito a admin).
 //
-// Existem dois destinos possíveis, escolhidos automaticamente:
-//
-// 1. Supabase Storage — usado quando SUPABASE_URL e SUPABASE_SERVICE_KEY estão
-//    definidos. É o modo obrigatório no Netlify e o recomendado em qualquer
-//    lugar, porque a foto fica guardada de verdade.
-//
-// 2. Disco local (public/uploads/products) — só quando o Supabase não está
-//    configurado. Serve para testar na sua máquina. NÃO use em produção:
-//    tanto no Render quanto no Netlify o disco é temporário e as fotos somem
-//    no próximo deploy.
-//
-// IMPORTANTE: nada aqui pode tocar no disco enquanto o arquivo é carregado.
-// Em ambiente serverless o sistema de arquivos é somente leitura, e um erro
-// nesse momento derruba a função inteira — não só o upload, mas TODAS as rotas
-// da API. Por isso a pasta só é criada na hora em que alguém envia uma foto, e
-// dentro de try/catch.
+// Destinos possíveis:
+// 1. Supabase Storage — quando SUPABASE_URL e SUPABASE_SERVICE_KEY estão definidos.
+// 2. Disco local (public/uploads/products) — fallback local quando Supabase não estiver configurado.
 const path = require('path');
 const fs = require('fs');
 const express = require('express');

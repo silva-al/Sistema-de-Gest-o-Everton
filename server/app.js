@@ -1,11 +1,4 @@
-// O aplicativo Express em si (rotas, middlewares), SEM ligar o servidor.
-//
-// Ele fica separado do server.js porque agora roda em dois lugares:
-//   - server/server.js       -> na sua máquina e em servidor comum (Render/VPS)
-//   - netlify/functions/api  -> no Netlify, como função serverless
-//
-// Nada aqui pode depender de "o servidor está ligado": no Netlify o processo
-// nasce e morre a cada requisição.
+// O aplicativo Express (rotas, middlewares e entrega de arquivos estáticos).
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
@@ -23,14 +16,9 @@ const uploadRoutes = require('./routes/uploads');
 
 const app = express();
 
-// Atrás de um proxy (Render, Netlify, Nginx), para o IP real do cliente chegar
-// nos limitadores de tentativa de login e o cookie "secure" funcionar.
 app.set('trust proxy', 1);
 
-// A loja e a API são servidas pelo MESMO endereço, então o navegador nem precisa
-// de CORS. `origin: true` devolveria "pode" para QUALQUER site — combinado com
-// `credentials: true`, um site malicioso poderia ler dados da conta do cliente
-// logado. Só liberamos origens declaradas em CORS_ORIGINS (separadas por vírgula).
+// Origens permitidas para CORS
 const allowedOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map((o) => o.trim())
@@ -39,7 +27,6 @@ const allowedOrigins = (process.env.CORS_ORIGINS || '')
 app.use(
   cors({
     origin(origin, callback) {
-      // Sem Origin = mesma origem, app nativo ou curl: segue normalmente.
       if (!origin) return callback(null, true);
       if (allowedOrigins.includes(origin)) return callback(null, true);
       return callback(null, false);
@@ -48,7 +35,7 @@ app.use(
   })
 );
 
-// Cabeçalhos básicos de segurança (sem dependência nova).
+// Cabeçalhos de segurança
 app.use((_req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-Frame-Options', 'DENY');
@@ -56,7 +43,7 @@ app.use((_req, res, next) => {
   next();
 });
 
-// Limite de tamanho no corpo da requisição.
+// Limite de tamanho no corpo da requisição
 app.use(express.json({ limit: '200kb' }));
 app.use(cookieParser());
 
@@ -74,26 +61,23 @@ app.use('/api/admin/upload', uploadRoutes);
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
 // ---- Arquivos estáticos ----
-// No Netlify quem entrega a loja e o painel é o CDN, não o Express (veja o
-// netlify.toml). Este trecho só vale quando o Express roda como servidor de
-// verdade: na sua máquina, no Render ou num VPS.
-if (process.env.SERVE_STATIC !== 'false') {
-  // Fotos de peças gravadas em disco (só existe fora do Netlify).
-  app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
 
-  const noCacheStaticOpts = {
-    etag: false,
-    lastModified: false,
-    setHeaders: (res) => {
-      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-      res.setHeader('Surrogate-Control', 'no-store');
-    },
-  };
-  app.use(express.static(path.join(__dirname, '..', 'public', 'loja')));
-  app.use('/admin', express.static(path.join(__dirname, '..', 'public', 'admin'), noCacheStaticOpts));
-}
+const noCacheStaticOpts = {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+  },
+};
+
+// Permite servir tanto pela raiz / quanto por /loja (garantindo compatibilidade total para /loja/images/...)
+app.use('/loja', express.static(path.join(__dirname, '..', 'public', 'loja')));
+app.use(express.static(path.join(__dirname, '..', 'public', 'loja')));
+app.use('/admin', express.static(path.join(__dirname, '..', 'public', 'admin'), noCacheStaticOpts));
 
 // Tratador de erro final. Sem ele, um erro não previsto (JSON malformado, por
 // exemplo) faz o Express devolver uma página HTML com o rastro completo do

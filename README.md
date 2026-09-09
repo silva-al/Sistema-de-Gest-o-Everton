@@ -44,26 +44,6 @@ e-mail/senha que você definiu em `ADMIN_EMAIL`/`ADMIN_PASSWORD`.
 
 O plano grátis do Supabase já é suficiente para começar.
 
-## 3. Colocar no ar (Netlify)
-
-A hospedagem oficial do projeto é no **Netlify**, onde a loja e o painel são entregues diretamente pelo CDN (carregamento instantâneo) e a API é atendida via Serverless Functions (`netlify/functions/api.js`).
-
-1. Crie uma conta no Netlify (https://www.netlify.com) e conecte seu repositório do GitHub.
-2. Em **Add new site → Import from Git**, selecione este repositório. As configurações de build já vêm automáticas do `netlify.toml`:
-   - **Build command**: `npm run build:netlify`
-   - **Publish directory**: `dist`
-   - **Functions directory**: `netlify/functions`
-3. Em **Site settings → Environment variables**, cadastre as variáveis de ambiente:
-   - `DATABASE_URL` = a connection string do banco PostgreSQL (Neon / Supabase)
-   - `JWT_SECRET` = um texto longo e aleatório (mínimo 32 caracteres)
-   - `NODE_ENV` = `production`
-   - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` = bucket `produtos` para persistência de fotos
-   - `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_PUBLIC_KEY` = para pagamentos reais
-4. No primeiro deploy ou após alterações no catálogo/schema, rode localmente ou via terminal o script de banco:
-   ```bash
-   ADMIN_EMAIL=voce@fahrenparts.com ADMIN_PASSWORD=suaSenhaForte node server/init-db.js
-   ```
-5. Pronto — o Netlify fornece a URL pública com certificado HTTPS ativo automaticamente.
 
 ## Estrutura do projeto
 
@@ -94,7 +74,7 @@ Já está funcionando dentro do site:
 
 Sem as chaves configuradas o sistema roda em **modo teste**: o Pix sai com a chave do
 `PIX_KEY` (ou simulado) e o cartão aprova automaticamente, para você conseguir testar a loja
-inteira antes de contratar a maquininha. Para valer de verdade, preencha no `.env` (e nas variáveis de ambiente do Netlify):
+inteira antes de contratar a maquininha. Para valer de verdade, preencha no `.env`:
 
 - `MERCADOPAGO_ACCESS_TOKEN` — fica só no servidor, nunca aparece no site.
 - `MERCADOPAGO_PUBLIC_KEY` — é o que o navegador usa para montar o formulário do cartão.
@@ -116,7 +96,7 @@ Com o token de um provedor (WDAPI2, APIBrasil ou compatível) ela passa a trazer
 - **Fonte dos dados de placa**: definir com o dono da oficina qual provedor contratar (a
   consulta real é paga por consulta) — e se a tela "Placa" deve mostrar os veículos que
   estão na oficina em vez de consulta aberta. A tela da loja ainda não chama a rota acima.
-- **Fotos das peças**: o upload de imagens está integrado ao Supabase Storage para persistência permanente no ambiente Netlify (bucket `produtos`). O painel WMS permite envio e gestão de fotos diretamente pelo cadastro da peça.
+- **Fotos das peças**: o upload de imagens pode ser feito via Supabase Storage ou disco local. O painel WMS permite envio e gestão de fotos diretamente pelo cadastro da peça.
 
 ## Segurança
 
@@ -139,45 +119,19 @@ Com o token de um provedor (WDAPI2, APIBrasil ou compatível) ela passa a trazer
 
 - **CPF/CNPJ é gravado em texto puro** no banco. É dado pessoal (LGPD): se um dia o banco
   vazar, vaza junto. Só colete se realmente precisar emitir nota.
-- **`rejectUnauthorized: false` na conexão do Supabase** (`server/db.js`) desliga a
+- **`rejectUnauthorized: false` na conexão do banco** (`server/db.js`) desliga a
   conferência do certificado do banco. Funciona, mas é menos seguro que validar a cadeia.
 - **Não há troca de senha nem "esqueci minha senha"** para o cliente.
 - **Webhook do Mercado Pago sem conferência de assinatura** — hoje é seguro porque o código
   reconsulta o pagamento na API do MP antes de aprovar, mas vale assinar quando for para
   produção com volume.
 
-## Publicar no Netlify
+## Como rodar o servidor
 
-No Netlify a loja e o painel são entregues pelo CDN (abrem na hora, sem a espera
-do plano grátis do Render), e tudo que começa com `/api/` é atendido por uma
-função serverless que roda este mesmo Express. A configuração está no
-`netlify.toml`; o ponto de entrada é `netlify/functions/api.js`.
+Para rodar localmente ou em servidor de produção:
+1. Instale as dependências: `npm install`
+2. Configure o arquivo `.env` com suas credenciais.
+3. Inicie o sistema: `npm start` (ou `npm run dev`)
+   - O servidor iniciará em `http://localhost:3000`
+   - O painel de gestão WMS estará em `http://localhost:3000/admin`
 
-1. No Supabase, crie o bucket de fotos: **Storage → New bucket**, nome `produtos`,
-   marcado como **Public**. Sem isso o upload de foto de peça não funciona no
-   Netlify (lá não existe disco).
-2. No Netlify: **Add new site → Import from Git**, aponte para este repositório.
-   O build e a pasta publicada já vêm do `netlify.toml` — não precisa preencher.
-3. Em **Site settings → Environment variables**, cadastre:
-   - `DATABASE_URL` — a connection string do Supabase
-   - `JWT_SECRET` — texto aleatório com 32+ caracteres
-   - `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `SUPABASE_BUCKET` — para as fotos
-   - `MERCADOPAGO_ACCESS_TOKEN` e `MERCADOPAGO_PUBLIC_KEY` — se for cobrar de verdade
-   - **Não** defina `NODE_ENV=production` sem HTTPS; no domínio do Netlify há HTTPS,
-     então pode definir.
-4. Domínio próprio: **Domain management → Add a domain**. O HTTPS é automático.
-
-### Diferenças em relação a rodar como servidor
-
-- **O `schema.sql` não roda sozinho.** Fora do Netlify ele é aplicado quando o
-  servidor liga; lá não existe "ligar". Mudanças de estrutura do banco passam a
-  ser aplicadas à mão, no **SQL Editor** do Supabase, colando o `server/schema.sql`.
-- **O limite de tentativas de login perde força.** O contador vive na memória do
-  processo, e cada requisição pode cair num processo diferente. Continua barrando
-  rajadas, mas não é a mesma proteção de um servidor único.
-- **Cada requisição tem um teto de tempo** (na casa dos 10 segundos). Suficiente
-  para a loja; relatório pesado no painel pode estourar.
-- **As fotos vão para o Supabase Storage**, não para `public/uploads`.
-
-Para rodar na sua máquina nada muda: `npm start` continua subindo o servidor
-completo em `http://localhost:3000`, servindo os arquivos e aplicando o schema.

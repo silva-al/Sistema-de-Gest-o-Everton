@@ -456,18 +456,26 @@ body {
 html[data-active-tab="dashboard"] #pane-dashboard,
 html[data-active-tab="estoque"] #pane-estoque,
 html[data-active-tab="pedidos"] #pane-pedidos,
+html[data-active-tab="vendas"] #pane-vendas,
+html[data-active-tab="armazem"] #pane-estoque,
 html[data-active-tab="expedicao"] #pane-expedicao,
 html[data-active-tab="financeiro"] #pane-financeiro,
-html[data-active-tab="notas-fiscais"] #pane-notas-fiscais {
+html[data-active-tab="notas-fiscais"] #pane-notas-fiscais,
+html[data-active-tab="relatorios"] #pane-relatorios,
+html[data-active-tab="configuracoes"] #pane-configuracoes {
   display: block !important;
 }
 
 html[data-active-tab="dashboard"] .sidebar-nav button[data-tab="dashboard"],
 html[data-active-tab="estoque"] .sidebar-nav button[data-tab="estoque"],
 html[data-active-tab="pedidos"] .sidebar-nav button[data-tab="pedidos"],
+html[data-active-tab="vendas"] .sidebar-nav button[data-tab="vendas"],
+html[data-active-tab="armazem"] .sidebar-nav button[data-tab="armazem"],
 html[data-active-tab="expedicao"] .sidebar-nav button[data-tab="expedicao"],
 html[data-active-tab="financeiro"] .sidebar-nav button[data-tab="financeiro"],
-html[data-active-tab="notas-fiscais"] .sidebar-nav button[data-tab="notas-fiscais"] {
+html[data-active-tab="notas-fiscais"] .sidebar-nav button[data-tab="notas-fiscais"],
+html[data-active-tab="relatorios"] .sidebar-nav button[data-tab="relatorios"],
+html[data-active-tab="configuracoes"] .sidebar-nav button[data-tab="configuracoes"] {
   background: rgba(237, 28, 36, 0.12) !important;
   color: #fff !important;
   font-weight: 700 !important;
@@ -477,9 +485,13 @@ html[data-active-tab="notas-fiscais"] .sidebar-nav button[data-tab="notas-fiscai
 html[data-active-tab="dashboard"] .sidebar-nav button[data-tab="dashboard"]::before,
 html[data-active-tab="estoque"] .sidebar-nav button[data-tab="estoque"]::before,
 html[data-active-tab="pedidos"] .sidebar-nav button[data-tab="pedidos"]::before,
+html[data-active-tab="vendas"] .sidebar-nav button[data-tab="vendas"]::before,
+html[data-active-tab="armazem"] .sidebar-nav button[data-tab="armazem"]::before,
 html[data-active-tab="expedicao"] .sidebar-nav button[data-tab="expedicao"]::before,
 html[data-active-tab="financeiro"] .sidebar-nav button[data-tab="financeiro"]::before,
-html[data-active-tab="notas-fiscais"] .sidebar-nav button[data-tab="notas-fiscais"]::before {
+html[data-active-tab="notas-fiscais"] .sidebar-nav button[data-tab="notas-fiscais"]::before,
+html[data-active-tab="relatorios"] .sidebar-nav button[data-tab="relatorios"]::before,
+html[data-active-tab="configuracoes"] .sidebar-nav button[data-tab="configuracoes"]::before {
   content: '';
   position: absolute;
   left: 0;
@@ -2620,37 +2632,6 @@ html.has-admin-session #mainScreen {
   }
 }
 
-/* ==========================================================================
-   REMOÇÃO / OCULTAÇÃO DE BADGE E DRAWER DO NETLIFY
-   ========================================================================== */
-iframe[src*="netlify" i],
-iframe[title*="netlify" i],
-iframe[id*="netlify" i],
-iframe[class*="netlify" i],
-[data-netlify-badge],
-[data-netlify-feedback],
-[class*="netlify" i],
-[id*="netlify" i],
-a[href*="netlify.com" i],
-netlify-drawer,
-#netlify-drawer-container,
-.netlify-drawer,
-.netlify-badge,
-#netlify-badge {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  width: 0 !important;
-  height: 0 !important;
-  max-width: 0 !important;
-  max-height: 0 !important;
-  position: absolute !important;
-  left: -99999px !important;
-  top: -99999px !important;
-  z-index: -99999 !important;
-  transform: scale(0) !important;
-}
 
 /* ===================================================================
    BOTÃO DE ALTERNAR TEMA E MODO CLARO (BRANCO) NO PAINEL ADMIN
@@ -4249,12 +4230,13 @@ body.tema-claro .pv-desc-box {
 .trend-blue { color: #2563eb; }
 .trend-green { color: #16a34a; }
 
-/* Grid de duas colunas em Pedidos */
+/* Grid de Pedidos (Largura Total) */
 .pedidos-main-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-columns: 1fr;
   gap: 16px;
   align-items: start;
+  width: 100%;
 }
 @media (max-width: 1100px) {
   .pedidos-main-grid {
@@ -4832,12 +4814,13 @@ body.tema-claro .pv-desc-box {
   line-height: 1.1;
 }
 
-/* Grid Estoque 2 Colunas (Tabela + Rack) */
+/* Grid Estoque (Largura Total) */
 .estoque-main-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-columns: 1fr;
   gap: 16px;
   align-items: start;
+  width: 100%;
 }
 @media (max-width: 1120px) {
   .estoque-main-grid {
@@ -5132,6 +5115,67 @@ body.tema-claro .tab-count-badge {
   color: #334155;
 }
 
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.kpi-card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+}
+
+body.tema-claro .kpi-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+}
+
+.kpi-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+body.tema-claro .kpi-title {
+  color: #64748b;
+}
+
+.kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+body.tema-claro .kpi-value {
+  color: #0f172a;
+}
+
+.kpi-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+body.tema-claro .kpi-sub {
+  color: #94a3b8;
+}
+
 .kpi-card-danger {
   border: 1px solid rgba(237, 28, 36, 0.35) !important;
   background: linear-gradient(135deg, rgba(237, 28, 36, 0.06) 0%, transparent 100%) !important;
@@ -5157,6 +5201,48 @@ body.tema-claro #pane-relatorios .btn.active {
   background: var(--accent-red);
   color: #fff;
   border-color: var(--accent-red);
+}
+
+/* Scrollbar suave e estável para a tabela de relatórios */
+#pane-relatorios .table-responsive {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+  margin-bottom: 8px;
+}
+
+body.tema-claro #pane-relatorios .table-responsive {
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+#pane-relatorios .table-responsive::-webkit-scrollbar {
+  height: 6px;
+}
+
+#pane-relatorios .table-responsive::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#pane-relatorios .table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+body.tema-claro #pane-relatorios .table-responsive::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+#pane-relatorios .wms-table td img {
+  width: 34px !important;
+  height: 34px !important;
+  min-width: 34px !important;
+  min-height: 34px !important;
+  aspect-ratio: 1 / 1 !important;
+  flex-shrink: 0 !important;
+  object-fit: cover !important;
+  border-radius: 6px !important;
 }
 
 

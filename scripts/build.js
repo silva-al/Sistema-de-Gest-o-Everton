@@ -1,10 +1,11 @@
-// Monta a pasta "dist" que o Netlify publica no CDN.
+// Script de build para montar a pasta "dist" para deploy no Vercel.
 //
-// O Netlify publica UMA pasta só. Como a loja fica em public/loja e o painel em
-// public/admin, este script junta as duas na estrutura final:
-//
-//   dist/            <- conteúdo de public/loja  (a loja, na raiz do site)
-//   dist/admin/      <- conteúdo de public/admin (o painel, em /admin)
+// O Vercel publica a pasta declarada em "outputDirectory": "dist".
+// Como a loja fica em public/loja e o painel em public/admin,
+// este script junta as duas na estrutura final:
+//   dist/            <- conteúdo de public/loja (a loja, na raiz)
+//   dist/admin/      <- conteúdo de public/admin (o painel WMS em /admin)
+//   dist/uploads/    <- uploads de imagens
 const fs = require('fs');
 const path = require('path');
 
