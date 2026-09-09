@@ -573,13 +573,13 @@ async function loadCategoryCarousel() {
           <img alt="${hidden ? '' : c.name}" loading="lazy" src="${photo}" onerror="this.onerror=null; this.src='/images/categorias/filtros.jpg';">
           ${priceVal > 0 ? `<span class="cat-card-pix-badge">-4% PIX</span>` : ''}
         </div>
-        <b>${c.name}</b>
-        <small>${c.category || 'Peça'}</small>
+        <small class="cat-card-category">${c.category || 'Peça'}</small>
+        <b class="cat-card-name" title="${c.name}">${c.name}</b>
         ${c.compatibility ? `<div class="cat-card-compat" title="${c.compatibility}"><span>🚗 ${c.compatibility}</span></div>` : ''}
         <div class="cat-card-price-block">
-          <div class="cat-card-pix">${priceVal > 0 ? money(pixVal) : 'Disponível'} <span class="pix-micro-tag">no Pix</span></div>
-          ${priceVal > 0 ? `<div class="cat-card-alt">ou ${money(priceVal)}</div>` : ''}
-          ${priceVal > 0 ? `<div class="cat-card-installment">Em até 6x de ${money(installmentVal)}</div>` : ''}
+          <span class="cat-card-pix-label">À vista no Pix</span>
+          <div class="cat-card-pix">${priceVal > 0 ? money(pixVal) : 'Disponível'}</div>
+          ${priceVal > 0 ? `<div class="cat-card-installment">ou ${money(priceVal)} em até 6x</div>` : ''}
         </div>
         ${c.inStock !== false && priceVal > 0 ? `
         <button type="button" class="cat-card-cart-btn" data-cart-id="${c.id || ''}" aria-label="Adicionar ao carrinho" title="Adicionar ao carrinho">
@@ -703,8 +703,9 @@ async function loadRecommendedProducts(product) {
             <span class="fp-rec-card-cat">${p.category || 'Peça'}</span>
             <strong class="fp-rec-card-name" title="${p.name}">${p.name}</strong>
             <div class="cat-card-price-block">
-              <div class="cat-card-pix">${priceVal > 0 ? money(pixVal) : 'Disponível'} <span class="pix-micro-tag">no Pix</span></div>
-              ${priceVal > 0 ? `<div class="cat-card-alt">ou ${money(priceVal)}</div>` : ''}
+              <span class="cat-card-pix-label">À vista no Pix</span>
+              <div class="cat-card-pix">${priceVal > 0 ? money(pixVal) : 'Disponível'}</div>
+              ${priceVal > 0 ? `<div class="cat-card-installment">ou ${money(priceVal)}</div>` : ''}
             </div>
           </div>
         </div>

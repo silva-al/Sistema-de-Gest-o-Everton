@@ -77,8 +77,8 @@ const noCacheStaticOpts = {
 };
 
 // Permite servir tanto pela raiz / quanto por /loja (garantindo compatibilidade total para /loja/images/...)
-app.use('/loja', express.static(path.join(__dirname, '..', 'public', 'loja')));
-app.use(express.static(path.join(__dirname, '..', 'public', 'loja')));
+app.use('/loja', express.static(path.join(__dirname, '..', 'public', 'loja'), noCacheStaticOpts));
+app.use(express.static(path.join(__dirname, '..', 'public', 'loja'), noCacheStaticOpts));
 app.use('/admin', express.static(path.join(__dirname, '..', 'public', 'admin'), noCacheStaticOpts));
 
 // Tratador de erro final. Sem ele, um erro não previsto (JSON malformado, por
