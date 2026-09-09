@@ -7715,19 +7715,6 @@ body.tema-claro .label-preview-wrapper {
   margin-left: 2px !important;
 }
 
-body:not(.tema-claro) .brand-parts,
-body:not(.tema-claro) .brand-title .brand-parts,
-body:not(.tema-claro) .brand-info strong .brand-parts {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-}
-
-body.tema-claro .brand-parts,
-.tema-claro .brand-parts {
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
-}
-
 body.tema-claro .brand-fahren,
 .tema-claro .brand-fahren {
   color: #ed1c24 !important;
