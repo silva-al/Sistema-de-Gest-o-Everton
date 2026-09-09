@@ -651,11 +651,11 @@ function renderProductsTable(products, activeFilter = null) {
 
     let statusHtml = '';
     if (stockNum > 5) {
-      statusHtml = '<span class="status-badge pronto" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0">● Disponível</span>';
+      statusHtml = '<span class="status-badge pronto" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0">Disponível</span>';
     } else if (stockNum > 0) {
-      statusHtml = '<span class="status-badge em_preparacao" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a">▲ Baixo</span>';
+      statusHtml = '<span class="status-badge em_preparacao" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a">Baixo</span>';
     } else {
-      statusHtml = '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca">○ Sem Estoque</span>';
+      statusHtml = '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca">Sem Estoque</span>';
     }
 
     const safeName = (p.name || '').replace(/'/g, "\\'");
@@ -691,12 +691,21 @@ function renderProductsTable(products, activeFilter = null) {
         <td>
           ${statusHtml}
         </td>
-        <td style="text-align:right;white-space:nowrap">
-          <button class="btn btn-secondary btn-sm btn-prod-action" data-view="${p.id}" title="Ver detalhes completos da peça">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="vertical-align:-2px;margin-right:3px"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>Ver
-          </button>
-          <button class="btn btn-secondary btn-sm btn-prod-action" data-edit="${p.id}" title="Editar dados da peça">Editar</button>
-          <button class="btn btn-sm btn-prod-delete" data-remove="${p.id}" title="Excluir peça do catálogo">Excluir</button>
+        <td style="text-align:right;white-space:nowrap;vertical-align:middle">
+          <div class="prod-actions-stack">
+            <button class="btn btn-secondary btn-sm btn-prod-action btn-prod-view" data-view="${p.id}" title="Ver detalhes completos da peça">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="pointer-events:none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              <span style="pointer-events:none">Ver</span>
+            </button>
+            <button class="btn btn-secondary btn-sm btn-prod-action btn-prod-edit" data-edit="${p.id}" title="Editar dados da peça">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="pointer-events:none"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <span style="pointer-events:none">Editar</span>
+            </button>
+            <button class="btn btn-sm btn-prod-delete" data-remove="${p.id}" title="Excluir peça do catálogo">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" style="pointer-events:none"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+              <span style="pointer-events:none">Excluir</span>
+            </button>
+          </div>
         </td>
       </tr>
     `;
@@ -706,9 +715,18 @@ function renderProductsTable(products, activeFilter = null) {
     e.stopPropagation();
     openProductViewModal(b.dataset.view);
   });
-  tbody.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => startEdit(b.dataset.edit));
-  tbody.querySelectorAll('[data-remove]').forEach(b => b.onclick = () => removeProduct(b.dataset.remove));
-  tbody.querySelectorAll('[data-open-stock]').forEach(b => b.onclick = () => openStockModal(b.dataset.openStock));
+  tbody.querySelectorAll('[data-edit]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    startEdit(b.dataset.edit);
+  });
+  tbody.querySelectorAll('[data-remove]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    removeProduct(b.dataset.remove);
+  });
+  tbody.querySelectorAll('[data-open-stock]').forEach(b => b.onclick = (e) => {
+    e.stopPropagation();
+    openStockModal(b.dataset.openStock);
+  });
 
   // Cliques nos botões de + / -
   tbody.querySelectorAll('[data-stock-step]').forEach(b => {
@@ -877,13 +895,13 @@ function renderRelatorios() {
     let statusBadge = '';
     let stockBadge = '';
     if (stock <= 0) {
-      statusBadge = '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-weight:700">⚠️ ZERADO</span>';
+      statusBadge = '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;font-weight:700">ZERADO</span>';
       stockBadge = '<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:#fef2f2;color:#dc2626;font-weight:800;border:1px solid #fecaca">0 un</span>';
     } else if (stock <= 5) {
-      statusBadge = '<span class="status-badge em_preparacao" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;font-weight:700">▲ BAIXO</span>';
+      statusBadge = '<span class="status-badge em_preparacao" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;font-weight:700">BAIXO</span>';
       stockBadge = `<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:#fffbeb;color:#d97706;font-weight:800;border:1px solid #fde68a">${stock} un</span>`;
     } else {
-      statusBadge = '<span class="status-badge pronto" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-weight:700">● NORMAL</span>';
+      statusBadge = '<span class="status-badge pronto" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-weight:700">NORMAL</span>';
       stockBadge = `<span style="display:inline-block;padding:2px 8px;border-radius:12px;background:#ecfdf5;color:#059669;font-weight:800;border:1px solid #a7f3d0">${stock} un</span>`;
     }
 
@@ -946,10 +964,10 @@ function openProductViewModal(id) {
   const statusEl = document.getElementById('pvStatus');
   if (statusEl) {
     if (p.inStock) {
-      statusEl.textContent = '● Em Estoque';
+      statusEl.textContent = 'Em Estoque';
       statusEl.className = 'status-badge pronto';
     } else {
-      statusEl.textContent = '○ Esgotado';
+      statusEl.textContent = 'Esgotado';
       statusEl.className = 'status-badge cancelado';
     }
   }
@@ -2016,7 +2034,7 @@ function renderFiscalTable() {
           <td class="fiscal-total-price">${money(o.total)}</td>
           <td class="fiscal-date-text">${issuedDate}</td>
           <td>
-            ${isIssued ? '<span class="status-badge nf-emitida">✓ Autorizada</span>' : '<span class="status-badge nf-pendente">⏳ Pendente</span>'}
+            ${isIssued ? '<span class="status-badge nf-emitida">Autorizada</span>' : '<span class="status-badge nf-pendente">Pendente</span>'}
             ${hasCce ? `<br/><span class="status-badge cce-active-badge" title="Carta de Correção Eletrônica Vinculada">📝 CC-e Ativa (Seq ${cceSeq})</span>` : ''}
           </td>
           <td style="text-align:right;white-space:nowrap;vertical-align:middle">

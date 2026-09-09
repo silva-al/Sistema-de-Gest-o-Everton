@@ -1,1635 +1,2023 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<meta content="#090a0c" name="theme-color"/>
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
-<meta http-equiv="Pragma" content="no-cache"/>
-<meta http-equiv="Expires" content="0"/>
-<title>Fahren Motors — Painel de Gestão WMS</title>
-<base href="/admin/"/>
-<script>
-  try {
-    if (localStorage.getItem('fm_admin_session')) {
-      document.documentElement.classList.add('has-admin-session');
-    }
-    var _vt = ['dashboard','estoque','pedidos','vendas','armazem','expedicao','financeiro','notas-fiscais','relatorios','configuracoes'];
-    var _h = (window.location.hash || '').replace('#','').trim();
-    var _s = localStorage.getItem('fm_admin_active_tab') || 'dashboard';
-    var _t = _vt.indexOf(_h) !== -1 ? _h : (_vt.indexOf(_s) !== -1 ? _s : 'dashboard');
-    document.documentElement.setAttribute('data-active-tab', _t);
-    
-    /* Aplica o tema salvo no admin antes de pintar. Padrao: claro */
-    var _tema = localStorage.getItem('fahren-tema-admin') || localStorage.getItem('fahren-tema');
-    if (_tema === 'escuro') {
-      document.documentElement.classList.remove('tema-claro');
-      if (document.body) document.body.classList.remove('tema-claro');
-    } else {
-      document.documentElement.classList.add('tema-claro');
-      if (document.body) document.body.classList.add('tema-claro');
-    }
-  } catch (e) {}
-</script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet"/>
-<link href="/admin/admin.css?v=20260908_3" rel="stylesheet"/>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta content="#090a0c" name="theme-color" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Fahren Motors — Painel de Gestão WMS</title>
+  <base href="/admin/" />
+  <script>
+    try {
+      if (localStorage.getItem('fm_admin_session')) {
+        document.documentElement.classList.add('has-admin-session');
+      }
+      var _vt = ['dashboard', 'estoque', 'pedidos', 'vendas', 'armazem', 'expedicao', 'financeiro', 'notas-fiscais', 'relatorios', 'configuracoes'];
+      var _h = (window.location.hash || '').replace('#', '').trim();
+      var _s = localStorage.getItem('fm_admin_active_tab') || 'dashboard';
+      var _t = _vt.indexOf(_h) !== -1 ? _h : (_vt.indexOf(_s) !== -1 ? _s : 'dashboard');
+      document.documentElement.setAttribute('data-active-tab', _t);
+
+      /* Aplica o tema salvo no admin antes de pintar. Padrao: claro */
+      var _tema = localStorage.getItem('fahren-tema-admin') || localStorage.getItem('fahren-tema');
+      if (_tema === 'escuro') {
+        document.documentElement.classList.remove('tema-claro');
+        if (document.body) document.body.classList.remove('tema-claro');
+      } else {
+        document.documentElement.classList.add('tema-claro');
+        if (document.body) document.body.classList.add('tema-claro');
+      }
+    } catch (e) { }
+  </script>
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap"
+    rel="stylesheet" />
+  <link href="/admin/admin.css?v=20260908_4" rel="stylesheet" />
 </head>
+
 <body class="tema-claro">
 
-<!-- TELA DE LOGIN -->
-<div class="login-wrap" id="loginScreen">
-  <button type="button" class="theme-toggle-admin login-theme-toggle" id="loginThemeToggle" aria-label="Alternar entre tema claro e escuro" title="Alternar entre claro e escuro">
-    <svg class="icone-sol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
-    <svg class="icone-lua" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z"/></svg>
-  </button>
-  <div class="login-panel">
-    <div class="login-brand">
-      <div class="brand-avatar-glow">
-        <div class="brand-avatar">FM</div>
+  <!-- TELA DE LOGIN -->
+  <div class="login-wrap" id="loginScreen">
+    <button type="button" class="theme-toggle-admin login-theme-toggle" id="loginThemeToggle"
+      aria-label="Alternar entre tema claro e escuro" title="Alternar entre claro e escuro">
+      <svg class="icone-sol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="4.2" />
+        <path
+          d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7" />
+      </svg>
+      <svg class="icone-lua" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z" />
+      </svg>
+    </button>
+    <div class="login-panel">
+      <div class="login-brand">
+        <div class="brand-avatar-glow">
+          <div class="brand-avatar">FM</div>
+        </div>
+        <div class="brand-title">FAHREN<span>MOTORS</span></div>
+        <div class="brand-sub">Sistema Integrado de Gestão WMS & Fiscal</div>
       </div>
-      <div class="brand-title">FAHREN<span>MOTORS</span></div>
-      <div class="brand-sub">Sistema Integrado de Gestão WMS & Fiscal</div>
+      <h2>Entrar no Painel</h2>
+      <div class="field">
+        <label>Usuário / Login</label>
+        <input id="adminLogin" type="text" placeholder="admin" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label>Senha de Acesso</label>
+        <input id="adminPassword" type="password" placeholder="admin" autocomplete="current-password" />
+      </div>
+      <button class="btn btn-primary" id="adminLoginBtn" style="width:100%;margin-top:10px">ACESSAR SISTEMA</button>
+      <div class="error hidden" id="loginError"></div>
     </div>
-    <h2>Entrar no Painel</h2>
-    <div class="field">
-      <label>Usuário / Login</label>
-      <input id="adminLogin" type="text" placeholder="admin" autocomplete="username"/>
-    </div>
-    <div class="field">
-      <label>Senha de Acesso</label>
-      <input id="adminPassword" type="password" placeholder="admin" autocomplete="current-password"/>
-    </div>
-    <button class="btn btn-primary" id="adminLoginBtn" style="width:100%;margin-top:10px">ACESSAR SISTEMA</button>
-    <div class="error hidden" id="loginError"></div>
   </div>
-</div>
 
-<!-- APLICAÇÃO PRINCIPAL WMS -->
-<div class="wms-layout hidden" id="mainScreen">
+  <!-- APLICAÇÃO PRINCIPAL WMS -->
+  <div class="wms-layout hidden" id="mainScreen">
 
-  <!-- SIDEBAR LATERAL -->
-  <aside class="wms-sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-avatar-glow sm">
-        <div class="brand-avatar sm">FM</div>
-      </div>
-      <div class="brand-info">
-        <strong>FAHREN<span>MOTORS</span></strong>
-        <small>GESTÃO WMS</small>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <div class="nav-section-label">PRINCIPAL</div>
-      <button class="nav-item" data-tab="dashboard">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-        <span>Dashboard</span>
-      </button>
-      <button class="nav-item" data-tab="estoque">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        <span>Produtos & Peças</span>
-      </button>
-
-      <div class="nav-section-label">OPERAÇÕES</div>
-      <button class="nav-item" data-tab="pedidos">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-        <span>Pedidos</span>
-        <span class="nav-badge" id="ordersCountBadge">0</span>
-      </button>
-      <button class="nav-item" data-tab="vendas">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-        <span>Vendas</span>
-      </button>
-      <button class="nav-item" data-tab="armazem">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line><line x1="9" y1="9" x2="9" y2="21"></line><line x1="15" y1="9" x2="15" y2="21"></line></svg>
-        <span>Estoque</span>
-      </button>
-      <button class="nav-item" data-tab="expedicao">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-        <span>Expedição</span>
-      </button>
-
-      <div class="nav-section-label">FINANCEIRO & FISCAL</div>
-      <button class="nav-item" data-tab="financeiro">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-        <span>Financeiro</span>
-      </button>
-      <button class="nav-item" data-tab="notas-fiscais">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        <span>Notas Fiscais (NFe)</span>
-        <span class="nav-badge nf-badge" id="nfCountBadge">0</span>
-      </button>
-      <button class="nav-item" data-tab="relatorios">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-        <span>Relatórios</span>
-      </button>
-      <button class="nav-item" data-tab="configuracoes">
-        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
-        <span>Configurações</span>
-      </button>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div class="user-profile">
-        <div class="user-avatar">AD</div>
-        <div class="user-info">
-          <strong id="adminName">Administrador</strong>
-          <small>Gestor Geral</small>
+    <!-- SIDEBAR LATERAL -->
+    <aside class="wms-sidebar" id="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-avatar-glow sm">
+          <div class="brand-avatar sm">FM</div>
+        </div>
+        <div class="brand-info">
+          <strong>FAHREN<span>MOTORS</span></strong>
+          <small>GESTÃO WMS</small>
         </div>
       </div>
-      <button class="btn-logout" id="logoutBtn" title="Encerrar Sessão">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-        <span>Sair</span>
-      </button>
-    </div>
-  </aside>
 
-  <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
-  <div class="wms-main">
-
-    <!-- TOPBAR SUPERIOR -->
-    <header class="wms-topbar">
-      <div class="topbar-search">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        <input type="text" id="globalSearchInput" placeholder="Buscar produtos, pedidos, notas fiscais, clientes..."/>
-      </div>
-
-      <div class="topbar-actions">
-        <!-- Relógio em Tempo Real -->
-        <div class="live-clock-badge">
-          <span class="live-date" id="liveDateText">quinta-feira, 3 de setembro de 2026</span>
-          <span class="live-time" id="liveClockText">21:54:41</span>
-        </div>
-
-        <button class="topbar-btn theme-toggle-admin" id="topbarThemeToggle" title="Alternar entre claro e escuro">
-          <svg class="icone-sol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7"/></svg>
-          <svg class="icone-lua" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z"/></svg>
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">PRINCIPAL</div>
+        <button class="nav-item" data-tab="dashboard">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7"></rect>
+            <rect x="14" y="3" width="7" height="7"></rect>
+            <rect x="14" y="14" width="7" height="7"></rect>
+            <rect x="3" y="14" width="7" height="7"></rect>
+          </svg>
+          <span>Dashboard</span>
         </button>
-        <button class="topbar-btn" id="refreshBtn" title="Atualizar dados do sistema">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+        <button class="nav-item" data-tab="estoque">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+            </path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          <span>Produtos & Peças</span>
         </button>
-        <button class="topbar-btn" id="openStoreBtn" title="Abrir Loja do Cliente" onclick="window.open('/', '_blank')">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+
+        <div class="nav-section-label">OPERAÇÕES</div>
+        <button class="nav-item" data-tab="pedidos">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <span>Pedidos</span>
+          <span class="nav-badge" id="ordersCountBadge">0</span>
+        </button>
+        <button class="nav-item" data-tab="vendas">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+            <polyline points="17 6 23 6 23 12"></polyline>
+          </svg>
+          <span>Vendas</span>
+        </button>
+        <button class="nav-item" data-tab="armazem">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+            <line x1="3" y1="9" x2="21" y2="9"></line>
+            <line x1="3" y1="15" x2="21" y2="15"></line>
+            <line x1="9" y1="9" x2="9" y2="21"></line>
+            <line x1="15" y1="9" x2="15" y2="21"></line>
+          </svg>
+          <span>Estoque</span>
+        </button>
+        <button class="nav-item" data-tab="expedicao">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="3" width="15" height="13"></rect>
+            <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+          </svg>
+          <span>Expedição</span>
+        </button>
+
+        <div class="nav-section-label">FINANCEIRO & FISCAL</div>
+        <button class="nav-item" data-tab="financeiro">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          <span>Financeiro</span>
+        </button>
+        <button class="nav-item" data-tab="notas-fiscais">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <span>Notas Fiscais (NFe)</span>
+          <span class="nav-badge nf-badge" id="nfCountBadge">0</span>
+        </button>
+        <button class="nav-item" data-tab="relatorios">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          <span>Relatórios</span>
+        </button>
+        <button class="nav-item" data-tab="configuracoes">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path
+              d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z">
+            </path>
+          </svg>
+          <span>Configurações</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-profile">
+          <div class="user-avatar">AD</div>
+          <div class="user-info">
+            <strong id="adminName">Administrador</strong>
+            <small>Gestor Geral</small>
+          </div>
+        </div>
+        <button class="btn-logout" id="logoutBtn" title="Encerrar Sessão">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+            <polyline points="16 17 21 12 16 7"></polyline>
+            <line x1="21" y1="12" x2="9" y2="12"></line>
+          </svg>
+          <span>Sair</span>
         </button>
       </div>
-    </header>
+    </aside>
 
-    <!-- CONTAINER DAS PÁGINAS/TELAS -->
-    <main class="wms-content">
+    <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
+    <div class="wms-main">
 
-      <!-- ====================================================
-           1. DASHBOARD
-           ==================================================== -->
-      <section class="tab-pane" id="pane-dashboard">
-        <div class="page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-              Painel de Controle
-            </h1>
-            <p class="page-subtitle">Visão geral das operações, catálogo e faturamento da Fahren Motors</p>
-          </div>
-          <div class="welcome-badge">
-            Bem-vindo(a) ao painel de gestão da <strong>FAHREN MOTORS</strong>!
-          </div>
+      <!-- TOPBAR SUPERIOR -->
+      <header class="wms-topbar">
+        <div class="topbar-search">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="globalSearchInput"
+            placeholder="Buscar produtos, pedidos, notas fiscais, clientes..." />
         </div>
 
-        <!-- CARDS DE MÉTRICAS (WMS STATS) -->
-        <div class="stats-grid">
-          <div class="stat-card card-cyan" onclick="switchTab('estoque')" style="cursor:pointer" title="Ver catálogo completo de peças">
-            <div class="stat-card-top">
-              <div class="stat-icon-box cyan">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-              </div>
-              <span class="stat-sub">Cadastrados no sistema</span>
-            </div>
-            <div class="stat-number" id="dashTotalProducts">0</div>
-            <div class="stat-label">Total de Peças (Clique p/ ver)</div>
+        <div class="topbar-actions">
+          <!-- Relógio em Tempo Real -->
+          <div class="live-clock-badge">
+            <span class="live-date" id="liveDateText">quinta-feira, 3 de setembro de 2026</span>
+            <span class="live-time" id="liveClockText">21:54:41</span>
           </div>
 
-          <div class="stat-card card-green">
-            <div class="stat-card-top">
-              <div class="stat-icon-box green">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
-              </div>
-              <span class="stat-sub">Pedidos & Entradas hoje</span>
-            </div>
-            <div class="stat-number" id="dashTodayOrders">0</div>
-            <div class="stat-label">Movimentações Hoje</div>
-          </div>
-
-          <div class="stat-card card-red" onclick="switchTab('estoque')" style="cursor:pointer" title="Ver peças no estoque">
-            <div class="stat-card-top">
-              <div class="stat-icon-box red">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-              </div>
-              <span class="stat-sub">Produtos abaixo do mínimo</span>
-            </div>
-            <div class="stat-number" id="dashStockAlerts">0</div>
-            <div class="stat-label">Alertas de Estoque</div>
-          </div>
-
-          <div class="stat-card card-purple">
-            <div class="stat-card-top">
-              <div class="stat-icon-box purple">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-              </div>
-              <span class="stat-sub">Receita de vendas</span>
-            </div>
-            <div class="stat-number" id="dashTotalRevenue">R$ 0,00</div>
-            <div class="stat-label">Faturamento Geral</div>
-          </div>
-
-          <div class="stat-card card-orange">
-            <div class="stat-card-top">
-              <div class="stat-icon-box orange">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path><line x1="12" y1="6" x2="12" y2="18"></line></svg>
-              </div>
-              <span class="stat-sub" id="dashPixOrdersCount">0 vendas via PIX</span>
-            </div>
-            <div class="stat-number" id="dashTotalPixDiscount" style="color:#ffb74d">R$ 0,00</div>
-            <div class="stat-label">Descontos no PIX (4% OFF)</div>
-            <div class="stat-sub" id="dashPixImpactBadge" style="margin-top:5px;font-size:11px;color:#aeb2b8">Métrica de impacto na margem</div>
-          </div>
-        </div>
-
-        <!-- GRÁFICOS & RESUMOS WMS -->
-        <div class="dash-grid-split">
-          <div class="wms-panel">
-            <div class="panel-header">
-              <h3>Entradas e Saídas Diárias</h3>
-              <span class="panel-sub">Volume de vendas recente</span>
-            </div>
-            <div class="bar-chart-wrap" id="dashBarChart">
-              <!-- Renderizado via JS -->
-            </div>
-          </div>
-
-          <div class="wms-panel">
-            <div class="panel-header">
-              <h3>Últimos Pedidos dos Clientes</h3>
-              <button class="btn-link" onclick="switchTab('pedidos')">Ver todos ›</button>
-            </div>
-            <div class="dash-recent-list" id="dashRecentOrders">
-              <!-- Renderizado via JS -->
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ====================================================
-           2. PRODUTOS & PEÇAS (ESTOQUE & LOCALIZAÇÃO)
-           ==================================================== -->
-      <section class="tab-pane" id="pane-estoque">
-        <!-- CABEÇALHO -->
-        <div class="page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">
-              <span class="page-title-icon red-square">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-              </span>
-              Produtos &amp; Peças
-            </h1>
-            <p class="page-subtitle">Gerencie seu catálogo de produtos e acompanhe o estoque e localização.</p>
-          </div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-secondary" id="syncCatalogBtn" title="Garante que todas as peças oficiais estejam sincronizadas">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-              <span>SINCRONIZAR CATÁLOGO</span>
-            </button>
-            <button class="btn btn-primary" id="newProductToggleBtn">
-              + Cadastrar Peça
-            </button>
-          </div>
-        </div>
-
-        <!-- 4 CARDS DE KPIS DO ESTOQUE -->
-        <div class="estoque-kpis-bar">
-          <div class="est-kpi-card" onclick="filterProductsByStock('')">
-            <div class="est-kpi-icon icon-blue-box">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
-            </div>
-            <div class="est-kpi-content">
-              <span class="est-kpi-label">Total de Peças</span>
-              <strong class="est-kpi-num" id="estTotalVal">458</strong>
-            </div>
-          </div>
-
-          <div class="est-kpi-card" onclick="filterProductsByStock('in_stock')">
-            <div class="est-kpi-icon icon-green-check">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><polyline points="9 11 12 14 22 4"></polyline></svg>
-            </div>
-            <div class="est-kpi-content">
-              <span class="est-kpi-label">Em Estoque</span>
-              <strong class="est-kpi-num" id="estInStockVal">392</strong>
-            </div>
-          </div>
-
-          <div class="est-kpi-card" onclick="filterProductsByStock('low_stock')">
-            <div class="est-kpi-icon icon-orange-alert">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-            </div>
-            <div class="est-kpi-content">
-              <span class="est-kpi-label">Estoque Baixo</span>
-              <strong class="est-kpi-num" id="estLowStockVal">48</strong>
-            </div>
-          </div>
-
-          <div class="est-kpi-card" onclick="filterProductsByStock('out_of_stock')">
-            <div class="est-kpi-icon icon-red-x">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-            </div>
-            <div class="est-kpi-content">
-              <span class="est-kpi-label">Sem Estoque</span>
-              <strong class="est-kpi-num" id="estOutStockVal">18</strong>
-            </div>
-          </div>
-        </div>
-
-        <!-- FORMULÁRIO DE CADASTRO/EDIÇÃO (POPUP / RETRÁTIL) -->
-        <div class="wms-panel hidden" id="productFormPanel">
-          <div class="panel-header">
-            <h3 id="formTitle">Cadastrar Nova Peça</h3>
-            <span class="panel-sub">Preencha as informações completas para o catálogo da loja</span>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label>Nome da Peça *</label>
-              <input id="pName" placeholder="Ex: Pastilha de freio dianteira cerâmica"/>
-            </div>
-            <div class="field">
-              <label>Código da Peça (SKU/Part Number) *</label>
-              <input id="pCode" placeholder="Ex: PF-1001"/>
-            </div>
-            <div class="field">
-              <label>Categoria *</label>
-              <input id="pCategory" placeholder="Ex: Freios" list="categoryList"/>
-              <datalist id="categoryList"></datalist>
-            </div>
-            <div class="field">
-              <label>Preço de Venda (R$) *</label>
-              <input id="pPrice" inputmode="decimal" placeholder="189,90"/>
-            </div>
-            <div class="field">
-              <label>Quantidade em Estoque *</label>
-              <input id="pStock" inputmode="numeric" placeholder="10"/>
-            </div>
-            <div class="field">
-              <label>Localização no Armazém (Corredor-Estante-Posição) *</label>
-              <input id="pLocation" placeholder="Ex: A-02-03"/>
-            </div>
-            <div class="field full-width">
-              <label>URL da Foto (HD) ou Anexo de Arquivo</label>
-              <div class="photo-input-wrap">
-                <input id="pPhoto" placeholder="Cole a URL da imagem ou anexe um arquivo..."/>
-                <label for="pPhotoFile" class="btn-attach-photo" id="btnAttachPhoto" title="Anexar imagem do computador (JPG, PNG, WebP)">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
-                  <span id="btnAttachPhotoText">Anexar</span>
-                  <input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp,image/jpg" style="display:none"/>
-                </label>
-              </div>
-              <div id="pPhotoPreviewWrap" class="photo-preview-wrap hidden">
-                <img id="pPhotoPreview" src="" alt="Prévia da foto"/>
-                <div class="photo-preview-details">
-                  <span id="pPhotoPreviewName" class="photo-preview-name">foto-anexada.jpg</span>
-                  <span class="photo-preview-badge">✓ Imagem vinculada à peça</span>
-                </div>
-                <button type="button" class="btn-remove-photo" id="btnRemovePhoto" title="Remover imagem">✕</button>
-              </div>
-            </div>
-            <div class="field full-width">
-              <label>Descrição e Aplicação Rápida</label>
-              <input id="pDescription" placeholder="Ex: Aplicação compatível com linha Volkswagen"/>
-            </div>
-            <div class="field full-width">
-              <label>Compatibilidade Veicular Completa (Modelos, Anos e Motores)</label>
-              <textarea id="pCompatibility" rows="3" placeholder="Ex: VW Gol G5/G6 1.0/1.6 8V (2008 a 2016)&#10;VW Fox 1.0/1.6 (2004 a 2014)&#10;VW Voyage 1.0/1.6 (2009 a 2016)"></textarea>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button class="btn btn-primary" id="saveProductBtn">SALVAR PEÇA NO SISTEMA</button>
-            <button class="btn btn-secondary" id="cancelEditBtn" type="button">CANCELAR EDIÇÃO</button>
-          </div>
-          <div class="error hidden" id="productFormError"></div>
-          <div class="msg hidden" id="productFormMsg"></div>
-        </div>
-
-        <!-- GRID PRINCIPAL DE ESTOQUE: TABELA À ESQUERDA + WIDGET DE LOCALIZAÇÃO À DIREITA -->
-        <div class="estoque-main-grid">
-          <div class="estoque-left-col">
-            <!-- FILTROS -->
-            <div class="est-filters-row">
-              <div class="est-search-wrap">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input id="stockSearch" placeholder="Buscar por peça, código, categoria, localização..."/>
-              </div>
-              <select class="wms-input-clean" id="stockCategoryFilter">
-                <option value="">Todas as categorias</option>
-              </select>
-              <select class="wms-input-clean" id="stockStatusFilter">
-                <option value="">Todos os status</option>
-                <option value="disponivel">Disponível</option>
-                <option value="baixo">Estoque baixo</option>
-                <option value="zerado">Sem estoque</option>
-              </select>
-            </div>
-
-            <!-- TABELA COM COLUNA DE LOCALIZAÇÃO -->
-            <div class="wms-panel est-table-panel">
-              <div class="table-responsive">
-                <table class="wms-table estoque-table">
-                  <thead>
-                    <tr>
-                      <th style="width:40px"></th>
-                      <th>PEÇA</th>
-                      <th>CÓDIGO</th>
-                      <th>CATEGORIA</th>
-                      <th style="width:80px">ESTOQUE</th>
-                      <th style="width:120px">LOCALIZAÇÃO</th>
-                      <th style="width:125px">STATUS</th>
-                      <th style="text-align:right;width:105px">AÇÕES</th>
-                    </tr>
-                  </thead>
-                  <tbody id="productsTableBody">
-                    <tr><td colspan="8" style="text-align:center;padding:30px">Carregando peças...</td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4 CARDS DE AÇÕES RÁPIDAS NO RODAPÉ DO ESTOQUE -->
-        <div class="estoque-quick-actions-bar">
-          <div class="est-qa-card">
-            <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></div>
-            <div class="est-qa-info">
-              <strong>Movimentações</strong>
-              <small>Registre entradas e saídas</small>
-            </div>
-          </div>
-
-          <div class="est-qa-card">
-            <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
-            <div class="est-qa-info">
-              <strong>Localizações</strong>
-              <small>Gerencie as posições das prateleiras</small>
-            </div>
-          </div>
-
-          <div class="est-qa-card">
-            <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg></div>
-            <div class="est-qa-info">
-              <strong>Inventário</strong>
-              <small>Realize a conferência periódica</small>
-            </div>
-          </div>
-
-          <div class="est-qa-card">
-            <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><line x1="7" y1="8" x2="7" y2="16"></line><line x1="11" y1="8" x2="11" y2="16"></line><line x1="14" y1="8" x2="14" y2="16"></line><line x1="17" y1="8" x2="17" y2="16"></line></svg></div>
-            <div class="est-qa-info">
-              <strong>Etiquetagem</strong>
-              <small>Imprima etiquetas com código</small>
-            </div>
-          </div>
-
-          <button class="btn btn-secondary btn-download-rep" type="button" onclick="exportStockCSV()">
-            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-            Baixar Relatório
+          <button class="topbar-btn theme-toggle-admin" id="topbarThemeToggle" title="Alternar entre claro e escuro">
+            <svg class="icone-sol" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4.2" />
+              <path
+                d="M12 2v2.4M12 19.6V22M4.2 4.2l1.7 1.7M18.1 18.1l1.7 1.7M2 12h2.4M19.6 12H22M4.2 19.8l1.7-1.7M18.1 5.9l1.7-1.7" />
+            </svg>
+            <svg class="icone-lua" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z" />
+            </svg>
+          </button>
+          <button class="topbar-btn" id="refreshBtn" title="Atualizar dados do sistema">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M23 4v6h-6"></path>
+              <path d="M1 20v-6h6"></path>
+              <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+            </svg>
+          </button>
+          <button class="topbar-btn" id="openStoreBtn" title="Abrir Loja do Cliente"
+            onclick="window.open('/', '_blank')">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
           </button>
         </div>
-      </section>
+      </header>
 
-      <!-- ====================================================
+      <!-- CONTAINER DAS PÁGINAS/TELAS -->
+      <main class="wms-content">
+
+        <!-- ====================================================
+           1. DASHBOARD
+           ==================================================== -->
+        <section class="tab-pane" id="pane-dashboard">
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="3" width="7" height="7"></rect>
+                  <rect x="14" y="14" width="7" height="7"></rect>
+                  <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+                Painel de Controle
+              </h1>
+              <p class="page-subtitle">Visão geral das operações, catálogo e faturamento da Fahren Motors</p>
+            </div>
+            <div class="welcome-badge">
+              Bem-vindo(a) ao painel de gestão da <strong>FAHREN MOTORS</strong>!
+            </div>
+          </div>
+
+          <!-- CARDS DE MÉTRICAS (WMS STATS) -->
+          <div class="stats-grid">
+            <div class="stat-card card-cyan" onclick="switchTab('estoque')" style="cursor:pointer"
+              title="Ver catálogo completo de peças">
+              <div class="stat-card-top">
+                <div class="stat-icon-box cyan">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                    </path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                  </svg>
+                </div>
+                <span class="stat-sub">Cadastrados no sistema</span>
+              </div>
+              <div class="stat-number" id="dashTotalProducts">0</div>
+              <div class="stat-label">Total de Peças (Clique p/ ver)</div>
+            </div>
+
+            <div class="stat-card card-green">
+              <div class="stat-card-top">
+                <div class="stat-icon-box green">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                  </svg>
+                </div>
+                <span class="stat-sub">Pedidos & Entradas hoje</span>
+              </div>
+              <div class="stat-number" id="dashTodayOrders">0</div>
+              <div class="stat-label">Movimentações Hoje</div>
+            </div>
+
+            <div class="stat-card card-red" onclick="switchTab('estoque')" style="cursor:pointer"
+              title="Ver peças no estoque">
+              <div class="stat-card-top">
+                <div class="stat-icon-box red">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                    </path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                </div>
+                <span class="stat-sub">Produtos abaixo do mínimo</span>
+              </div>
+              <div class="stat-number" id="dashStockAlerts">0</div>
+              <div class="stat-label">Alertas de Estoque</div>
+            </div>
+
+            <div class="stat-card card-purple">
+              <div class="stat-card-top">
+                <div class="stat-icon-box purple">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                </div>
+                <span class="stat-sub">Receita de vendas</span>
+              </div>
+              <div class="stat-number" id="dashTotalRevenue">R$ 0,00</div>
+              <div class="stat-label">Faturamento Geral</div>
+            </div>
+
+            <div class="stat-card card-orange">
+              <div class="stat-card-top">
+                <div class="stat-icon-box orange">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"></path>
+                    <line x1="12" y1="6" x2="12" y2="18"></line>
+                  </svg>
+                </div>
+                <span class="stat-sub" id="dashPixOrdersCount">0 vendas via PIX</span>
+              </div>
+              <div class="stat-number" id="dashTotalPixDiscount" style="color:#ffb74d">R$ 0,00</div>
+              <div class="stat-label">Descontos no PIX (4% OFF)</div>
+              <div class="stat-sub" id="dashPixImpactBadge" style="margin-top:5px;font-size:11px;color:#aeb2b8">Métrica
+                de impacto na margem</div>
+            </div>
+          </div>
+
+          <!-- GRÁFICOS & RESUMOS WMS -->
+          <div class="dash-grid-split">
+            <div class="wms-panel">
+              <div class="panel-header">
+                <h3>Entradas e Saídas Diárias</h3>
+                <span class="panel-sub">Volume de vendas recente</span>
+              </div>
+              <div class="bar-chart-wrap" id="dashBarChart">
+                <!-- Renderizado via JS -->
+              </div>
+            </div>
+
+            <div class="wms-panel">
+              <div class="panel-header">
+                <h3>Últimos Pedidos dos Clientes</h3>
+                <button class="btn-link" onclick="switchTab('pedidos')">Ver todos ›</button>
+              </div>
+              <div class="dash-recent-list" id="dashRecentOrders">
+                <!-- Renderizado via JS -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================
+           2. PRODUTOS & PEÇAS (ESTOQUE & LOCALIZAÇÃO)
+           ==================================================== -->
+        <section class="tab-pane" id="pane-estoque">
+          <!-- CABEÇALHO -->
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">
+                <span class="page-title-icon red-square">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path
+                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                    </path>
+                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                  </svg>
+                </span>
+                Produtos &amp; Peças
+              </h1>
+              <p class="page-subtitle">Gerencie seu catálogo de produtos e acompanhe o estoque e localização.</p>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <button class="btn btn-secondary" id="syncCatalogBtn"
+                title="Garante que todas as peças oficiais estejam sincronizadas">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M23 4v6h-6"></path>
+                  <path d="M1 20v-6h6"></path>
+                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+                </svg>
+                <span>SINCRONIZAR CATÁLOGO</span>
+              </button>
+              <button class="btn btn-primary" id="newProductToggleBtn">
+                + Cadastrar Peça
+              </button>
+            </div>
+          </div>
+
+          <!-- 4 CARDS DE KPIS DO ESTOQUE -->
+          <div class="estoque-kpis-bar">
+            <div class="est-kpi-card" onclick="filterProductsByStock('')">
+              <div class="est-kpi-icon icon-blue-box">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+                  </path>
+                </svg>
+              </div>
+              <div class="est-kpi-content">
+                <span class="est-kpi-label">Total de Peças</span>
+                <strong class="est-kpi-num" id="estTotalVal">458</strong>
+              </div>
+            </div>
+
+            <div class="est-kpi-card" onclick="filterProductsByStock('in_stock')">
+              <div class="est-kpi-icon icon-green-check">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                  <polyline points="9 11 12 14 22 4"></polyline>
+                </svg>
+              </div>
+              <div class="est-kpi-content">
+                <span class="est-kpi-label">Em Estoque</span>
+                <strong class="est-kpi-num" id="estInStockVal">392</strong>
+              </div>
+            </div>
+
+            <div class="est-kpi-card" onclick="filterProductsByStock('low_stock')">
+              <div class="est-kpi-icon icon-orange-alert">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                  </path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
+              <div class="est-kpi-content">
+                <span class="est-kpi-label">Estoque Baixo</span>
+                <strong class="est-kpi-num" id="estLowStockVal">48</strong>
+              </div>
+            </div>
+
+            <div class="est-kpi-card" onclick="filterProductsByStock('out_of_stock')">
+              <div class="est-kpi-icon icon-red-x">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="15" y1="9" x2="9" y2="15"></line>
+                  <line x1="9" y1="9" x2="15" y2="15"></line>
+                </svg>
+              </div>
+              <div class="est-kpi-content">
+                <span class="est-kpi-label">Sem Estoque</span>
+                <strong class="est-kpi-num" id="estOutStockVal">18</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- FORMULÁRIO DE CADASTRO/EDIÇÃO (POPUP / RETRÁTIL) -->
+          <div class="wms-panel hidden" id="productFormPanel">
+            <div class="panel-header">
+              <h3 id="formTitle">Cadastrar Nova Peça</h3>
+              <span class="panel-sub">Preencha as informações completas para o catálogo da loja</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label>Nome da Peça *</label>
+                <input id="pName" placeholder="Ex: Pastilha de freio dianteira cerâmica" />
+              </div>
+              <div class="field">
+                <label>Código da Peça (SKU/Part Number) *</label>
+                <input id="pCode" placeholder="Ex: PF-1001" />
+              </div>
+              <div class="field">
+                <label>Categoria *</label>
+                <input id="pCategory" placeholder="Ex: Freios" list="categoryList" />
+                <datalist id="categoryList"></datalist>
+              </div>
+              <div class="field">
+                <label>Preço de Venda (R$) *</label>
+                <input id="pPrice" inputmode="decimal" placeholder="189,90" />
+              </div>
+              <div class="field">
+                <label>Quantidade em Estoque *</label>
+                <input id="pStock" inputmode="numeric" placeholder="10" />
+              </div>
+              <div class="field">
+                <label>Localização no Armazém (Corredor-Estante-Posição) *</label>
+                <input id="pLocation" placeholder="Ex: A-02-03" />
+              </div>
+              <div class="field full-width">
+                <label>URL da Foto (HD) ou Anexo de Arquivo</label>
+                <div class="photo-input-wrap">
+                  <input id="pPhoto" placeholder="Cole a URL da imagem ou anexe um arquivo..." />
+                  <label for="pPhotoFile" class="btn-attach-photo" id="btnAttachPhoto"
+                    title="Anexar imagem do computador (JPG, PNG, WebP)">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path
+                        d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+                      </path>
+                    </svg>
+                    <span id="btnAttachPhotoText">Anexar</span>
+                    <input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp,image/jpg"
+                      style="display:none" />
+                  </label>
+                </div>
+                <div id="pPhotoPreviewWrap" class="photo-preview-wrap hidden">
+                  <img id="pPhotoPreview" src="" alt="Prévia da foto" />
+                  <div class="photo-preview-details">
+                    <span id="pPhotoPreviewName" class="photo-preview-name">foto-anexada.jpg</span>
+                    <span class="photo-preview-badge">✓ Imagem vinculada à peça</span>
+                  </div>
+                  <button type="button" class="btn-remove-photo" id="btnRemovePhoto" title="Remover imagem">✕</button>
+                </div>
+              </div>
+              <div class="field full-width">
+                <label>Descrição e Aplicação Rápida</label>
+                <input id="pDescription" placeholder="Ex: Aplicação compatível com linha Volkswagen" />
+              </div>
+              <div class="field full-width">
+                <label>Compatibilidade Veicular Completa (Modelos, Anos e Motores)</label>
+                <textarea id="pCompatibility" rows="3"
+                  placeholder="Ex: VW Gol G5/G6 1.0/1.6 8V (2008 a 2016)&#10;VW Fox 1.0/1.6 (2004 a 2014)&#10;VW Voyage 1.0/1.6 (2009 a 2016)"></textarea>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" id="saveProductBtn">SALVAR PEÇA NO SISTEMA</button>
+              <button class="btn btn-secondary" id="cancelEditBtn" type="button">CANCELAR EDIÇÃO</button>
+            </div>
+            <div class="error hidden" id="productFormError"></div>
+            <div class="msg hidden" id="productFormMsg"></div>
+          </div>
+
+          <!-- GRID PRINCIPAL DE ESTOQUE: TABELA À ESQUERDA + WIDGET DE LOCALIZAÇÃO À DIREITA -->
+          <div class="estoque-main-grid">
+            <div class="estoque-left-col">
+              <!-- FILTROS -->
+              <div class="est-filters-row">
+                <div class="est-search-wrap">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input id="stockSearch" placeholder="Buscar por peça, código, categoria, localização..." />
+                </div>
+                <select class="wms-input-clean" id="stockCategoryFilter">
+                  <option value="">Todas as categorias</option>
+                </select>
+                <select class="wms-input-clean" id="stockStatusFilter">
+                  <option value="">Todos os status</option>
+                  <option value="disponivel">Disponível</option>
+                  <option value="baixo">Estoque baixo</option>
+                  <option value="zerado">Sem estoque</option>
+                </select>
+              </div>
+
+              <!-- TABELA COM COLUNA DE LOCALIZAÇÃO -->
+              <div class="wms-panel est-table-panel">
+                <div class="table-responsive">
+                  <table class="wms-table estoque-table">
+                    <thead>
+                      <tr>
+                        <th style="width:40px"></th>
+                        <th>PEÇA</th>
+                        <th>CÓDIGO</th>
+                        <th>CATEGORIA</th>
+                        <th style="width:80px">ESTOQUE</th>
+                        <th style="width:120px">LOCALIZAÇÃO</th>
+                        <th style="width:125px">STATUS</th>
+                        <th style="text-align:right;width:110px">AÇÕES</th>
+                      </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                      <tr>
+                        <td colspan="8" style="text-align:center;padding:30px">Carregando peças...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 CARDS DE AÇÕES RÁPIDAS NO RODAPÉ DO ESTOQUE -->
+          <div class="estoque-quick-actions-bar">
+            <div class="est-qa-card">
+              <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <polyline points="17 1 21 5 17 9"></polyline>
+                  <path d="M3 11V9a4 4 0 0 1 4-4h14"></path>
+                  <polyline points="7 23 3 19 7 15"></polyline>
+                  <path d="M21 13v2a4 4 0 0 1-4 4H3"></path>
+                </svg></div>
+              <div class="est-qa-info">
+                <strong>Movimentações</strong>
+                <small>Registre entradas e saídas</small>
+              </div>
+            </div>
+
+            <div class="est-qa-card">
+              <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg></div>
+              <div class="est-qa-info">
+                <strong>Localizações</strong>
+                <small>Gerencie as posições das prateleiras</small>
+              </div>
+            </div>
+
+            <div class="est-qa-card">
+              <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg></div>
+              <div class="est-qa-info">
+                <strong>Inventário</strong>
+                <small>Realize a conferência periódica</small>
+              </div>
+            </div>
+
+            <div class="est-qa-card">
+              <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+                  stroke-width="2">
+                  <rect x="3" y="4" width="18" height="16" rx="2"></rect>
+                  <line x1="7" y1="8" x2="7" y2="16"></line>
+                  <line x1="11" y1="8" x2="11" y2="16"></line>
+                  <line x1="14" y1="8" x2="14" y2="16"></line>
+                  <line x1="17" y1="8" x2="17" y2="16"></line>
+                </svg></div>
+              <div class="est-qa-info">
+                <strong>Etiquetagem</strong>
+                <small>Imprima etiquetas com código</small>
+              </div>
+            </div>
+
+            <button class="btn btn-secondary btn-download-rep" type="button" onclick="exportStockCSV()">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Baixar Relatório
+            </button>
+          </div>
+        </section>
+
+        <!-- ====================================================
            3. PEDIDOS (OPERACIONAL PURO)
            ==================================================== -->
-      <section class="tab-pane" id="pane-pedidos">
-        <!-- CABEÇALHO -->
-        <div class="page-head orders-page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">
-              <span class="page-title-icon red-square">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1.5"></circle><circle cx="20" cy="21" r="1.5"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-              </span>
-              Pedidos
-            </h1>
-            <p class="page-subtitle">Acompanhe e gerencie todos os pedidos de entrega</p>
-          </div>
-        </div>
-
-        <!-- 5 CARDS DE KPIS OPERACIONAIS SUPERIORES -->
-        <div class="pedidos-kpis-bar">
-          <div class="ped-kpi-card" id="kpiCardTotal" onclick="filterOrdersByStatus('')">
-            <div class="ped-kpi-icon icon-red-cart">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-            </div>
-            <div class="ped-kpi-content">
-              <span class="ped-kpi-label">Total de Pedidos</span>
-              <strong class="ped-kpi-num" id="kpiValTotal">24</strong>
-              <span class="ped-kpi-trend trend-up">↑ 12% em relação ao mês anterior</span>
+        <section class="tab-pane" id="pane-pedidos">
+          <!-- CABEÇALHO -->
+          <div class="page-head orders-page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">
+                <span class="page-title-icon red-square">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="9" cy="21" r="1.5"></circle>
+                    <circle cx="20" cy="21" r="1.5"></circle>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                  </svg>
+                </span>
+                Pedidos
+              </h1>
+              <p class="page-subtitle">Acompanhe e gerencie todos os pedidos de entrega</p>
             </div>
           </div>
 
-          <div class="ped-kpi-card" id="kpiCardNovo" onclick="filterOrdersByStatus('novo')">
-            <div class="ped-kpi-icon icon-red-clock">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            </div>
-            <div class="ped-kpi-content">
-              <span class="ped-kpi-label">Novos</span>
-              <div class="ped-kpi-row">
-                <strong class="ped-kpi-num" id="kpiValNovo">05</strong>
-                <svg class="mini-sparkline spark-red" viewBox="0 0 60 20"><path d="M0 15 Q 15 5, 30 12 T 60 4" fill="none" stroke="#ed1c24" stroke-width="2"></path></svg>
+          <!-- 5 CARDS DE KPIS OPERACIONAIS SUPERIORES -->
+          <div class="pedidos-kpis-bar">
+            <div class="ped-kpi-card" id="kpiCardTotal" onclick="filterOrdersByStatus('')">
+              <div class="ped-kpi-icon icon-red-cart">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                  <line x1="3" y1="6" x2="21" y2="6"></line>
+                  <path d="M16 10a4 4 0 0 1-8 0"></path>
+                </svg>
               </div>
-              <span class="ped-kpi-trend trend-red">↑ 07% hoje</span>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Total de Pedidos</span>
+                <strong class="ped-kpi-num" id="kpiValTotal">24</strong>
+                <span class="ped-kpi-trend trend-up">↑ 12% em relação ao mês anterior</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" id="kpiCardNovo" onclick="filterOrdersByStatus('novo')">
+              <div class="ped-kpi-icon icon-red-clock">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Novos</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="kpiValNovo">05</strong>
+                  <svg class="mini-sparkline spark-red" viewBox="0 0 60 20">
+                    <path d="M0 15 Q 15 5, 30 12 T 60 4" fill="none" stroke="#ed1c24" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-red">↑ 07% hoje</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" id="kpiCardPrep" onclick="filterOrdersByStatus('em_preparacao')">
+              <div class="ped-kpi-icon icon-orange-gear">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z">
+                  </path>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Em Preparação</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="kpiValPrep">08</strong>
+                  <svg class="mini-sparkline spark-orange" viewBox="0 0 60 20">
+                    <path d="M0 16 Q 20 8, 40 14 T 60 6" fill="none" stroke="#f59e0b" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-orange">14% em andamento</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" id="kpiCardPronto" onclick="filterOrdersByStatus('pronto')">
+              <div class="ped-kpi-icon icon-blue-check">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Prontos</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="kpiValPronto">11</strong>
+                  <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20">
+                    <path d="M0 18 Q 15 12, 35 15 T 60 5" fill="none" stroke="#2563eb" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-blue">↑ 22% aguardando entrega</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" id="kpiCardEntregue" onclick="filterOrdersByStatus('entregue')">
+              <div class="ped-kpi-icon icon-green-truck">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Entregues</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="kpiValEntregue">18</strong>
+                  <svg class="mini-sparkline spark-green" viewBox="0 0 60 20">
+                    <path d="M0 17 Q 20 10, 40 12 T 60 3" fill="none" stroke="#10b981" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-green">↑ 36% do total</span>
+              </div>
             </div>
           </div>
 
-          <div class="ped-kpi-card" id="kpiCardPrep" onclick="filterOrdersByStatus('em_preparacao')">
-            <div class="ped-kpi-icon icon-orange-gear">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"></path></svg>
-            </div>
-            <div class="ped-kpi-content">
-              <span class="ped-kpi-label">Em Preparação</span>
-              <div class="ped-kpi-row">
-                <strong class="ped-kpi-num" id="kpiValPrep">08</strong>
-                <svg class="mini-sparkline spark-orange" viewBox="0 0 60 20"><path d="M0 16 Q 20 8, 40 14 T 60 6" fill="none" stroke="#f59e0b" stroke-width="2"></path></svg>
+          <!-- GRID PRINCIPAL DE PEDIDOS: 2 COLUNAS (TABELA ESQUERDA + WIDGETS DIREITA) -->
+          <div class="pedidos-main-grid">
+            <div class="pedidos-left-col">
+              <!-- BARRA DE FILTROS SUPERIOR -->
+              <div class="pedidos-toolbar">
+                <select class="wms-input-clean" id="pedFilterStatus" onchange="filterOrdersByStatus(this.value)">
+                  <option value="">Todos os status</option>
+                  <option value="novo">Novos</option>
+                  <option value="em_preparacao">Em preparação</option>
+                  <option value="pronto">Prontos</option>
+                  <option value="entregue">Entregues</option>
+                  <option value="cancelado">Cancelados</option>
+                </select>
+                <select class="wms-input-clean" id="pedFilterCanal">
+                  <option value="">Todos os canais</option>
+                  <option value="loja">Loja Virtual</option>
+                  <option value="whatsapp">WhatsApp</option>
+                  <option value="balcao">Balcão</option>
+                </select>
+                <div class="ped-date-range">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span>01/09/2026 - 08/09/2026</span>
+                </div>
+                <div class="ped-search-wrap">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input type="text" id="pedSearchInput" placeholder="Buscar por nº do pedido, cliente, produto..." />
+                </div>
+                <button class="btn btn-primary btn-sm" id="pedNovoPedidoBtn" type="button"
+                  onclick="switchTab('estoque')">
+                  + Novo Pedido
+                </button>
               </div>
-              <span class="ped-kpi-trend trend-orange">14% em andamento</span>
-            </div>
-          </div>
 
-          <div class="ped-kpi-card" id="kpiCardPronto" onclick="filterOrdersByStatus('pronto')">
-            <div class="ped-kpi-icon icon-blue-check">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-            </div>
-            <div class="ped-kpi-content">
-              <span class="ped-kpi-label">Prontos</span>
-              <div class="ped-kpi-row">
-                <strong class="ped-kpi-num" id="kpiValPronto">11</strong>
-                <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20"><path d="M0 18 Q 15 12, 35 15 T 60 5" fill="none" stroke="#2563eb" stroke-width="2"></path></svg>
-              </div>
-              <span class="ped-kpi-trend trend-blue">↑ 22% aguardando entrega</span>
-            </div>
-          </div>
-
-          <div class="ped-kpi-card" id="kpiCardEntregue" onclick="filterOrdersByStatus('entregue')">
-            <div class="ped-kpi-icon icon-green-truck">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-            </div>
-            <div class="ped-kpi-content">
-              <span class="ped-kpi-label">Entregues</span>
-              <div class="ped-kpi-row">
-                <strong class="ped-kpi-num" id="kpiValEntregue">18</strong>
-                <svg class="mini-sparkline spark-green" viewBox="0 0 60 20"><path d="M0 17 Q 20 10, 40 12 T 60 3" fill="none" stroke="#10b981" stroke-width="2"></path></svg>
-              </div>
-              <span class="ped-kpi-trend trend-green">↑ 36% do total</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- GRID PRINCIPAL DE PEDIDOS: 2 COLUNAS (TABELA ESQUERDA + WIDGETS DIREITA) -->
-        <div class="pedidos-main-grid">
-          <div class="pedidos-left-col">
-            <!-- BARRA DE FILTROS SUPERIOR -->
-            <div class="pedidos-toolbar">
-              <select class="wms-input-clean" id="pedFilterStatus" onchange="filterOrdersByStatus(this.value)">
-                <option value="">Todos os status</option>
-                <option value="novo">Novos</option>
-                <option value="em_preparacao">Em preparação</option>
-                <option value="pronto">Prontos</option>
-                <option value="entregue">Entregues</option>
-                <option value="cancelado">Cancelados</option>
-              </select>
-              <select class="wms-input-clean" id="pedFilterCanal">
-                <option value="">Todos os canais</option>
-                <option value="loja">Loja Virtual</option>
-                <option value="whatsapp">WhatsApp</option>
-                <option value="balcao">Balcão</option>
-              </select>
-              <div class="ped-date-range">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-                <span>01/09/2026 - 08/09/2026</span>
-              </div>
-              <div class="ped-search-wrap">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="pedSearchInput" placeholder="Buscar por nº do pedido, cliente, produto..."/>
-              </div>
-              <button class="btn btn-primary btn-sm" id="pedNovoPedidoBtn" type="button" onclick="switchTab('estoque')">
-                + Novo Pedido
-              </button>
-            </div>
-
-            <!-- TABELA OPERACIONAL DE PEDIDOS -->
-            <div class="wms-panel ped-table-card">
-              <div class="table-responsive">
-                <table class="wms-table orders-table">
-                  <thead>
-                    <tr>
-                      <th style="width:105px">Nº PEDIDO</th>
-                      <th style="min-width:170px">CLIENTE</th>
-                      <th style="width:145px">DATA/HORA</th>
-                      <th style="width:100px">ITENS</th>
-                      <th style="width:125px">TOTAL</th>
-                      <th style="width:145px">FORMA DE PAGAMENTO</th>
-                      <th style="width:145px">STATUS</th>
-                      <th style="text-align:right;width:120px">AÇÕES</th>
-                    </tr>
-                  </thead>
-                  <tbody id="ordersTableBody">
-                    <tr><td colspan="8" style="text-align:center;padding:30px">Carregando pedidos...</td></tr>
-                  </tbody>
-                </table>
+              <!-- TABELA OPERACIONAL DE PEDIDOS -->
+              <div class="wms-panel ped-table-card">
+                <div class="table-responsive">
+                  <table class="wms-table orders-table">
+                    <thead>
+                      <tr>
+                        <th style="width:105px">Nº PEDIDO</th>
+                        <th style="min-width:170px">CLIENTE</th>
+                        <th style="width:145px">DATA/HORA</th>
+                        <th style="width:100px">ITENS</th>
+                        <th style="width:125px">TOTAL</th>
+                        <th style="width:145px">FORMA DE PAGAMENTO</th>
+                        <th style="width:145px">STATUS</th>
+                        <th style="text-align:right;width:120px">AÇÕES</th>
+                      </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                      <tr>
+                        <td colspan="8" style="text-align:center;padding:30px">Carregando pedidos...</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ====================================================
+        <!-- ====================================================
            NOVO MÓDULO: VENDAS (ANALYTICS COMERCIAL & FINANCEIRO)
            ==================================================== -->
-      <section class="tab-pane" id="pane-vendas">
-        <!-- CABEÇALHO -->
-        <div class="page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">
-              <span class="page-title-icon red-square">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
-              </span>
-              Vendas
-            </h1>
-            <p class="page-subtitle">Acompanhe o desempenho financeiro de sua loja.</p>
-          </div>
-        </div>
-
-        <!-- 4 CARDS DE KPIS FINANCEIROS -->
-        <div class="vendas-kpis-bar">
-          <div class="venda-kpi-card">
-            <div class="venda-kpi-header">
-              <span class="venda-kpi-icon-circle green">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-              </span>
-              <div class="venda-kpi-texts">
-                <span class="venda-kpi-label">Faturamento Hoje</span>
-                <strong class="venda-kpi-val" id="vendasHojeVal">R$ 4.520,78</strong>
-              </div>
-            </div>
-            <div class="venda-kpi-footer">
-              <span class="venda-kpi-trend green">↑ 18% em relação a ontem</span>
-              <svg class="mini-sparkline spark-green" viewBox="0 0 60 20"><path d="M0 16 Q 15 12, 35 7 T 60 2" fill="none" stroke="#10b981" stroke-width="2"></path></svg>
+        <section class="tab-pane" id="pane-vendas">
+          <!-- CABEÇALHO -->
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">
+                <span class="page-title-icon red-square">
+                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline>
+                    <polyline points="17 6 23 6 23 12"></polyline>
+                  </svg>
+                </span>
+                Vendas
+              </h1>
+              <p class="page-subtitle">Acompanhe o desempenho financeiro de sua loja.</p>
             </div>
           </div>
 
-          <div class="venda-kpi-card">
-            <div class="venda-kpi-header">
-              <span class="venda-kpi-icon-circle blue">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M4 10l8-6 8 6"></path></svg>
-              </span>
-              <div class="venda-kpi-texts">
-                <span class="venda-kpi-label">Faturamento do Mês</span>
-                <strong class="venda-kpi-val" id="vendasMesVal">R$ 86.230,45</strong>
+          <!-- 4 CARDS DE KPIS FINANCEIROS -->
+          <div class="vendas-kpis-bar">
+            <div class="venda-kpi-card">
+              <div class="venda-kpi-header">
+                <span class="venda-kpi-icon-circle green">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <line x1="12" y1="1" x2="12" y2="23"></line>
+                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                  </svg>
+                </span>
+                <div class="venda-kpi-texts">
+                  <span class="venda-kpi-label">Faturamento Hoje</span>
+                  <strong class="venda-kpi-val" id="vendasHojeVal">R$ 4.520,78</strong>
+                </div>
               </div>
-            </div>
-            <div class="venda-kpi-footer">
-              <span class="venda-kpi-trend green">↑ 13% em relação ao mês anterior</span>
-              <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20"><path d="M0 18 Q 20 14, 40 9 T 60 3" fill="none" stroke="#2563eb" stroke-width="2"></path></svg>
-            </div>
-          </div>
-
-          <div class="venda-kpi-card">
-            <div class="venda-kpi-header">
-              <span class="venda-kpi-icon-circle blue-alt">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-              </span>
-              <div class="venda-kpi-texts">
-                <span class="venda-kpi-label">Quantidade de Vendas</span>
-                <strong class="venda-kpi-val" id="vendasQtdVal">132</strong>
-              </div>
-            </div>
-            <div class="venda-kpi-footer">
-              <span class="venda-kpi-trend green">↑ 15% em relação ao mês anterior</span>
-              <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20"><path d="M0 17 Q 20 8, 40 12 T 60 4" fill="none" stroke="#3b82f6" stroke-width="2"></path></svg>
-            </div>
-          </div>
-
-          <div class="venda-kpi-card">
-            <div class="venda-kpi-header">
-              <span class="venda-kpi-icon-circle cyan">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-              </span>
-              <div class="venda-kpi-texts">
-                <span class="venda-kpi-label">Ticket Médio</span>
-                <strong class="venda-kpi-val" id="vendasTicketVal">R$ 652,50</strong>
-              </div>
-            </div>
-            <div class="venda-kpi-footer">
-              <span class="venda-kpi-trend green">↑ 5% em relação ao mês anterior</span>
-              <svg class="mini-sparkline spark-green" viewBox="0 0 60 20"><path d="M0 15 Q 20 15, 40 9 T 60 5" fill="none" stroke="#10b981" stroke-width="2"></path></svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- GRID DE GRÁFICOS: 4 CARDS EM LAYOUT 2x2 -->
-        <div class="vendas-charts-grid">
-          <!-- CARD 1: VENDAS POR PERÍODO -->
-          <div class="wms-panel vendas-chart-card">
-            <div class="vendas-card-header">
-              <div class="vendas-card-titles">
-                <h3>Vendas por Período</h3>
-              </div>
-              <div class="vendas-period-pills">
-                <button type="button" class="v-pill" data-period="7" onclick="setVendasPeriod(7, this)">7 dias</button>
-                <button type="button" class="v-pill active" data-period="30" onclick="setVendasPeriod(30, this)">30 dias</button>
-                <button type="button" class="v-pill" data-period="90" onclick="setVendasPeriod(90, this)">90 dias</button>
-              </div>
-            </div>
-            <div class="vendas-area-chart-container" id="vendasAreaChartWrap">
-              <!-- SVG Área Interativa -->
-              <svg class="vendas-area-svg" viewBox="0 0 540 200" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="vendasAreaGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#2563eb" stop-opacity="0.35"/>
-                    <stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"/>
-                  </linearGradient>
-                </defs>
-                <path class="chart-grid-line" d="M 40 40 L 520 40 M 40 80 L 520 80 M 40 120 L 520 120 M 40 160 L 520 160" stroke="#f1f5f9" stroke-width="1"></path>
-                <!-- Area path -->
-                <path d="M 40 150 Q 100 130, 160 145 T 280 90 T 400 110 T 520 60 L 520 170 L 40 170 Z" fill="url(#vendasAreaGrad)"></path>
-                <!-- Line path -->
-                <path d="M 40 150 Q 100 130, 160 145 T 280 90 T 400 110 T 520 60" fill="none" stroke="#2563eb" stroke-width="3" stroke-linecap="round"></path>
-                <!-- Points -->
-                <circle cx="40" cy="150" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"></circle>
-                <circle cx="160" cy="145" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"></circle>
-                <circle cx="280" cy="90" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"></circle>
-                <circle cx="400" cy="110" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"></circle>
-                <circle cx="520" cy="60" r="6" fill="#2563eb" stroke="#ffffff" stroke-width="3"></circle>
-              </svg>
-              <div class="vendas-tooltip-badge" style="position:absolute;top:28px;right:30px">
-                <strong>R$ 18.250,45</strong>
-              </div>
-              <div class="chart-x-labels">
-                <span>01/09</span>
-                <span>02/09</span>
-                <span>03/09</span>
-                <span>04/09</span>
-                <span>05/09</span>
-                <span>06/09</span>
-                <span>07/09</span>
-                <span>08/09</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- CARD 2: FORMAS DE PAGAMENTO -->
-          <div class="wms-panel vendas-chart-card">
-            <div class="vendas-card-header">
-              <h3>Formas de Pagamento</h3>
-            </div>
-            <div class="vendas-donut-body">
-              <div class="donut-chart-wrap">
-                <svg viewBox="0 0 160 160" width="150" height="150" class="donut-svg">
-                  <!-- Donut segments -->
-                  <circle cx="80" cy="80" r="60" fill="none" stroke="#e2e8f0" stroke-width="20"></circle>
-                  <circle cx="80" cy="80" r="60" fill="none" stroke="#00e5ff" stroke-width="20" stroke-dasharray="180 377" stroke-dashoffset="0"></circle>
-                  <circle cx="80" cy="80" r="60" fill="none" stroke="#2563eb" stroke-width="20" stroke-dasharray="105 377" stroke-dashoffset="-180"></circle>
-                  <circle cx="80" cy="80" r="60" fill="none" stroke="#f59e0b" stroke-width="20" stroke-dasharray="45 377" stroke-dashoffset="-285"></circle>
-                  <circle cx="80" cy="80" r="60" fill="none" stroke="#8b5cf6" stroke-width="20" stroke-dasharray="30 377" stroke-dashoffset="-330"></circle>
-                  <circle cx="80" cy="80" r="60" fill="none" stroke="#94a3b8" stroke-width="20" stroke-dasharray="17 377" stroke-dashoffset="-360"></circle>
+              <div class="venda-kpi-footer">
+                <span class="venda-kpi-trend green">↑ 18% em relação a ontem</span>
+                <svg class="mini-sparkline spark-green" viewBox="0 0 60 20">
+                  <path d="M0 16 Q 15 12, 35 7 T 60 2" fill="none" stroke="#10b981" stroke-width="2"></path>
                 </svg>
-                <div class="donut-center-text">
-                  <strong>R$ 86.230,45</strong>
-                  <small>Total de vendas</small>
+              </div>
+            </div>
+
+            <div class="venda-kpi-card">
+              <div class="venda-kpi-header">
+                <span class="venda-kpi-icon-circle blue">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M3 21h18M3 10h18M5 10v11M19 10v11M9 10v11M15 10v11M4 10l8-6 8 6"></path>
+                  </svg>
+                </span>
+                <div class="venda-kpi-texts">
+                  <span class="venda-kpi-label">Faturamento do Mês</span>
+                  <strong class="venda-kpi-val" id="vendasMesVal">R$ 86.230,45</strong>
                 </div>
               </div>
-              <div class="donut-legend-list">
-                <div class="donut-legend-item">
-                  <span class="legend-color-dot" style="background:#00e5ff"></span>
-                  <span class="legend-name">Pix</span>
-                  <strong class="legend-pct">48%</strong>
+              <div class="venda-kpi-footer">
+                <span class="venda-kpi-trend green">↑ 13% em relação ao mês anterior</span>
+                <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20">
+                  <path d="M0 18 Q 20 14, 40 9 T 60 3" fill="none" stroke="#2563eb" stroke-width="2"></path>
+                </svg>
+              </div>
+            </div>
+
+            <div class="venda-kpi-card">
+              <div class="venda-kpi-header">
+                <span class="venda-kpi-icon-circle blue-alt">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
+                </span>
+                <div class="venda-kpi-texts">
+                  <span class="venda-kpi-label">Quantidade de Vendas</span>
+                  <strong class="venda-kpi-val" id="vendasQtdVal">132</strong>
                 </div>
-                <div class="donut-legend-item">
-                  <span class="legend-color-dot" style="background:#2563eb"></span>
-                  <span class="legend-name">Cartão de Crédito</span>
-                  <strong class="legend-pct">28%</strong>
+              </div>
+              <div class="venda-kpi-footer">
+                <span class="venda-kpi-trend green">↑ 15% em relação ao mês anterior</span>
+                <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20">
+                  <path d="M0 17 Q 20 8, 40 12 T 60 4" fill="none" stroke="#3b82f6" stroke-width="2"></path>
+                </svg>
+              </div>
+            </div>
+
+            <div class="venda-kpi-card">
+              <div class="venda-kpi-header">
+                <span class="venda-kpi-icon-circle cyan">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                    <line x1="2" y1="10" x2="22" y2="10"></line>
+                  </svg>
+                </span>
+                <div class="venda-kpi-texts">
+                  <span class="venda-kpi-label">Ticket Médio</span>
+                  <strong class="venda-kpi-val" id="vendasTicketVal">R$ 652,50</strong>
                 </div>
-                <div class="donut-legend-item">
-                  <span class="legend-color-dot" style="background:#f59e0b"></span>
-                  <span class="legend-name">Cartão de Débito</span>
-                  <strong class="legend-pct">12%</strong>
-                </div>
-                <div class="donut-legend-item">
-                  <span class="legend-color-dot" style="background:#8b5cf6"></span>
-                  <span class="legend-name">Boleto</span>
-                  <strong class="legend-pct">8%</strong>
-                </div>
-                <div class="donut-legend-item">
-                  <span class="legend-color-dot" style="background:#94a3b8"></span>
-                  <span class="legend-name">Outros</span>
-                  <strong class="legend-pct">4%</strong>
-                </div>
+              </div>
+              <div class="venda-kpi-footer">
+                <span class="venda-kpi-trend green">↑ 5% em relação ao mês anterior</span>
+                <svg class="mini-sparkline spark-green" viewBox="0 0 60 20">
+                  <path d="M0 15 Q 20 15, 40 9 T 60 5" fill="none" stroke="#10b981" stroke-width="2"></path>
+                </svg>
               </div>
             </div>
           </div>
 
-          <!-- CARD 3: VENDAS POR CATEGORIA -->
-          <div class="wms-panel vendas-chart-card">
-            <div class="vendas-card-header">
-              <h3>Vendas por Categoria</h3>
-              <a href="javascript:void(0)" class="card-action-link" onclick="switchTab('estoque')">Ver todas ›</a>
+          <!-- GRID DE GRÁFICOS: 4 CARDS EM LAYOUT 2x2 -->
+          <div class="vendas-charts-grid">
+            <!-- CARD 1: VENDAS POR PERÍODO -->
+            <div class="wms-panel vendas-chart-card">
+              <div class="vendas-card-header">
+                <div class="vendas-card-titles">
+                  <h3>Vendas por Período</h3>
+                </div>
+                <div class="vendas-period-pills">
+                  <button type="button" class="v-pill" data-period="7" onclick="setVendasPeriod(7, this)">7
+                    dias</button>
+                  <button type="button" class="v-pill active" data-period="30" onclick="setVendasPeriod(30, this)">30
+                    dias</button>
+                  <button type="button" class="v-pill" data-period="90" onclick="setVendasPeriod(90, this)">90
+                    dias</button>
+                </div>
+              </div>
+              <div class="vendas-area-chart-container" id="vendasAreaChartWrap">
+                <!-- SVG Área Interativa -->
+                <svg class="vendas-area-svg" viewBox="0 0 540 200" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="vendasAreaGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#2563eb" stop-opacity="0.35" />
+                      <stop offset="100%" stop-color="#2563eb" stop-opacity="0.02" />
+                    </linearGradient>
+                  </defs>
+                  <path class="chart-grid-line"
+                    d="M 40 40 L 520 40 M 40 80 L 520 80 M 40 120 L 520 120 M 40 160 L 520 160" stroke="#f1f5f9"
+                    stroke-width="1"></path>
+                  <!-- Area path -->
+                  <path d="M 40 150 Q 100 130, 160 145 T 280 90 T 400 110 T 520 60 L 520 170 L 40 170 Z"
+                    fill="url(#vendasAreaGrad)"></path>
+                  <!-- Line path -->
+                  <path d="M 40 150 Q 100 130, 160 145 T 280 90 T 400 110 T 520 60" fill="none" stroke="#2563eb"
+                    stroke-width="3" stroke-linecap="round"></path>
+                  <!-- Points -->
+                  <circle cx="40" cy="150" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"></circle>
+                  <circle cx="160" cy="145" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"></circle>
+                  <circle cx="280" cy="90" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"></circle>
+                  <circle cx="400" cy="110" r="4" fill="#ffffff" stroke="#2563eb" stroke-width="2.5"></circle>
+                  <circle cx="520" cy="60" r="6" fill="#2563eb" stroke="#ffffff" stroke-width="3"></circle>
+                </svg>
+                <div class="vendas-tooltip-badge" style="position:absolute;top:28px;right:30px">
+                  <strong>R$ 18.250,45</strong>
+                </div>
+                <div class="chart-x-labels">
+                  <span>01/09</span>
+                  <span>02/09</span>
+                  <span>03/09</span>
+                  <span>04/09</span>
+                  <span>05/09</span>
+                  <span>06/09</span>
+                  <span>07/09</span>
+                  <span>08/09</span>
+                </div>
+              </div>
             </div>
-            <div class="cat-bars-list">
-              <div class="cat-bar-item">
-                <div class="cat-bar-labels">
-                  <span class="cat-name"><span class="cat-bar-icon">⚡</span> Ignição</span>
-                  <span class="cat-pct">28%</span>
-                  <strong class="cat-val">R$ 24.230,40</strong>
+
+            <!-- CARD 2: FORMAS DE PAGAMENTO -->
+            <div class="wms-panel vendas-chart-card">
+              <div class="vendas-card-header">
+                <h3>Formas de Pagamento</h3>
+              </div>
+              <div class="vendas-donut-body">
+                <div class="donut-chart-wrap">
+                  <svg viewBox="0 0 160 160" width="150" height="150" class="donut-svg">
+                    <!-- Donut segments -->
+                    <circle cx="80" cy="80" r="60" fill="none" stroke="#e2e8f0" stroke-width="20"></circle>
+                    <circle cx="80" cy="80" r="60" fill="none" stroke="#00e5ff" stroke-width="20"
+                      stroke-dasharray="180 377" stroke-dashoffset="0"></circle>
+                    <circle cx="80" cy="80" r="60" fill="none" stroke="#2563eb" stroke-width="20"
+                      stroke-dasharray="105 377" stroke-dashoffset="-180"></circle>
+                    <circle cx="80" cy="80" r="60" fill="none" stroke="#f59e0b" stroke-width="20"
+                      stroke-dasharray="45 377" stroke-dashoffset="-285"></circle>
+                    <circle cx="80" cy="80" r="60" fill="none" stroke="#8b5cf6" stroke-width="20"
+                      stroke-dasharray="30 377" stroke-dashoffset="-330"></circle>
+                    <circle cx="80" cy="80" r="60" fill="none" stroke="#94a3b8" stroke-width="20"
+                      stroke-dasharray="17 377" stroke-dashoffset="-360"></circle>
+                  </svg>
+                  <div class="donut-center-text">
+                    <strong>R$ 86.230,45</strong>
+                    <small>Total de vendas</small>
+                  </div>
                 </div>
-                <div class="cat-bar-track">
-                  <div class="cat-bar-fill" style="width:28%;background:#2563eb"></div>
+                <div class="donut-legend-list">
+                  <div class="donut-legend-item">
+                    <span class="legend-color-dot" style="background:#00e5ff"></span>
+                    <span class="legend-name">Pix</span>
+                    <strong class="legend-pct">48%</strong>
+                  </div>
+                  <div class="donut-legend-item">
+                    <span class="legend-color-dot" style="background:#2563eb"></span>
+                    <span class="legend-name">Cartão de Crédito</span>
+                    <strong class="legend-pct">28%</strong>
+                  </div>
+                  <div class="donut-legend-item">
+                    <span class="legend-color-dot" style="background:#f59e0b"></span>
+                    <span class="legend-name">Cartão de Débito</span>
+                    <strong class="legend-pct">12%</strong>
+                  </div>
+                  <div class="donut-legend-item">
+                    <span class="legend-color-dot" style="background:#8b5cf6"></span>
+                    <span class="legend-name">Boleto</span>
+                    <strong class="legend-pct">8%</strong>
+                  </div>
+                  <div class="donut-legend-item">
+                    <span class="legend-color-dot" style="background:#94a3b8"></span>
+                    <span class="legend-name">Outros</span>
+                    <strong class="legend-pct">4%</strong>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div class="cat-bar-item">
-                <div class="cat-bar-labels">
-                  <span class="cat-name"><span class="cat-bar-icon">🛑</span> Freios</span>
-                  <span class="cat-pct">22%</span>
-                  <strong class="cat-val">R$ 18.920,30</strong>
+            <!-- CARD 3: VENDAS POR CATEGORIA -->
+            <div class="wms-panel vendas-chart-card">
+              <div class="vendas-card-header">
+                <h3>Vendas por Categoria</h3>
+                <a href="javascript:void(0)" class="card-action-link" onclick="switchTab('estoque')">Ver todas ›</a>
+              </div>
+              <div class="cat-bars-list">
+                <div class="cat-bar-item">
+                  <div class="cat-bar-labels">
+                    <span class="cat-name"><span class="cat-bar-icon">⚡</span> Ignição</span>
+                    <span class="cat-pct">28%</span>
+                    <strong class="cat-val">R$ 24.230,40</strong>
+                  </div>
+                  <div class="cat-bar-track">
+                    <div class="cat-bar-fill" style="width:28%;background:#2563eb"></div>
+                  </div>
                 </div>
-                <div class="cat-bar-track">
-                  <div class="cat-bar-fill" style="width:22%;background:#8b5cf6"></div>
+
+                <div class="cat-bar-item">
+                  <div class="cat-bar-labels">
+                    <span class="cat-name"><span class="cat-bar-icon">🛑</span> Freios</span>
+                    <span class="cat-pct">22%</span>
+                    <strong class="cat-val">R$ 18.920,30</strong>
+                  </div>
+                  <div class="cat-bar-track">
+                    <div class="cat-bar-fill" style="width:22%;background:#8b5cf6"></div>
+                  </div>
+                </div>
+
+                <div class="cat-bar-item">
+                  <div class="cat-bar-labels">
+                    <span class="cat-name"><span class="cat-bar-icon">🔩</span> Suspensão</span>
+                    <span class="cat-pct">19%</span>
+                    <strong class="cat-val">R$ 16.210,10</strong>
+                  </div>
+                  <div class="cat-bar-track">
+                    <div class="cat-bar-fill" style="width:19%;background:#f59e0b"></div>
+                  </div>
+                </div>
+
+                <div class="cat-bar-item">
+                  <div class="cat-bar-labels">
+                    <span class="cat-name"><span class="cat-bar-icon">💡</span> Elétrica</span>
+                    <span class="cat-pct">14%</span>
+                    <strong class="cat-val">R$ 12.430,90</strong>
+                  </div>
+                  <div class="cat-bar-track">
+                    <div class="cat-bar-fill" style="width:14%;background:#10b981"></div>
+                  </div>
+                </div>
+
+                <div class="cat-bar-item">
+                  <div class="cat-bar-labels">
+                    <span class="cat-name"><span class="cat-bar-icon">⚙️</span> Outros</span>
+                    <span class="cat-pct">8%</span>
+                    <strong class="cat-val">R$ 6.890,30</strong>
+                  </div>
+                  <div class="cat-bar-track">
+                    <div class="cat-bar-fill" style="width:8%;background:#94a3b8"></div>
+                  </div>
                 </div>
               </div>
+            </div>
 
-              <div class="cat-bar-item">
-                <div class="cat-bar-labels">
-                  <span class="cat-name"><span class="cat-bar-icon">🔩</span> Suspensão</span>
-                  <span class="cat-pct">19%</span>
-                  <strong class="cat-val">R$ 16.210,10</strong>
-                </div>
-                <div class="cat-bar-track">
-                  <div class="cat-bar-fill" style="width:19%;background:#f59e0b"></div>
-                </div>
+            <!-- CARD 4: PRODUTOS MAIS VENDIDOS -->
+            <div class="wms-panel vendas-chart-card">
+              <div class="vendas-card-header">
+                <h3>Produtos mais vendidos</h3>
+                <a href="javascript:void(0)" class="card-action-link" onclick="switchTab('estoque')">Ver todos ›</a>
               </div>
+              <div class="top-prods-list">
+                <div class="top-prod-item">
+                  <span class="top-prod-rank rank-1">1</span>
+                  <div class="top-prod-thumb"><img src="/images/categorias/eletrica.jpg" alt="Bobina de Ignição"
+                      onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';" /></div>
+                  <div class="top-prod-info">
+                    <strong>Bobina de Ignição</strong>
+                    <span class="top-prod-cat">Ignição &amp; Elétrica</span>
+                  </div>
+                  <span class="top-prod-qty">32 un.</span>
+                  <strong class="top-prod-revenue">R$ 8.580,00</strong>
+                </div>
 
-              <div class="cat-bar-item">
-                <div class="cat-bar-labels">
-                  <span class="cat-name"><span class="cat-bar-icon">💡</span> Elétrica</span>
-                  <span class="cat-pct">14%</span>
-                  <strong class="cat-val">R$ 12.430,90</strong>
+                <div class="top-prod-item">
+                  <span class="top-prod-rank rank-2">2</span>
+                  <div class="top-prod-thumb"><img src="/images/categorias/freios.jpg" alt="Pastilha de Freio"
+                      onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';" /></div>
+                  <div class="top-prod-info">
+                    <strong>Pastilha de Freio</strong>
+                    <span class="top-prod-cat">Sistema de Freios</span>
+                  </div>
+                  <span class="top-prod-qty">28 un.</span>
+                  <strong class="top-prod-revenue">R$ 6.720,00</strong>
                 </div>
-                <div class="cat-bar-track">
-                  <div class="cat-bar-fill" style="width:14%;background:#10b981"></div>
-                </div>
-              </div>
 
-              <div class="cat-bar-item">
-                <div class="cat-bar-labels">
-                  <span class="cat-name"><span class="cat-bar-icon">⚙️</span> Outros</span>
-                  <span class="cat-pct">8%</span>
-                  <strong class="cat-val">R$ 6.890,30</strong>
+                <div class="top-prod-item">
+                  <span class="top-prod-rank rank-3">3</span>
+                  <div class="top-prod-thumb"><img src="/images/categorias/filtros.jpg" alt="Filtro de Óleo"
+                      onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';" /></div>
+                  <div class="top-prod-info">
+                    <strong>Filtro de Óleo</strong>
+                    <span class="top-prod-cat">Filtros Automotivos</span>
+                  </div>
+                  <span class="top-prod-qty">24 un.</span>
+                  <strong class="top-prod-revenue">R$ 3.840,00</strong>
                 </div>
-                <div class="cat-bar-track">
-                  <div class="cat-bar-fill" style="width:8%;background:#94a3b8"></div>
+
+                <div class="top-prod-item">
+                  <span class="top-prod-rank">4</span>
+                  <div class="top-prod-thumb"><img src="/images/categorias/sensores.jpg" alt="Sensor ABS"
+                      onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';" /></div>
+                  <div class="top-prod-info">
+                    <strong>Sensor ABS</strong>
+                    <span class="top-prod-cat">Sensores &amp; Injeção</span>
+                  </div>
+                  <span class="top-prod-qty">19 un.</span>
+                  <strong class="top-prod-revenue">R$ 3.420,00</strong>
+                </div>
+
+                <div class="top-prod-item">
+                  <span class="top-prod-rank">5</span>
+                  <div class="top-prod-thumb"><img src="/images/categorias/suspensao.jpg" alt="Amortecedor"
+                      onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';" /></div>
+                  <div class="top-prod-info">
+                    <strong>Amortecedor Dianteiro</strong>
+                    <span class="top-prod-cat">Suspensão &amp; Direção</span>
+                  </div>
+                  <span class="top-prod-qty">14 un.</span>
+                  <strong class="top-prod-revenue">R$ 2.980,00</strong>
                 </div>
               </div>
             </div>
           </div>
+        </section>
 
-          <!-- CARD 4: PRODUTOS MAIS VENDIDOS -->
-          <div class="wms-panel vendas-chart-card">
-            <div class="vendas-card-header">
-              <h3>Produtos mais vendidos</h3>
-              <a href="javascript:void(0)" class="card-action-link" onclick="switchTab('estoque')">Ver todos ›</a>
-            </div>
-            <div class="top-prods-list">
-              <div class="top-prod-item">
-                <span class="top-prod-rank rank-1">1</span>
-                <div class="top-prod-thumb"><img src="/images/categorias/eletrica.jpg" alt="Bobina de Ignição" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/></div>
-                <div class="top-prod-info">
-                  <strong>Bobina de Ignição</strong>
-                  <span class="top-prod-cat">Ignição &amp; Elétrica</span>
-                </div>
-                <span class="top-prod-qty">32 un.</span>
-                <strong class="top-prod-revenue">R$ 8.580,00</strong>
-              </div>
-
-              <div class="top-prod-item">
-                <span class="top-prod-rank rank-2">2</span>
-                <div class="top-prod-thumb"><img src="/images/categorias/freios.jpg" alt="Pastilha de Freio" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/></div>
-                <div class="top-prod-info">
-                  <strong>Pastilha de Freio</strong>
-                  <span class="top-prod-cat">Sistema de Freios</span>
-                </div>
-                <span class="top-prod-qty">28 un.</span>
-                <strong class="top-prod-revenue">R$ 6.720,00</strong>
-              </div>
-
-              <div class="top-prod-item">
-                <span class="top-prod-rank rank-3">3</span>
-                <div class="top-prod-thumb"><img src="/images/categorias/filtros.jpg" alt="Filtro de Óleo" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/></div>
-                <div class="top-prod-info">
-                  <strong>Filtro de Óleo</strong>
-                  <span class="top-prod-cat">Filtros Automotivos</span>
-                </div>
-                <span class="top-prod-qty">24 un.</span>
-                <strong class="top-prod-revenue">R$ 3.840,00</strong>
-              </div>
-
-              <div class="top-prod-item">
-                <span class="top-prod-rank">4</span>
-                <div class="top-prod-thumb"><img src="/images/categorias/sensores.jpg" alt="Sensor ABS" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/></div>
-                <div class="top-prod-info">
-                  <strong>Sensor ABS</strong>
-                  <span class="top-prod-cat">Sensores &amp; Injeção</span>
-                </div>
-                <span class="top-prod-qty">19 un.</span>
-                <strong class="top-prod-revenue">R$ 3.420,00</strong>
-              </div>
-
-              <div class="top-prod-item">
-                <span class="top-prod-rank">5</span>
-                <div class="top-prod-thumb"><img src="/images/categorias/suspensao.jpg" alt="Amortecedor" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/></div>
-                <div class="top-prod-info">
-                  <strong>Amortecedor Dianteiro</strong>
-                  <span class="top-prod-cat">Suspensão &amp; Direção</span>
-                </div>
-                <span class="top-prod-qty">14 un.</span>
-                <strong class="top-prod-revenue">R$ 2.980,00</strong>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ====================================================
+        <!-- ====================================================
            4. EXPEDIÇÃO
            ==================================================== -->
-      <section class="tab-pane" id="pane-expedicao">
-        <div class="page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
-              Expedição & Despacho
-            </h1>
-            <p class="page-subtitle">Controle de pacotes prontos, separação de mercadorias e envio</p>
+        <section class="tab-pane" id="pane-expedicao">
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="3" width="15" height="13"></rect>
+                  <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                  <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                  <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                </svg>
+                Expedição & Despacho
+              </h1>
+              <p class="page-subtitle">Controle de pacotes prontos, separação de mercadorias e envio</p>
+            </div>
           </div>
-        </div>
 
-        <div class="wms-panel">
-          <div class="expedicao-grid" id="expedicaoGrid">
-            <!-- Renderizado dinamicamente com pedidos prontos/em preparação -->
+          <div class="wms-panel">
+            <div class="expedicao-grid" id="expedicaoGrid">
+              <!-- Renderizado dinamicamente com pedidos prontos/em preparação -->
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- ====================================================
+        <!-- ====================================================
            5. FINANCEIRO (NOVO MÓDULO)
            ==================================================== -->
-      <section class="tab-pane" id="pane-financeiro">
-        <div class="page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-              Módulo Financeiro & Faturamento
-            </h1>
-            <p class="page-subtitle">Fluxo de caixa, conciliação de pagamentos Pix, Cartão e ticket médio</p>
-          </div>
-        </div>
-
-        <div class="stats-grid">
-          <div class="stat-card card-green">
-            <div class="stat-card-top">
-              <div class="stat-icon-box green">💰</div>
-              <span class="stat-sub">Vendas Concluídas</span>
+        <section class="tab-pane" id="pane-financeiro">
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="12" y1="1" x2="12" y2="23"></line>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                </svg>
+                Módulo Financeiro & Faturamento
+              </h1>
+              <p class="page-subtitle">Fluxo de caixa, conciliação de pagamentos Pix, Cartão e ticket médio</p>
             </div>
-            <div class="stat-number" id="finTotalRevenue">R$ 0,00</div>
-            <div class="stat-label">Receita Bruta Total</div>
           </div>
 
-          <div class="stat-card card-cyan">
-            <div class="stat-card-top">
-              <div class="stat-icon-box cyan">⚡</div>
-              <span class="stat-sub">Desconto 4% Aplicado</span>
+          <div class="stats-grid">
+            <div class="stat-card card-green">
+              <div class="stat-card-top">
+                <div class="stat-icon-box green">💰</div>
+                <span class="stat-sub">Vendas Concluídas</span>
+              </div>
+              <div class="stat-number" id="finTotalRevenue">R$ 0,00</div>
+              <div class="stat-label">Receita Bruta Total</div>
             </div>
-            <div class="stat-number" id="finPixTotal">R$ 0,00</div>
-            <div class="stat-label">Total Recebido no Pix</div>
-          </div>
 
-          <div class="stat-card card-purple">
-            <div class="stat-card-top">
-              <div class="stat-icon-box purple">💳</div>
-              <span class="stat-sub">Parcelamento Cartão</span>
+            <div class="stat-card card-cyan">
+              <div class="stat-card-top">
+                <div class="stat-icon-box cyan">⚡</div>
+                <span class="stat-sub">Desconto 4% Aplicado</span>
+              </div>
+              <div class="stat-number" id="finPixTotal">R$ 0,00</div>
+              <div class="stat-label">Total Recebido no Pix</div>
             </div>
-            <div class="stat-number" id="finCardTotal">R$ 0,00</div>
-            <div class="stat-label">Vendas no Cartão</div>
-          </div>
 
-          <div class="stat-card card-red">
-            <div class="stat-card-top">
-              <div class="stat-icon-box red">📊</div>
-              <span class="stat-sub">Média por Venda</span>
+            <div class="stat-card card-purple">
+              <div class="stat-card-top">
+                <div class="stat-icon-box purple">💳</div>
+                <span class="stat-sub">Parcelamento Cartão</span>
+              </div>
+              <div class="stat-number" id="finCardTotal">R$ 0,00</div>
+              <div class="stat-label">Vendas no Cartão</div>
             </div>
-            <div class="stat-number" id="finAverageTicket">R$ 0,00</div>
-            <div class="stat-label">Ticket Médio</div>
-          </div>
-        </div>
 
-        <div class="wms-panel">
-          <div class="panel-header">
-            <h3>Lançamentos Financeiros & Recebíveis</h3>
-            <span class="panel-sub">Extrato detalhado de todas as transações realizadas na loja</span>
+            <div class="stat-card card-red">
+              <div class="stat-card-top">
+                <div class="stat-icon-box red">📊</div>
+                <span class="stat-sub">Média por Venda</span>
+              </div>
+              <div class="stat-number" id="finAverageTicket">R$ 0,00</div>
+              <div class="stat-label">Ticket Médio</div>
+            </div>
           </div>
 
-          <div class="table-responsive">
-            <table class="wms-table">
-              <thead>
-                <tr>
-                  <th>ID Pedido</th>
-                  <th>Cliente</th>
-                  <th>Forma de Pagamento</th>
-                  <th>Data</th>
-                  <th>Desconto Pix</th>
-                  <th>Valor Bruto</th>
-                  <th>Valor Líquido</th>
-                  <th>Status Financeiro</th>
-                </tr>
-              </thead>
-              <tbody id="financesTableBody">
-                <tr><td colspan="8" style="text-align:center;padding:25px">Calculando lançamentos...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+          <div class="wms-panel">
+            <div class="panel-header">
+              <h3>Lançamentos Financeiros & Recebíveis</h3>
+              <span class="panel-sub">Extrato detalhado de todas as transações realizadas na loja</span>
+            </div>
 
-      <!-- ====================================================
+            <div class="table-responsive">
+              <table class="wms-table">
+                <thead>
+                  <tr>
+                    <th>ID Pedido</th>
+                    <th>Cliente</th>
+                    <th>Forma de Pagamento</th>
+                    <th>Data</th>
+                    <th>Desconto Pix</th>
+                    <th>Valor Bruto</th>
+                    <th>Valor Líquido</th>
+                    <th>Status Financeiro</th>
+                  </tr>
+                </thead>
+                <tbody id="financesTableBody">
+                  <tr>
+                    <td colspan="8" style="text-align:center;padding:25px">Calculando lançamentos...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================
            6. NOTAS FISCAIS & DANFE (NOVA SOLICITAÇÃO)
            ==================================================== -->
-      <section class="tab-pane" id="pane-notas-fiscais">
-        <div class="page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">
-              <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              Emissão de Notas Fiscais (NFe / DANFE)
-            </h1>
-            <p class="page-subtitle">Emissão, gerenciamento e impressão de notas fiscais eletrônicas</p>
-          </div>
-        </div>
-
-        <!-- PAINEL DE CONFIGURAÇÃO FISCAL E LANÇAMENTO AUTOMÁTICO -->
-        <div class="fiscal-config-panel">
-          <div class="fiscal-info">
-            <div class="fiscal-badge-live">SEFAZ ONLINE · SP</div>
-            <h3>FAHREN MOTORS LTDA</h3>
-            <p><strong>CNPJ:</strong> 47.784.317/0001-20 &nbsp;•&nbsp; <strong>IE:</strong> 338.419.820.114 &nbsp;•&nbsp; Hortolândia - SP</p>
-            <p class="fiscal-desc">Configuração do emissor fiscal integrado com layout oficial DANFE para cada pedido confirmado.</p>
-          </div>
-
-          <!-- TOGGLE AUTOMÁTICO SOLICITADO PELO USUÁRIO -->
-          <div class="fiscal-toggle-box">
-            <div class="toggle-text">
-              <strong>Lançamento Automático de NF</strong>
-              <small>Emite e gera o DANFE automaticamente assim que o cliente conclui o pedido</small>
+        <section class="tab-pane" id="pane-notas-fiscais">
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Emissão de Notas Fiscais (NFe / DANFE)
+              </h1>
+              <p class="page-subtitle">Emissão, gerenciamento e impressão de notas fiscais eletrônicas</p>
             </div>
-            <label class="switch">
-              <input type="checkbox" id="autoNfToggle" checked/>
-              <span class="slider round"></span>
-            </label>
-            <span class="toggle-status-badge" id="autoNfStatusBadge">ATIVADO</span>
           </div>
-        </div>
 
-        <!-- TABELA DE NOTAS FISCAIS -->
-        <div class="wms-panel">
-          <div class="table-toolbar">
-            <div class="search-box">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input id="nfSearchInput" placeholder="Buscar por número da NF, chave de acesso ou cliente..."/>
+          <!-- PAINEL DE CONFIGURAÇÃO FISCAL E LANÇAMENTO AUTOMÁTICO -->
+          <div class="fiscal-config-panel">
+            <div class="fiscal-info">
+              <div class="fiscal-badge-live">SEFAZ ONLINE · SP</div>
+              <h3>FAHREN MOTORS LTDA</h3>
+              <p><strong>CNPJ:</strong> 47.784.317/0001-20 &nbsp;•&nbsp; <strong>IE:</strong> 338.419.820.114
+                &nbsp;•&nbsp; Hortolândia - SP</p>
+              <p class="fiscal-desc">Configuração do emissor fiscal integrado com layout oficial DANFE para cada pedido
+                confirmado.</p>
             </div>
-            <button class="btn btn-primary btn-sm" id="emitAllPendingNfBtn">
-              ⚡ EMITIR NOTAS PENDENTES
-            </button>
+
+            <!-- TOGGLE AUTOMÁTICO SOLICITADO PELO USUÁRIO -->
+            <div class="fiscal-toggle-box">
+              <div class="toggle-text">
+                <strong>Lançamento Automático de NF</strong>
+                <small>Emite e gera o DANFE automaticamente assim que o cliente conclui o pedido</small>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="autoNfToggle" checked />
+                <span class="slider round"></span>
+              </label>
+              <span class="toggle-status-badge" id="autoNfStatusBadge">ATIVADO</span>
+            </div>
           </div>
 
-          <div class="table-responsive">
-            <table class="wms-table">
-              <thead>
-                <tr>
-                  <th>Nº da NF</th>
-                  <th>Chave de Acesso (NFe)</th>
-                  <th>Pedido</th>
-                  <th>Destinatário</th>
-                  <th>Valor Total</th>
-                  <th>Data de Emissão</th>
-                  <th>Status Fiscal</th>
-                  <th style="text-align:right">Ações</th>
-                </tr>
-              </thead>
-              <tbody id="nfTableBody">
-                <tr><td colspan="8" style="text-align:center;padding:25px">Carregando notas fiscais...</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+          <!-- TABELA DE NOTAS FISCAIS -->
+          <div class="wms-panel">
+            <div class="table-toolbar">
+              <div class="search-box">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input id="nfSearchInput" placeholder="Buscar por número da NF, chave de acesso ou cliente..." />
+              </div>
+              <button class="btn btn-primary btn-sm" id="emitAllPendingNfBtn">
+                ⚡ EMITIR NOTAS PENDENTES
+              </button>
+            </div>
 
-      <!-- ====================================================
+            <div class="table-responsive">
+              <table class="wms-table">
+                <thead>
+                  <tr>
+                    <th>Nº da NF</th>
+                    <th>Chave de Acesso (NFe)</th>
+                    <th>Pedido</th>
+                    <th>Destinatário</th>
+                    <th>Valor Total</th>
+                    <th>Data de Emissão</th>
+                    <th>Status Fiscal</th>
+                    <th style="text-align:right">Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="nfTableBody">
+                  <tr>
+                    <td colspan="8" style="text-align:center;padding:25px">Carregando notas fiscais...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================
            8. RELATÓRIOS GERENCIAIS & WMS
            ==================================================== -->
-      <section class="tab-pane" id="pane-relatorios">
-        <div class="page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">Relatórios Gerenciais & WMS</h1>
-            <p class="page-sub">Auditoria de inventário, reposição crítica, peças zeradas e valuation de estoque</p>
-          </div>
-          <div class="page-actions">
-            <button class="btn btn-secondary btn-sm" type="button" onclick="exportStockCSV()">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Exportar CSV / Excel
-            </button>
-            <button class="btn btn-secondary btn-sm" type="button" onclick="window.print()">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-              Imprimir / PDF
-            </button>
-          </div>
-        </div>
-
-        <!-- CARDS KPI DE RELATÓRIO -->
-        <div class="kpi-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
-          <div class="kpi-card">
-            <span class="kpi-title">TOTAL DE PEÇAS</span>
-            <div class="kpi-value" id="repTotalProducts">0</div>
-            <span class="kpi-sub">Cadastradas no catálogo</span>
-          </div>
-          <div class="kpi-card">
-            <span class="kpi-title">ESTOQUE NORMAL</span>
-            <div class="kpi-value" id="repNormalStock" style="color: #00e676;">0</div>
-            <span class="kpi-sub">Mais de 5 unidades em galpão</span>
-          </div>
-          <div class="kpi-card">
-            <span class="kpi-title">ESTOQUE BAIXO</span>
-            <div class="kpi-value" id="repLowStock" style="color: #ffb300;">0</div>
-            <span class="kpi-sub">Entre 1 e 5 unidades (atenção)</span>
-          </div>
-          <div class="kpi-card kpi-card-danger" style="border-color: rgba(237, 28, 36, 0.4);">
-            <span class="kpi-title" style="color: #ff4d56;">PEÇAS ZERADAS</span>
-            <div class="kpi-value" id="repZeroStock" style="color: #ff3344;">0</div>
-            <span class="kpi-sub">Sem estoque (em falta)</span>
-          </div>
-          <div class="kpi-card">
-            <span class="kpi-title">VALOR DO INVENTÁRIO</span>
-            <div class="kpi-value" id="repTotalStockValue" style="font-size: 20px;">R$ 0,00</div>
-            <span class="kpi-sub">Preço de venda total</span>
-          </div>
-        </div>
-
-        <!-- PAINEL DE RELATÓRIOS COM FILTROS E TABELA -->
-        <div class="wms-panel">
-          <div class="table-toolbar" style="flex-wrap: wrap; gap: 12px;">
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="repFilterButtons">
-              <button class="btn btn-sm btn-secondary active" type="button" data-rep-filter="all" onclick="filterRelatorios('all')">Todos (<span id="repBadgeAll">0</span>)</button>
-              <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="zero" onclick="filterRelatorios('zero')" style="border-color: rgba(237, 28, 36, 0.4); color: #ff5560;">⚠️ Peças Zeradas (<span id="repBadgeZero">0</span>)</button>
-              <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="baixo" onclick="filterRelatorios('baixo')">Estoque Baixo (<span id="repBadgeLow">0</span>)</button>
-              <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="normal" onclick="filterRelatorios('normal')">Estoque Normal (<span id="repBadgeNormal">0</span>)</button>
+        <section class="tab-pane" id="pane-relatorios">
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">Relatórios Gerenciais & WMS</h1>
+              <p class="page-sub">Auditoria de inventário, reposição crítica, peças zeradas e valuation de estoque</p>
             </div>
-            <div class="search-box" style="margin-left: auto; max-width: 320px;">
-              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input id="repSearchInput" placeholder="Filtrar por peça, código ou local..." oninput="applyRelatoriosFilter()"/>
+            <div class="page-actions">
+              <button class="btn btn-secondary btn-sm" type="button" onclick="exportStockCSV()">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+                Exportar CSV / Excel
+              </button>
+              <button class="btn btn-secondary btn-sm" type="button" onclick="window.print()">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="6 9 6 2 18 2 18 9"></polyline>
+                  <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+                  <rect x="6" y="14" width="12" height="8"></rect>
+                </svg>
+                Imprimir / PDF
+              </button>
             </div>
           </div>
 
-          <div class="table-responsive">
-            <table class="wms-table">
-              <thead>
-                <tr>
-                  <th style="width: 110px;">CÓDIGO</th>
-                  <th>PEÇA</th>
-                  <th>CATEGORIA</th>
-                  <th style="width: 140px;">LOCALIZAÇÃO WMS</th>
-                  <th style="width: 90px; text-align: center;">ESTOQUE</th>
-                  <th style="width: 110px;">PREÇO UNIT.</th>
-                  <th style="width: 120px;">TOTAL (R$)</th>
-                  <th style="width: 120px;">STATUS</th>
-                  <th style="width: 130px; text-align: right;">REPOSIÇÃO</th>
-                </tr>
-              </thead>
-              <tbody id="relatoriosTableBody">
-                <tr><td colspan="9" style="text-align: center; padding: 25px;">Carregando relatório...</td></tr>
-              </tbody>
-            </table>
+          <!-- CARDS KPI DE RELATÓRIO -->
+          <div class="kpi-grid"
+            style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
+            <div class="kpi-card">
+              <span class="kpi-title">TOTAL DE PEÇAS</span>
+              <div class="kpi-value" id="repTotalProducts">0</div>
+              <span class="kpi-sub">Cadastradas no catálogo</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-title">ESTOQUE NORMAL</span>
+              <div class="kpi-value" id="repNormalStock" style="color: #00e676;">0</div>
+              <span class="kpi-sub">Mais de 5 unidades em galpão</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-title">ESTOQUE BAIXO</span>
+              <div class="kpi-value" id="repLowStock" style="color: #ffb300;">0</div>
+              <span class="kpi-sub">Entre 1 e 5 unidades (atenção)</span>
+            </div>
+            <div class="kpi-card kpi-card-danger" style="border-color: rgba(237, 28, 36, 0.4);">
+              <span class="kpi-title" style="color: #ff4d56;">PEÇAS ZERADAS</span>
+              <div class="kpi-value" id="repZeroStock" style="color: #ff3344;">0</div>
+              <span class="kpi-sub">Sem estoque (em falta)</span>
+            </div>
+            <div class="kpi-card">
+              <span class="kpi-title">VALOR DO INVENTÁRIO</span>
+              <div class="kpi-value" id="repTotalStockValue" style="font-size: 20px;">R$ 0,00</div>
+              <span class="kpi-sub">Preço de venda total</span>
+            </div>
           </div>
-        </div>
-      </section>
 
-      <!-- ====================================================
+          <!-- PAINEL DE RELATÓRIOS COM FILTROS E TABELA -->
+          <div class="wms-panel">
+            <div class="table-toolbar" style="flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="repFilterButtons">
+                <button class="btn btn-sm btn-secondary active" type="button" data-rep-filter="all"
+                  onclick="filterRelatorios('all')">Todos (<span id="repBadgeAll">0</span>)</button>
+                <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="zero"
+                  onclick="filterRelatorios('zero')" style="border-color: rgba(237, 28, 36, 0.4); color: #ff5560;">⚠️
+                  Peças Zeradas (<span id="repBadgeZero">0</span>)</button>
+                <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="baixo"
+                  onclick="filterRelatorios('baixo')">Estoque Baixo (<span id="repBadgeLow">0</span>)</button>
+                <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="normal"
+                  onclick="filterRelatorios('normal')">Estoque Normal (<span id="repBadgeNormal">0</span>)</button>
+              </div>
+              <div class="search-box" style="margin-left: auto; max-width: 320px;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input id="repSearchInput" placeholder="Filtrar por peça, código ou local..."
+                  oninput="applyRelatoriosFilter()" />
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="wms-table">
+                <thead>
+                  <tr>
+                    <th style="width: 110px;">CÓDIGO</th>
+                    <th>PEÇA</th>
+                    <th>CATEGORIA</th>
+                    <th style="width: 140px;">LOCALIZAÇÃO WMS</th>
+                    <th style="width: 90px; text-align: center;">ESTOQUE</th>
+                    <th style="width: 110px;">PREÇO UNIT.</th>
+                    <th style="width: 120px;">TOTAL (R$)</th>
+                    <th style="width: 120px;">STATUS</th>
+                    <th style="width: 130px; text-align: right;">REPOSIÇÃO</th>
+                  </tr>
+                </thead>
+                <tbody id="relatoriosTableBody">
+                  <tr>
+                    <td colspan="9" style="text-align: center; padding: 25px;">Carregando relatório...</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ====================================================
            9. CONFIGURAÇÕES
            ==================================================== -->
-      <section class="tab-pane" id="pane-configuracoes">
-        <div class="page-head">
-          <div class="page-title-wrap">
-            <h1 class="page-title">Configurações do Sistema</h1>
-            <p class="page-sub">Parâmetros da loja, dados fiscais, recebimentos Pix e manutenção do banco de dados</p>
-          </div>
-        </div>
-
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
-          <!-- Dados da Empresa -->
-          <div class="wms-panel">
-            <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
-              Dados da Loja & Contato
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
-              <div><small style="color: #8c929a; display: block;">Razão Social</small><strong>FAHREN MOTORS LTDA</strong></div>
-              <div><small style="color: #8c929a; display: block;">CNPJ Oficial</small><strong>47.784.317/0001-20</strong></div>
-              <div><small style="color: #8c929a; display: block;">Endereço Físico</small><strong>Rua Florianópolis, 165 – Residencial João Luiz, Hortolândia/SP</strong></div>
-              <div><small style="color: #8c929a; display: block;">WhatsApp de Atendimento</small><strong>(19) 99475-5798 • 08h às 18h</strong></div>
+        <section class="tab-pane" id="pane-configuracoes">
+          <div class="page-head">
+            <div class="page-title-wrap">
+              <h1 class="page-title">Configurações do Sistema</h1>
+              <p class="page-sub">Parâmetros da loja, dados fiscais, recebimentos Pix e manutenção do banco de dados</p>
             </div>
           </div>
 
-          <!-- Dados do Pix e Pagamentos -->
-          <div class="wms-panel">
-            <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-              Configuração Pix & Vendas
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
-              <div><small style="color: #8c929a; display: block;">Chave Pix Oficial (CNPJ)</small><strong style="font-family: monospace; font-size: 14px;">47784317000120</strong></div>
-              <div><small style="color: #8c929a; display: block;">Beneficiário Pix</small><strong>FAHREN MOTORS LTDA</strong></div>
-              <div><small style="color: #8c929a; display: block;">Desconto à Vista no Pix</small><strong style="color: #00e676;">4% de Desconto automático</strong></div>
-              <div><small style="color: #8c929a; display: block;">Parcelamento Máximo no Cartão</small><strong>Até 12x sem juros</strong></div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+            <!-- Dados da Empresa -->
+            <div class="wms-panel">
+              <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                  <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                Dados da Loja & Contato
+              </h3>
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+                <div><small style="color: #8c929a; display: block;">Razão Social</small><strong>FAHREN MOTORS
+                    LTDA</strong></div>
+                <div><small style="color: #8c929a; display: block;">CNPJ
+                    Oficial</small><strong>47.784.317/0001-20</strong></div>
+                <div><small style="color: #8c929a; display: block;">Endereço Físico</small><strong>Rua Florianópolis,
+                    165 – Residencial João Luiz, Hortolândia/SP</strong></div>
+                <div><small style="color: #8c929a; display: block;">WhatsApp de Atendimento</small><strong>(19)
+                    99475-5798 • 08h às 18h</strong></div>
+              </div>
+            </div>
+
+            <!-- Dados do Pix e Pagamentos -->
+            <div class="wms-panel">
+              <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                  <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                Configuração Pix & Vendas
+              </h3>
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+                <div><small style="color: #8c929a; display: block;">Chave Pix Oficial (CNPJ)</small><strong
+                    style="font-family: monospace; font-size: 14px;">47784317000120</strong></div>
+                <div><small style="color: #8c929a; display: block;">Beneficiário Pix</small><strong>FAHREN MOTORS
+                    LTDA</strong></div>
+                <div><small style="color: #8c929a; display: block;">Desconto à Vista no Pix</small><strong
+                    style="color: #00e676;">4% de Desconto automático</strong></div>
+                <div><small style="color: #8c929a; display: block;">Parcelamento Máximo no Cartão</small><strong>Até 12x
+                    sem juros</strong></div>
+              </div>
+            </div>
+
+            <!-- Sincronização & Manutenção -->
+            <div class="wms-panel" style="grid-column: 1 / -1;">
+              <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l6 5.67"></path>
+                </svg>
+                Sincronização do Catálogo & Banco de Dados
+              </h3>
+              <p style="color: #8c929a; font-size: 13px; margin: 8px 0 14px;">
+                Use este botão caso adicione novas peças de fábrica ou precise reparar inconsistências no banco de dados
+                Neon Postgres.
+              </p>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" type="button" id="cfgSyncCatalogBtn"
+                  onclick="document.getElementById('syncCatalogBtn')?.click()">
+                  ⚡ Sincronizar Catálogo Oficial Agora
+                </button>
+                <button class="btn btn-secondary" type="button"
+                  onclick="refreshAllData(); showToast('Dados atualizados com sucesso!');">
+                  🔄 Recarregar Dados em Tempo Real
+                </button>
+              </div>
             </div>
           </div>
+        </section>
 
-          <!-- Sincronização & Manutenção -->
-          <div class="wms-panel" style="grid-column: 1 / -1;">
-            <h3 style="margin-top: 0; display: flex; align-items: center; gap: 8px;">
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l6 5.67"></path></svg>
-              Sincronização do Catálogo & Banco de Dados
-            </h3>
-            <p style="color: #8c929a; font-size: 13px; margin: 8px 0 14px;">
-              Use este botão caso adicione novas peças de fábrica ou precise reparar inconsistências no banco de dados Neon Postgres.
-            </p>
-            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-              <button class="btn btn-primary" type="button" id="cfgSyncCatalogBtn" onclick="document.getElementById('syncCatalogBtn')?.click()">
-                ⚡ Sincronizar Catálogo Oficial Agora
-              </button>
-              <button class="btn btn-secondary" type="button" onclick="refreshAllData(); showToast('Dados atualizados com sucesso!');">
-                🔄 Recarregar Dados em Tempo Real
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-    </main>
+      </main>
+    </div>
   </div>
-</div>
 
-<!-- ====================================================
+  <!-- ====================================================
      MODAL DE EDIÇÃO DE DANFE & NOTA FISCAL (NFe)
      ==================================================== -->
-<div class="modal-overlay hidden" id="editNfModal">
-  <div class="modal-card modal-lg">
-    <div class="modal-header">
-      <div class="modal-title-box">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-        <h3 id="editNfModalTitle">Editar Dados da DANFE / Nota Fiscal</h3>
+  <div class="modal-overlay hidden" id="editNfModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          <h3 id="editNfModalTitle">Editar Dados da DANFE / Nota Fiscal</h3>
+        </div>
+        <button class="modal-close" onclick="closeEditNfModal()">✕</button>
       </div>
-      <button class="modal-close" onclick="closeEditNfModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <p class="modal-desc">Altere os dados fiscais da DANFE antes de imprimir ou despachar. As alterações serão gravadas diretamente nesta nota.</p>
-      
-      <input type="hidden" id="editNfOrderId"/>
-      
-      <div class="form-grid">
-        <div class="field">
-          <label>Número da NF *</label>
-          <input id="editNfNumber" placeholder="Ex: 000.001.204"/>
-        </div>
-        <div class="field">
-          <label>Série da NF</label>
-          <input id="editNfSeries" placeholder="Ex: 1"/>
-        </div>
-        <div class="field full-width">
-          <label>Chave de Acesso (44 dígitos NFe)</label>
-          <input id="editNfKey" placeholder="Ex: 3526 0900 0000 0000 0000 5500 1000 0012 0410 0000 0000" style="font-family:var(--font-mono);letter-spacing:1px"/>
-        </div>
-        <div class="field full-width">
-          <label>Natureza da Operação</label>
-          <input id="editNfOperation" placeholder="Ex: Venda de mercadorias no e-commerce"/>
-        </div>
-        <div class="field">
-          <label>Protocolo de Autorização SEFAZ</label>
-          <input id="editNfProtocol" placeholder="Ex: 135260009874512"/>
-        </div>
-        <div class="field">
-          <label>Data de Emissão</label>
-          <input id="editNfDate" type="datetime-local"/>
-        </div>
-        <div class="field">
-          <label>Nome / Razão Social do Destinatário</label>
-          <input id="editNfCustomerName" placeholder="Nome do cliente"/>
-        </div>
-        <div class="field">
-          <label>CPF / CNPJ do Destinatário</label>
-          <input id="editNfCustomerDoc" placeholder="000.000.000-00"/>
-        </div>
-        <div class="field full-width">
-          <label>Endereço Completo do Destinatário</label>
-          <input id="editNfCustomerAddress" placeholder="Rua, número, complemento, bairro, cidade - UF, CEP"/>
-        </div>
-        <div class="field full-width">
-          <label>Informações Complementares / Observações Fiscais</label>
-          <textarea id="editNfNotes" rows="3" placeholder="Informações fiscais, ICMS Simples Nacional, transportadora, etc."></textarea>
+      <div class="modal-body">
+        <p class="modal-desc">Altere os dados fiscais da DANFE antes de imprimir ou despachar. As alterações serão
+          gravadas diretamente nesta nota.</p>
+
+        <input type="hidden" id="editNfOrderId" />
+
+        <div class="form-grid">
+          <div class="field">
+            <label>Número da NF *</label>
+            <input id="editNfNumber" placeholder="Ex: 000.001.204" />
+          </div>
+          <div class="field">
+            <label>Série da NF</label>
+            <input id="editNfSeries" placeholder="Ex: 1" />
+          </div>
+          <div class="field full-width">
+            <label>Chave de Acesso (44 dígitos NFe)</label>
+            <input id="editNfKey" placeholder="Ex: 3526 0900 0000 0000 0000 5500 1000 0012 0410 0000 0000"
+              style="font-family:var(--font-mono);letter-spacing:1px" />
+          </div>
+          <div class="field full-width">
+            <label>Natureza da Operação</label>
+            <input id="editNfOperation" placeholder="Ex: Venda de mercadorias no e-commerce" />
+          </div>
+          <div class="field">
+            <label>Protocolo de Autorização SEFAZ</label>
+            <input id="editNfProtocol" placeholder="Ex: 135260009874512" />
+          </div>
+          <div class="field">
+            <label>Data de Emissão</label>
+            <input id="editNfDate" type="datetime-local" />
+          </div>
+          <div class="field">
+            <label>Nome / Razão Social do Destinatário</label>
+            <input id="editNfCustomerName" placeholder="Nome do cliente" />
+          </div>
+          <div class="field">
+            <label>CPF / CNPJ do Destinatário</label>
+            <input id="editNfCustomerDoc" placeholder="000.000.000-00" />
+          </div>
+          <div class="field full-width">
+            <label>Endereço Completo do Destinatário</label>
+            <input id="editNfCustomerAddress" placeholder="Rua, número, complemento, bairro, cidade - UF, CEP" />
+          </div>
+          <div class="field full-width">
+            <label>Informações Complementares / Observações Fiscais</label>
+            <textarea id="editNfNotes" rows="3"
+              placeholder="Informações fiscais, ICMS Simples Nacional, transportadora, etc."></textarea>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeEditNfModal()">Cancelar</button>
-      <button class="btn btn-primary" id="btnSaveEditedNf">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-        Salvar Alterações da DANFE
-      </button>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeEditNfModal()">Cancelar</button>
+        <button class="btn btn-primary" id="btnSaveEditedNf">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          Salvar Alterações da DANFE
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ====================================================
+  <!-- ====================================================
      MODAL DE VISUALIZAÇÃO COMPLETA DA PEÇA
      ==================================================== -->
-<div class="modal-overlay hidden" id="productViewModal">
-  <div class="modal-card modal-lg">
-    <div class="modal-header">
-      <div class="modal-title-box">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        <h3 id="pvModalTitle">Detalhes da Peça</h3>
-      </div>
-      <button class="modal-close" onclick="closeProductViewModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="pv-modal-grid">
-        <div class="pv-photo-wrap">
-          <img id="pvPhoto" src="" alt="Foto da peça"/>
+  <div class="modal-overlay hidden" id="productViewModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+          <h3 id="pvModalTitle">Detalhes da Peça</h3>
         </div>
-        <div class="pv-info-wrap">
-          <div class="pv-badge-row">
-            <span class="status-badge" id="pvCategory">Categoria</span>
-            <span class="status-badge pronto" id="pvStatus">● Em Estoque</span>
+        <button class="modal-close" onclick="closeProductViewModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="pv-modal-grid">
+          <div class="pv-photo-wrap">
+            <img id="pvPhoto" src="" alt="Foto da peça" />
           </div>
-          <h2 id="pvName" class="pv-name">Nome da Peça</h2>
-          <div class="pv-code-row">
-            <span class="pv-code-label">Código SKU:</span>
-            <strong id="pvCode" class="pv-code"></strong>
-          </div>
-          <div class="pv-price-card">
-            <div class="pv-price-pix">
-              <small>R$</small><span id="pvPricePix">0,00</span>
-              <span class="pix-micro-tag">no Pix (-4%)</span>
+          <div class="pv-info-wrap">
+            <div class="pv-badge-row">
+              <span class="status-badge" id="pvCategory">Categoria</span>
+              <span class="status-badge pronto" id="pvStatus">Em Estoque</span>
             </div>
-            <div class="pv-price-reg">Preço regular: <span id="pvPriceReg">R$ 0,00</span></div>
-          </div>
-          <div class="pv-stock-box">
-            <span>Estoque disponível:</span>
-            <strong id="pvStockQty">0 unidades</strong>
+            <h2 id="pvName" class="pv-name">Nome da Peça</h2>
+            <div class="pv-code-row">
+              <span class="pv-code-label">Código SKU:</span>
+              <strong id="pvCode" class="pv-code"></strong>
+            </div>
+            <div class="pv-price-card">
+              <div class="pv-price-pix">
+                <small>R$</small><span id="pvPricePix">0,00</span>
+                <span class="pix-micro-tag">no Pix (-4%)</span>
+              </div>
+              <div class="pv-price-reg">Preço regular: <span id="pvPriceReg">R$ 0,00</span></div>
+            </div>
+            <div class="pv-stock-box">
+              <span>Estoque disponível:</span>
+              <strong id="pvStockQty">0 unidades</strong>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div class="pv-section" style="margin-top:16px;">
-        <label class="pv-section-label">Compatibilidade Veicular (Aplicação de Modelos):</label>
-        <div class="pv-compat-box" id="pvCompatibility">Universal / Compatível</div>
-      </div>
 
-      <div class="pv-section" style="margin-top:12px;">
-        <label class="pv-section-label">Descrição e Detalhes da Peça:</label>
-        <div class="pv-desc-box" id="pvDescription">Sem descrição cadastrada.</div>
+        <div class="pv-section" style="margin-top:16px;">
+          <label class="pv-section-label">Compatibilidade Veicular (Aplicação de Modelos):</label>
+          <div class="pv-compat-box" id="pvCompatibility">Universal / Compatível</div>
+        </div>
+
+        <div class="pv-section" style="margin-top:12px;">
+          <label class="pv-section-label">Descrição e Detalhes da Peça:</label>
+          <div class="pv-desc-box" id="pvDescription">Sem descrição cadastrada.</div>
+        </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeProductViewModal()">Fechar</button>
-      <button class="btn btn-secondary" id="pvAdjustStockBtn">Ajustar Estoque</button>
-      <button class="btn btn-primary" id="pvEditBtn">Editar Dados da Peça</button>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeProductViewModal()">Fechar</button>
+        <button class="btn btn-secondary" id="pvAdjustStockBtn">Ajustar Estoque</button>
+        <button class="btn btn-primary" id="pvEditBtn">Editar Dados da Peça</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="modal-overlay hidden" id="stockModal">
-  <div class="modal-card">
-    <div class="modal-header">
-      <div class="modal-title-box">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-        <h3>Ajustar Estoque e Dados da Peça</h3>
-      </div>
-      <button class="modal-close" onclick="closeStockModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <input type="hidden" id="stockModalProdId"/>
-      
-      <!-- IDENTIFICAÇÃO E EDIÇÃO RÁPIDA DE NOME / DESCRIÇÃO -->
-      <div class="stock-modal-info" style="margin-bottom:14px;padding:12px;background:#16181d;border:1px solid var(--panel-border);border-radius:10px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <label style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin:0">Nome / Título da Peça</label>
-          <span id="stockModalProdCode" style="color:var(--text-muted);font-size:11.5px;font-family:var(--font-mono)"></span>
+  <div class="modal-overlay hidden" id="stockModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line>
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
+            </path>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+            <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          </svg>
+          <h3>Ajustar Estoque e Dados da Peça</h3>
         </div>
-        <input type="text" id="stockModalProdNameInput" placeholder="Nome da peça..." style="width:100%;margin-bottom:10px;background:#0d0f12;border:1px solid var(--panel-border);border-radius:8px;padding:9px 12px;color:#fff;font-size:14px;font-weight:600"/>
-        
-        <label style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Descrição / Aplicação da Peça</label>
-        <textarea id="stockModalProdDescInput" rows="2" placeholder="Descrição detalhada, aplicação de veículos ou especificações..." style="width:100%;background:#0d0f12;border:1px solid var(--panel-border);border-radius:8px;padding:8px 12px;color:#e1e4ea;font-size:12.5px;resize:vertical;font-family:inherit"></textarea>
+        <button class="modal-close" onclick="closeStockModal()">✕</button>
       </div>
+      <div class="modal-body">
+        <input type="hidden" id="stockModalProdId" />
 
-      <div class="stock-qty-control-box">
-        <label>Quantidade em Estoque:</label>
-        <div class="stock-stepper">
-          <button type="button" class="btn-stepper" id="btnStockMinus">−</button>
-          <input type="number" id="stockModalQty" min="0" step="1"/>
-          <button type="button" class="btn-stepper" id="btnStockPlus">+</button>
-        </div>
-      </div>
+        <!-- IDENTIFICAÇÃO E EDIÇÃO RÁPIDA DE NOME / DESCRIÇÃO -->
+        <div class="stock-modal-info"
+          style="margin-bottom:14px;padding:12px;background:#16181d;border:1px solid var(--panel-border);border-radius:10px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <label
+              style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin:0">Nome
+              / Título da Peça</label>
+            <span id="stockModalProdCode"
+              style="color:var(--text-muted);font-size:11.5px;font-family:var(--font-mono)"></span>
+          </div>
+          <input type="text" id="stockModalProdNameInput" placeholder="Nome da peça..."
+            style="width:100%;margin-bottom:10px;background:#0d0f12;border:1px solid var(--panel-border);border-radius:8px;padding:9px 12px;color:#fff;font-size:14px;font-weight:600" />
 
-      <div class="stock-quick-buttons">
-        <label>Atalhos rápidos de ajuste:</label>
-        <div class="quick-tags">
-          <button type="button" class="tag-qty" onclick="stepStockQty(5)">+5 un</button>
-          <button type="button" class="tag-qty" onclick="stepStockQty(10)">+10 un</button>
-          <button type="button" class="tag-qty" onclick="stepStockQty(20)">+20 un</button>
-          <button type="button" class="tag-qty" onclick="stepStockQty(50)">+50 un</button>
-          <button type="button" class="tag-qty tag-red" onclick="stepStockQty(-5)">−5 un</button>
-          <button type="button" class="tag-qty tag-red" onclick="document.getElementById('stockModalQty').value = 0">Zerar</button>
+          <label
+            style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;display:block;margin-bottom:6px">Descrição
+            / Aplicação da Peça</label>
+          <textarea id="stockModalProdDescInput" rows="2"
+            placeholder="Descrição detalhada, aplicação de veículos ou especificações..."
+            style="width:100%;background:#0d0f12;border:1px solid var(--panel-border);border-radius:8px;padding:8px 12px;color:#e1e4ea;font-size:12.5px;resize:vertical;font-family:inherit"></textarea>
+        </div>
+
+        <div class="stock-qty-control-box">
+          <label>Quantidade em Estoque:</label>
+          <div class="stock-stepper">
+            <button type="button" class="btn-stepper" id="btnStockMinus">−</button>
+            <input type="number" id="stockModalQty" min="0" step="1" />
+            <button type="button" class="btn-stepper" id="btnStockPlus">+</button>
+          </div>
+        </div>
+
+        <div class="stock-quick-buttons">
+          <label>Atalhos rápidos de ajuste:</label>
+          <div class="quick-tags">
+            <button type="button" class="tag-qty" onclick="stepStockQty(5)">+5 un</button>
+            <button type="button" class="tag-qty" onclick="stepStockQty(10)">+10 un</button>
+            <button type="button" class="tag-qty" onclick="stepStockQty(20)">+20 un</button>
+            <button type="button" class="tag-qty" onclick="stepStockQty(50)">+50 un</button>
+            <button type="button" class="tag-qty tag-red" onclick="stepStockQty(-5)">−5 un</button>
+            <button type="button" class="tag-qty tag-red"
+              onclick="document.getElementById('stockModalQty').value = 0">Zerar</button>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-secondary" onclick="closeStockModal()">Cancelar</button>
-      <button class="btn btn-primary" id="btnSaveStockModal">Salvar Alterações</button>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeStockModal()">Cancelar</button>
+        <button class="btn btn-primary" id="btnSaveStockModal">Salvar Alterações</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- ====================================================
+  <!-- ====================================================
      MODAL DE VISUALIZAÇÃO E IMPRESSÃO DE DANFE (NOTA FISCAL)
      ==================================================== -->
-<div class="modal-overlay hidden" id="danfeModal">
-  <div class="modal-danfe-container">
-    <div class="modal-danfe-actions no-print">
-      <div class="modal-danfe-title">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
-        <span>Visualização do DANFE / Nota Fiscal</span>
+  <div class="modal-overlay hidden" id="danfeModal">
+    <div class="modal-danfe-container">
+      <div class="modal-danfe-actions no-print">
+        <div class="modal-danfe-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+          </svg>
+          <span>Visualização do DANFE / Nota Fiscal</span>
+        </div>
+        <div class="modal-danfe-btn-group">
+          <button class="btn btn-primary" onclick="window.print()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            IMPRIMIR NOTA FISCAL (PDF / A4)
+          </button>
+          <button class="btn btn-secondary" onclick="closeDanfeModal()">FECHAR</button>
+        </div>
       </div>
-      <div class="modal-danfe-btn-group">
-        <button class="btn btn-primary" onclick="window.print()">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          IMPRIMIR NOTA FISCAL (PDF / A4)
-        </button>
-        <button class="btn btn-secondary" onclick="closeDanfeModal()">FECHAR</button>
+
+      <div class="danfe-mobile-tip no-print">
+        <span>👆 Deslize para os lados para visualizar a Nota Fiscal completa</span>
       </div>
-    </div>
 
-    <div class="danfe-mobile-tip no-print">
-      <span>👆 Deslize para os lados para visualizar a Nota Fiscal completa</span>
-    </div>
-
-    <!-- DOCUMENTO OFICIAL DANFE FORMATADO PARA IMPRESSÃO -->
-    <div class="danfe-scroll-viewport">
-      <div class="danfe-sheet" id="danfePrintArea">
-        <!-- Injetado dinamicamente via JS com dados oficiais do pedido -->
+      <!-- DOCUMENTO OFICIAL DANFE FORMATADO PARA IMPRESSÃO -->
+      <div class="danfe-scroll-viewport">
+        <div class="danfe-sheet" id="danfePrintArea">
+          <!-- Injetado dinamicamente via JS com dados oficiais do pedido -->
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ====================================================
+  <!-- ====================================================
      MODAL DE EMISSÃO / EDIÇÃO DE CARTA DE CORREÇÃO (CC-e)
      ==================================================== -->
-<div class="modal-overlay hidden" id="cceModal">
-  <div class="modal-card modal-lg">
-    <div class="modal-header">
-      <div class="modal-title-box">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-        <h3>Carta de Correção Eletrônica (CC-e)</h3>
+  <div class="modal-overlay hidden" id="cceModal">
+    <div class="modal-card modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          <h3>Carta de Correção Eletrônica (CC-e)</h3>
+        </div>
+        <button class="modal-close" onclick="closeCceModal()">✕</button>
       </div>
-      <button class="modal-close" onclick="closeCceModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <p class="modal-desc">A Carta de Correção Eletrônica (CC-e) é um evento fiscal registrado na SEFAZ vinculado à NF-e para sanar irregularidades cadastrais e operacionais.</p>
-      
-      <input type="hidden" id="cceOrderId"/>
-      
-      <!-- RESUMO DA NF-E VINCULADA -->
-      <div class="cce-nf-summary">
-        <div class="cce-summary-col">
-          <span class="cce-label">DOCUMENTO FISCAL VINCULADO</span>
-          <strong id="cceNfNumber" style="color:#fff">NF-e</strong>
-        </div>
-        <div class="cce-summary-col">
-          <span class="cce-label">DESTINATÁRIO</span>
-          <strong id="cceCustomerName" style="color:#fff">Cliente</strong>
-        </div>
-        <div class="cce-summary-col">
-          <span class="cce-label">DATA DE EMISSÃO DA NF</span>
-          <span id="cceNfDate" style="color:var(--text-secondary)">-</span>
-        </div>
-        <div class="cce-summary-col full-width">
-          <span class="cce-label">CHAVE DE ACESSO DA NF-e (44 DÍGITOS)</span>
-          <code id="cceNfKey" style="color:var(--accent-red-light);font-family:var(--font-mono);font-size:12px"></code>
-        </div>
-      </div>
+      <div class="modal-body">
+        <p class="modal-desc">A Carta de Correção Eletrônica (CC-e) é um evento fiscal registrado na SEFAZ vinculado à
+          NF-e para sanar irregularidades cadastrais e operacionais.</p>
 
-      <!-- DADOS DO EVENTO FISCAL -->
-      <div class="form-grid" style="margin-top:14px">
-        <div class="field">
-          <label>Sequencial do Evento (Seq)</label>
-          <input id="cceSeq" type="number" min="1" max="20" value="1"/>
-        </div>
-        <div class="field">
-          <label>Data / Hora do Evento SEFAZ</label>
-          <input id="cceDate" type="datetime-local"/>
-        </div>
-        <div class="field">
-          <label>Protocolo de Autorização SEFAZ</label>
-          <input id="cceProtocol" placeholder="Ex: 135260009874512"/>
-        </div>
-        <div class="field">
-          <label>Status do Evento</label>
-          <input id="cceStatus" value="135 - Evento homologado e vinculado a NF-e" readonly style="color:var(--accent-green)"/>
-        </div>
-        <div class="field full-width">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <label style="margin:0">Texto da Correção a ser Considerada * (Mín. 15 caracteres)</label>
-            <span id="cceCharCounter" style="font-size:11px;color:var(--text-muted)">0 / 1000</span>
+        <input type="hidden" id="cceOrderId" />
+
+        <!-- RESUMO DA NF-E VINCULADA -->
+        <div class="cce-nf-summary">
+          <div class="cce-summary-col">
+            <span class="cce-label">DOCUMENTO FISCAL VINCULADO</span>
+            <strong id="cceNfNumber" style="color:#fff">NF-e</strong>
           </div>
-          <textarea id="cceText" rows="4" maxlength="1000" placeholder="Descreva de forma clara e objetiva a correção pretendida.&#10;Exemplo: Correção do endereço de entrega do destinatário para: Rua das Palmeiras, nº 350, Apto 42, Bairro Centro, Hortolândia - SP, CEP 13184-000. O restante das informações da NF-e permanece inalterado."></textarea>
+          <div class="cce-summary-col">
+            <span class="cce-label">DESTINATÁRIO</span>
+            <strong id="cceCustomerName" style="color:#fff">Cliente</strong>
+          </div>
+          <div class="cce-summary-col">
+            <span class="cce-label">DATA DE EMISSÃO DA NF</span>
+            <span id="cceNfDate" style="color:var(--text-secondary)">-</span>
+          </div>
+          <div class="cce-summary-col full-width">
+            <span class="cce-label">CHAVE DE ACESSO DA NF-e (44 DÍGITOS)</span>
+            <code id="cceNfKey"
+              style="color:var(--accent-red-light);font-family:var(--font-mono);font-size:12px"></code>
+          </div>
+        </div>
+
+        <!-- DADOS DO EVENTO FISCAL -->
+        <div class="form-grid" style="margin-top:14px">
+          <div class="field">
+            <label>Sequencial do Evento (Seq)</label>
+            <input id="cceSeq" type="number" min="1" max="20" value="1" />
+          </div>
+          <div class="field">
+            <label>Data / Hora do Evento SEFAZ</label>
+            <input id="cceDate" type="datetime-local" />
+          </div>
+          <div class="field">
+            <label>Protocolo de Autorização SEFAZ</label>
+            <input id="cceProtocol" placeholder="Ex: 135260009874512" />
+          </div>
+          <div class="field">
+            <label>Status do Evento</label>
+            <input id="cceStatus" value="135 - Evento homologado e vinculado a NF-e" readonly
+              style="color:var(--accent-green)" />
+          </div>
+          <div class="field full-width">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+              <label style="margin:0">Texto da Correção a ser Considerada * (Mín. 15 caracteres)</label>
+              <span id="cceCharCounter" style="font-size:11px;color:var(--text-muted)">0 / 1000</span>
+            </div>
+            <textarea id="cceText" rows="4" maxlength="1000"
+              placeholder="Descreva de forma clara e objetiva a correção pretendida.&#10;Exemplo: Correção do endereço de entrega do destinatário para: Rua das Palmeiras, nº 350, Apto 42, Bairro Centro, Hortolândia - SP, CEP 13184-000. O restante das informações da NF-e permanece inalterado."></textarea>
+          </div>
+        </div>
+
+        <!-- ALERTA LEGAL SEFAZ -->
+        <div class="cce-legal-notice">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <p><strong>Condições de Uso (§ 1º-A do art. 7º do Convênio S/N de 15/12/1970):</strong> A Carta de Correção
+            NÃO pode ser utilizada para sanar erros relacionados a: <strong>I</strong> - valores de impostos ou cálculos
+            fiscais; <strong>II</strong> - dados cadastrais que impliquem mudança completa de remetente ou destinatário;
+            <strong>III</strong> - data de emissão ou saída.</p>
         </div>
       </div>
-
-      <!-- ALERTA LEGAL SEFAZ -->
-      <div class="cce-legal-notice">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-        <p><strong>Condições de Uso (§ 1º-A do art. 7º do Convênio S/N de 15/12/1970):</strong> A Carta de Correção NÃO pode ser utilizada para sanar erros relacionados a: <strong>I</strong> - valores de impostos ou cálculos fiscais; <strong>II</strong> - dados cadastrais que impliquem mudança completa de remetente ou destinatário; <strong>III</strong> - data de emissão ou saída.</p>
-      </div>
-    </div>
-    <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center">
-      <div>
-        <button class="btn btn-secondary" onclick="closeCceModal()">Cancelar</button>
-      </div>
-      <div style="display:flex;gap:8px">
-        <button class="btn btn-secondary hidden" id="btnPrintDacceFromModal" type="button">
-          🖨️ Imprimir Correção
-        </button>
-        <button class="btn btn-primary" id="btnSaveCce">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          Salvar e Vincular CC-e
-        </button>
+      <div class="modal-footer" style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <button class="btn btn-secondary" onclick="closeCceModal()">Cancelar</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-secondary hidden" id="btnPrintDacceFromModal" type="button">
+            🖨️ Imprimir Correção
+          </button>
+          <button class="btn btn-primary" id="btnSaveCce">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            Salvar e Vincular CC-e
+          </button>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ====================================================
+  <!-- ====================================================
      MODAL DE VISUALIZAÇÃO E IMPRESSÃO DA CARTA DE CORREÇÃO
      ==================================================== -->
-<div class="modal-overlay hidden" id="dacceModal">
-  <div class="modal-danfe-container">
-    <div class="modal-danfe-actions no-print">
-      <div class="modal-danfe-title">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
-        <span>Visualização da Carta de Correção Eletrônica (CC-e)</span>
+  <div class="modal-overlay hidden" id="dacceModal">
+    <div class="modal-danfe-container">
+      <div class="modal-danfe-actions no-print">
+        <div class="modal-danfe-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+          </svg>
+          <span>Visualização da Carta de Correção Eletrônica (CC-e)</span>
+        </div>
+        <div class="modal-danfe-btn-group">
+          <button class="btn btn-primary" onclick="window.print()">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            IMPRIMIR CORREÇÃO (PDF / A4)
+          </button>
+          <button class="btn btn-secondary" onclick="closeDacceModal()">FECHAR</button>
+        </div>
       </div>
-      <div class="modal-danfe-btn-group">
-        <button class="btn btn-primary" onclick="window.print()">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-          IMPRIMIR CORREÇÃO (PDF / A4)
-        </button>
-        <button class="btn btn-secondary" onclick="closeDacceModal()">FECHAR</button>
+
+      <div class="danfe-mobile-tip no-print">
+        <span>👆 Deslize para os lados para visualizar a folha completa</span>
       </div>
-    </div>
 
-    <div class="danfe-mobile-tip no-print">
-      <span>👆 Deslize para os lados para visualizar a folha completa</span>
-    </div>
-
-    <!-- FOLHA OFICIAL DACCE FORMATADA PARA IMPRESSÃO A4 -->
-    <div class="danfe-scroll-viewport">
-      <div class="danfe-sheet dacce-sheet" id="daccePrintArea">
-        <!-- Injetado dinamicamente via JS -->
+      <!-- FOLHA OFICIAL DACCE FORMATADA PARA IMPRESSÃO A4 -->
+      <div class="danfe-scroll-viewport">
+        <div class="danfe-sheet dacce-sheet" id="daccePrintArea">
+          <!-- Injetado dinamicamente via JS -->
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- TOAST NOTIFICATION DE ATUALIZAÇÃO -->
-<div class="wms-toast" id="wmsToast">
-  <span class="wms-toast-icon">
-    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
-  </span>
-  <span id="wmsToastMsg">Sistema atualizado com sucesso!</span>
-</div>
+  <!-- TOAST NOTIFICATION DE ATUALIZAÇÃO -->
+  <div class="wms-toast" id="wmsToast">
+    <span class="wms-toast-icon">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="20 6 9 17 4 12"></polyline>
+      </svg>
+    </span>
+    <span id="wmsToastMsg">Sistema atualizado com sucesso!</span>
+  </div>
 
-<script src="/admin/admin.js?v=20260908_3"></script>
+  <script src="/admin/admin.js?v=20260908_4"></script>
 </body>
+
 </html>
