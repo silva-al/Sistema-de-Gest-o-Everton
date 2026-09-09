@@ -643,24 +643,36 @@
           <!-- GRID PRINCIPAL DE ESTOQUE: TABELA À ESQUERDA + WIDGET DE LOCALIZAÇÃO À DIREITA -->
           <div class="estoque-main-grid">
             <div class="estoque-left-col">
-              <!-- FILTROS -->
-              <div class="est-filters-row">
-                <div class="est-search-wrap">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="11" cy="11" r="8"></circle>
-                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                  </svg>
-                  <input id="stockSearch" placeholder="Buscar por peça, código, categoria, localização..." />
-                </div>
-                <select class="wms-input-clean" id="stockCategoryFilter">
-                  <option value="">Todas as categorias</option>
-                </select>
+              <!-- FILTROS PADRONIZADOS (MODELO PEDIDOS) -->
+              <div class="pedidos-toolbar">
                 <select class="wms-input-clean" id="stockStatusFilter">
                   <option value="">Todos os status</option>
                   <option value="disponivel">Disponível</option>
                   <option value="baixo">Estoque baixo</option>
                   <option value="zerado">Sem estoque</option>
                 </select>
+                <select class="wms-input-clean" id="stockCategoryFilter">
+                  <option value="">Todas as categorias</option>
+                </select>
+                <div class="ped-date-range">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  <span>Catálogo Ativo</span>
+                </div>
+                <div class="ped-search-wrap">
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <input id="stockSearch" placeholder="Buscar por peça, código, categoria, localização..." />
+                </div>
+                <button class="btn btn-primary btn-sm" type="button" onclick="openNewProductForm()">
+                  + Cadastrar Peça
+                </button>
               </div>
 
               <!-- TABELA COM COLUNA DE LOCALIZAÇÃO -->
@@ -1323,7 +1335,7 @@
             </div>
           </div>
 
-          <!-- 4 Operation Cards (Screen 5) -->
+          <!-- 4 Operation Cards Padronizados (Screen 5) -->
           <div class="wms-op-cards-grid">
             <div class="wms-op-card op-card-entrada" onclick="openStockOperationModal('entrada')">
               <div class="op-card-icon entrada-icon">
@@ -1332,7 +1344,7 @@
               <div class="op-card-body">
                 <h3>Entrada de Estoque</h3>
                 <p>Registrar produtos recebidos de fornecedores, compras ou devoluções</p>
-                <button class="btn btn-op-action btn-op-entrada">+ Registrar Entrada</button>
+                <button class="btn btn-primary btn-sm">+ Registrar Entrada</button>
               </div>
             </div>
 
@@ -1343,7 +1355,7 @@
               <div class="op-card-body">
                 <h3>Saída de Estoque</h3>
                 <p>Registrar produtos que saíram para balcão, perda, descarte ou consumo interno</p>
-                <button class="btn btn-op-action btn-op-saida">- Registrar Saída</button>
+                <button class="btn btn-primary btn-sm">- Registrar Saída</button>
               </div>
             </div>
 
@@ -1354,7 +1366,7 @@
               <div class="op-card-body">
                 <h3>Transferência</h3>
                 <p>Mover produtos entre corredores, módulos e prateleiras do armazém</p>
-                <button class="btn btn-op-action btn-op-transf">&#8646; Mover Produtos</button>
+                <button class="btn btn-primary btn-sm">&#8646; Mover Produtos</button>
               </div>
             </div>
 
@@ -1365,15 +1377,45 @@
               <div class="op-card-body">
                 <h3>Inventário & Auditoria</h3>
                 <p>Realizar contagens físicas no armazém e conciliar divergências</p>
-                <button class="btn btn-op-action btn-op-inv">&#128203; Iniciar Inventário</button>
+                <button class="btn btn-primary btn-sm">&#128203; Iniciar Inventário</button>
               </div>
             </div>
           </div>
 
+          <!-- Barra de Filtros Padronizada (Modelo Pedidos) -->
+          <div class="pedidos-toolbar" style="margin-top: 24px;">
+            <select class="wms-input-clean" id="filterRecentOpType" onchange="filterRecentOps(this.value)">
+              <option value="">Todas as operações</option>
+              <option value="entrada">Entradas (+)</option>
+              <option value="saida">Saídas (-)</option>
+              <option value="transferencia">Transferências (⇄)</option>
+              <option value="ajuste">Ajustes</option>
+            </select>
+            <div class="ped-date-range">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Hoje, 09/09/2026</span>
+            </div>
+            <div class="ped-search-wrap">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="filterRecentOpSearch" placeholder="Buscar nas operações recentes..." oninput="filterRecentOpsSearch(this.value)" />
+            </div>
+            <button class="btn btn-primary btn-sm" type="button" onclick="openStockOperationModal('entrada')">
+              + Nova Operação
+            </button>
+          </div>
+
           <!-- Operações Recentes -->
-          <div class="wms-panel" style="margin-top: 24px;">
+          <div class="wms-panel ped-table-card">
             <div class="wms-panel-header">
-              <h3>Operações Recentes</h3>
+              <h3>Histórico de Operações Recentes</h3>
               <button class="btn btn-sm btn-ghost" onclick="loadRecentOperations()">Atualizar</button>
             </div>
             <div class="table-responsive">
@@ -1413,91 +1455,127 @@
               </h1>
               <p class="page-subtitle">Histórico completo e auditoria de entradas, saídas, transferências e ajustes</p>
             </div>
-            <div class="page-actions">
-              <button class="btn btn-primary" onclick="openStockOperationModal('entrada')">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                + Nova Operação
-              </button>
+          </div>
+
+          <!-- KPI Summary Row Padronizado (Modelo Pedidos) -->
+          <div class="pedidos-kpis-bar kpi-cols-4">
+            <div class="ped-kpi-card" onclick="filterMovByType('entrada')">
+              <div class="ped-kpi-icon icon-green-truck">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="7 10 12 15 17 10"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3"></line>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Entradas</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="kpiMovEntradas">0 un.</strong>
+                  <svg class="mini-sparkline spark-green" viewBox="0 0 60 20">
+                    <path d="M0 17 Q 20 10, 40 12 T 60 3" fill="none" stroke="#10b981" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-green" id="kpiMovEntradasCount">0 registros</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" onclick="filterMovByType('saida')">
+              <div class="ped-kpi-icon icon-red-cart">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="17 8 12 3 7 8"></polyline>
+                  <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Saídas</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="kpiMovSaidas">0 un.</strong>
+                  <svg class="mini-sparkline spark-red" viewBox="0 0 60 20">
+                    <path d="M0 16 Q 15 18, 30 10 T 60 4" fill="none" stroke="#dc2626" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-red" id="kpiMovSaidasCount">0 registros</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" onclick="filterMovByType('transferencia')">
+              <div class="ped-kpi-icon icon-blue-check">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="16 3 21 3 21 8"></polyline>
+                  <line x1="4" y1="20" x2="21" y2="3"></line>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Transferências</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="kpiMovTransf">0 un.</strong>
+                  <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20">
+                    <path d="M0 18 Q 15 12, 35 15 T 60 5" fill="none" stroke="#2563eb" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-blue" id="kpiMovTransfCount">0 registros</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" onclick="filterMovByType('ajuste')">
+              <div class="ped-kpi-icon icon-orange-gear">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Ajustes & Auditoria</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="kpiMovAjustes">0 un.</strong>
+                  <svg class="mini-sparkline spark-orange" viewBox="0 0 60 20">
+                    <path d="M0 15 Q 20 18, 40 10 T 60 6" fill="none" stroke="#d97706" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-orange" id="kpiMovAjustesCount">0 registros</span>
+              </div>
             </div>
           </div>
 
-          <!-- KPI Summary Row (Screen 4) -->
-          <div class="wms-kpi-grid">
-            <div class="wms-kpi-card border-green">
-              <div class="kpi-icon-wrap bg-green-light">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--success-color, #10b981)" stroke-width="2"><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              </div>
-              <div class="kpi-data">
-                <span class="kpi-label">Entradas</span>
-                <strong class="kpi-val" id="kpiMovEntradas">0 un.</strong>
-                <small class="kpi-sub" id="kpiMovEntradasCount">0 registros</small>
-              </div>
+          <!-- BARRA DE FILTROS SUPERIOR PADRONIZADA (MODELO PEDIDOS) -->
+          <div class="pedidos-toolbar">
+            <select class="wms-input-clean" id="filterMovType" onchange="loadStockMovements()">
+              <option value="">Todas as ações</option>
+              <option value="entrada">Entradas (+)</option>
+              <option value="saida">Saídas (-)</option>
+              <option value="transferencia">Transferências (⇄)</option>
+              <option value="ajuste">Ajustes</option>
+              <option value="inventario">Inventário</option>
+            </select>
+            <select class="wms-input-clean" id="filterMovDays" onchange="loadStockMovements()">
+              <option value="30">Últimos 30 dias</option>
+              <option value="7">Últimos 7 dias</option>
+              <option value="1">Hoje</option>
+              <option value="90">Últimos 90 dias</option>
+              <option value="365">Todo o histórico</option>
+            </select>
+            <div class="ped-date-range">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>01/09/2026 - 09/09/2026</span>
             </div>
-
-            <div class="wms-kpi-card border-red">
-              <div class="kpi-icon-wrap bg-red-light">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--danger-color, #ef4444)" stroke-width="2"><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-              </div>
-              <div class="kpi-data">
-                <span class="kpi-label">Saídas</span>
-                <strong class="kpi-val" id="kpiMovSaidas">0 un.</strong>
-                <small class="kpi-sub" id="kpiMovSaidasCount">0 registros</small>
-              </div>
+            <div class="ped-search-wrap">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="filterMovSearch" placeholder="Buscar por produto, SKU, responsável, motivo..." oninput="debounceMovFilter()" />
             </div>
-
-            <div class="wms-kpi-card border-blue">
-              <div class="kpi-icon-wrap bg-blue-light">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#3b82f6" stroke-width="2"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line></svg>
-              </div>
-              <div class="kpi-data">
-                <span class="kpi-label">Transferências</span>
-                <strong class="kpi-val" id="kpiMovTransf">0 un.</strong>
-                <small class="kpi-sub" id="kpiMovTransfCount">0 registros</small>
-              </div>
-            </div>
-
-            <div class="wms-kpi-card border-purple">
-              <div class="kpi-icon-wrap bg-purple-light">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#8b5cf6" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-              </div>
-              <div class="kpi-data">
-                <span class="kpi-label">Ajustes & Inventário</span>
-                <strong class="kpi-val" id="kpiMovAjustes">0 un.</strong>
-                <small class="kpi-sub" id="kpiMovAjustesCount">0 registros</small>
-              </div>
-            </div>
+            <button class="btn btn-primary btn-sm" type="button" onclick="openStockOperationModal('entrada')">
+              + Nova Operação
+            </button>
           </div>
 
-          <!-- Filtros da Tabela -->
-          <div class="wms-panel">
-            <div class="table-toolbar">
-              <div class="search-input-wrap">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="filterMovSearch" placeholder="Buscar por produto, SKU, responsável..." oninput="debounceMovFilter()" />
-              </div>
-              <div class="toolbar-filters">
-                <select id="filterMovType" onchange="loadStockMovements()">
-                  <option value="">Todas as ações</option>
-                  <option value="entrada">Entradas (+)</option>
-                  <option value="saida">Saídas (-)</option>
-                  <option value="transferencia">Transferências (⇄)</option>
-                  <option value="ajuste">Ajustes</option>
-                  <option value="inventario">Inventário</option>
-                </select>
-                <select id="filterMovDays" onchange="loadStockMovements()">
-                  <option value="30">Últimos 30 dias</option>
-                  <option value="7">Últimos 7 dias</option>
-                  <option value="1">Hoje</option>
-                  <option value="90">Últimos 90 dias</option>
-                  <option value="365">Todo o histórico</option>
-                </select>
-                <button class="btn btn-secondary btn-icon" onclick="loadStockMovements()" title="Atualizar">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                </button>
-              </div>
-            </div>
-
-            <!-- Tabela Geral de Movimentações -->
+          <!-- Tabela Geral de Movimentações -->
+          <div class="wms-panel ped-table-card">
             <div class="table-responsive">
               <table class="wms-table" id="tableStockMovements">
                 <thead>
@@ -1539,69 +1617,126 @@
               </h1>
               <p class="page-subtitle">Contagem física periódica, cálculo de acurácia e conciliação de saldos</p>
             </div>
-            <div class="page-actions">
-              <button class="btn btn-primary" onclick="openNewInventoryModal()">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                + Nova Contagem Física
-              </button>
+          </div>
+
+          <!-- KPI Summary Row Padronizado (Modelo Pedidos) -->
+          <div class="pedidos-kpis-bar kpi-cols-4">
+            <div class="ped-kpi-card" onclick="filterInventoryByStatus('ok')">
+              <div class="ped-kpi-icon icon-green-truck">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Acurácia do Armazém</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="invKpiAccuracy">100%</strong>
+                  <svg class="mini-sparkline spark-green" viewBox="0 0 60 20">
+                    <path d="M0 17 Q 20 10, 40 12 T 60 3" fill="none" stroke="#10b981" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-green">Saldos conferidos</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" onclick="filterInventoryByStatus('')">
+              <div class="ped-kpi-icon icon-blue-check">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                  <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Itens Auditados</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="invKpiAudited">0 / 0</strong>
+                  <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20">
+                    <path d="M0 18 Q 15 12, 35 15 T 60 5" fill="none" stroke="#2563eb" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-blue" id="invKpiAuditedPct">0% do catálogo</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" onclick="filterInventoryByStatus('divergente')">
+              <div class="ped-kpi-icon icon-red-clock">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Divergências</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="invKpiDiscrepancies">0 itens</strong>
+                  <svg class="mini-sparkline spark-red" viewBox="0 0 60 20">
+                    <path d="M0 16 Q 15 18, 30 10 T 60 4" fill="none" stroke="#dc2626" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-red">Aguardando conciliação</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card" onclick="filterInventoryByStatus('pendente')">
+              <div class="ped-kpi-icon icon-orange-gear">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="3"></circle>
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Auditoria & Ciclo</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="invKpiCycle">Ativo</strong>
+                  <svg class="mini-sparkline spark-orange" viewBox="0 0 60 20">
+                    <path d="M0 15 Q 20 18, 40 10 T 60 6" fill="none" stroke="#d97706" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-orange">Rotina WMS</span>
+              </div>
             </div>
           </div>
 
-          <!-- KPI Summary -->
-          <div class="wms-kpi-grid">
-            <div class="wms-kpi-card border-green">
-              <div class="kpi-icon-wrap bg-green-light">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--success-color, #10b981)" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-              </div>
-              <div class="kpi-data">
-                <span class="kpi-label">Acurácia do Armazém</span>
-                <strong class="kpi-val" id="invKpiAccuracy">100%</strong>
-                <small class="kpi-sub">Saldos conferidos</small>
-              </div>
+          <!-- BARRA DE FILTROS SUPERIOR PADRONIZADA (MODELO PEDIDOS) -->
+          <div class="pedidos-toolbar">
+            <select class="wms-input-clean" id="filterInvStatus" onchange="loadInventoryAudit()">
+              <option value="">Todos os status</option>
+              <option value="ok">Conferidos (OK)</option>
+              <option value="divergente">Divergentes</option>
+              <option value="pendente">Pendentes de Contagem</option>
+            </select>
+            <select class="wms-input-clean" id="filterInvCorredor" onchange="filterInventoryByCorredor(this.value)">
+              <option value="">Todos os corredores</option>
+              <option value="A">Corredor A</option>
+              <option value="B">Corredor B</option>
+              <option value="C">Corredor C</option>
+              <option value="D">Corredor D</option>
+              <option value="H">Corredor H</option>
+            </select>
+            <div class="ped-date-range">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>01/09/2026 - 09/09/2026</span>
             </div>
-
-            <div class="wms-kpi-card border-blue">
-              <div class="kpi-icon-wrap bg-blue-light">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
-              </div>
-              <div class="kpi-data">
-                <span class="kpi-label">Itens Auditados</span>
-                <strong class="kpi-val" id="invKpiAudited">0 / 0</strong>
-                <small class="kpi-sub" id="invKpiAuditedPct">0% do catálogo</small>
-              </div>
+            <div class="ped-search-wrap">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="filterInvSearch" placeholder="Buscar por peça, código SKU, localização..." oninput="debounceInvFilter()" />
             </div>
-
-            <div class="wms-kpi-card border-red">
-              <div class="kpi-icon-wrap bg-red-light">
-                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="var(--danger-color, #ef4444)" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-              </div>
-              <div class="kpi-data">
-                <span class="kpi-label">Divergências</span>
-                <strong class="kpi-val" id="invKpiDiscrepancies">0 itens</strong>
-                <small class="kpi-sub">Aguardando conciliação</small>
-              </div>
-            </div>
+            <button class="btn btn-primary btn-sm" type="button" onclick="openNewInventoryModal()">
+              + Nova Contagem
+            </button>
           </div>
 
           <!-- Tabela de Inventário -->
-          <div class="wms-panel">
-            <div class="table-toolbar">
-              <div class="search-input-wrap">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="filterInvSearch" placeholder="Buscar por peça, código SKU, localização..." oninput="debounceInvFilter()" />
-              </div>
-              <div class="toolbar-filters">
-                <select id="filterInvStatus" onchange="loadInventoryAudit()">
-                  <option value="">Todos os status</option>
-                  <option value="ok">Conferidos (OK)</option>
-                  <option value="divergente">Divergentes</option>
-                  <option value="pendente">Pendentes de Contagem</option>
-                </select>
-                <button class="btn btn-secondary btn-icon" onclick="loadInventoryAudit()" title="Atualizar">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                </button>
-              </div>
-            </div>
+          <div class="wms-panel ped-table-card">
 
             <div class="table-responsive">
               <table class="wms-table" id="tableInventoryAudit">
@@ -1641,61 +1776,128 @@
               </h1>
               <p class="page-subtitle">Central operacional de itens que necessitam de reposição, endereçamento ou conciliação</p>
             </div>
-            <div class="page-actions">
-              <button class="btn btn-primary" onclick="openStockOperationModal('entrada')">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                + Repor Estoque
-              </button>
+          </div>
+
+          <!-- Alert Category Cards Padronizados (Modelo Pedidos) -->
+          <div class="pedidos-kpis-bar kpi-cols-4">
+            <div class="ped-kpi-card card-critico active" onclick="filterAlertTab('critico')">
+              <div class="ped-kpi-icon icon-red-clock">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Estoque Crítico</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="alertCardCriticoCount">0</strong>
+                  <svg class="mini-sparkline spark-red" viewBox="0 0 60 20">
+                    <path d="M0 16 Q 15 18, 30 10 T 60 4" fill="none" stroke="#dc2626" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-red">Produtos Zerados</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card card-baixo" onclick="filterAlertTab('baixo')">
+              <div class="ped-kpi-icon icon-orange-gear">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                  <line x1="12" y1="9" x2="12" y2="13"></line>
+                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Abaixo do Mínimo</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="alertCardBaixoCount">0</strong>
+                  <svg class="mini-sparkline spark-orange" viewBox="0 0 60 20">
+                    <path d="M0 15 Q 20 18, 40 10 T 60 6" fill="none" stroke="#d97706" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-orange">Abaixo da segurança</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card card-sem-local" onclick="filterAlertTab('sem_local')">
+              <div class="ped-kpi-icon icon-blue-check">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Sem Localização</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="alertCardSemLocalCount">0</strong>
+                  <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20">
+                    <path d="M0 18 Q 15 12, 35 15 T 60 5" fill="none" stroke="#2563eb" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-blue">Pendente de endereçamento</span>
+              </div>
+            </div>
+
+            <div class="ped-kpi-card card-divergencia" onclick="filterAlertTab('divergencia')">
+              <div class="ped-kpi-icon icon-red-cart">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                </svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Divergências</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="alertCardDivergenciaCount">0</strong>
+                  <svg class="mini-sparkline spark-red" viewBox="0 0 60 20">
+                    <path d="M0 16 Q 15 18, 30 10 T 60 4" fill="none" stroke="#dc2626" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-red">Auditoria do estoque</span>
+              </div>
             </div>
           </div>
 
-          <!-- Alert Category Cards (Screen 7) -->
-          <div class="wms-alert-cards-grid">
-            <div class="wms-alert-card card-critico active" onclick="filterAlertTab('critico')">
-              <div class="alert-card-badge">🔴 Crítico</div>
-              <strong class="alert-card-num" id="alertCardCriticoCount">0</strong>
-              <span class="alert-card-label">Produtos Zerados</span>
+          <!-- BARRA DE FILTROS SUPERIOR PADRONIZADA (MODELO PEDIDOS) -->
+          <div class="pedidos-toolbar">
+            <select class="wms-input-clean" id="filterAlertSelect" onchange="filterAlertTab(this.value)">
+              <option value="todos">Todos os alertas</option>
+              <option value="critico">Estoque Crítico (Zerado)</option>
+              <option value="baixo">Abaixo do Mínimo</option>
+              <option value="sem_local">Sem Localização</option>
+              <option value="divergencia">Divergências de Inventário</option>
+            </select>
+            <select class="wms-input-clean" id="filterAlertPrioridade" onchange="filterAlertsByPriority(this.value)">
+              <option value="">Todas as prioridades</option>
+              <option value="alta">Alta Prioridade</option>
+              <option value="media">Média Prioridade</option>
+              <option value="baixa">Baixa Prioridade</option>
+            </select>
+            <div class="ped-date-range">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Hoje, 09/09/2026</span>
             </div>
-
-            <div class="wms-alert-card card-baixo" onclick="filterAlertTab('baixo')">
-              <div class="alert-card-badge">🟠 Atenção</div>
-              <strong class="alert-card-num" id="alertCardBaixoCount">0</strong>
-              <span class="alert-card-label">Abaixo do Mínimo</span>
+            <div class="ped-search-wrap">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="filterAlertSearch" placeholder="Buscar por peça, SKU..." oninput="debounceAlertFilter()" />
             </div>
-
-            <div class="wms-alert-card card-sem-local" onclick="filterAlertTab('sem_local')">
-              <div class="alert-card-badge">📍 Pendente</div>
-              <strong class="alert-card-num" id="alertCardSemLocalCount">0</strong>
-              <span class="alert-card-label">Sem Localização</span>
-            </div>
-
-            <div class="wms-alert-card card-divergencia" onclick="filterAlertTab('divergencia')">
-              <div class="alert-card-badge">📋 Auditoria</div>
-              <strong class="alert-card-num" id="alertCardDivergenciaCount">0</strong>
-              <span class="alert-card-label">Divergência Inventário</span>
-            </div>
+            <button class="btn btn-primary btn-sm" type="button" onclick="openStockOperationModal('entrada')">
+              + Repor Estoque
+            </button>
           </div>
 
           <!-- Alert Products Table -->
-          <div class="wms-panel">
-            <div class="table-toolbar">
-              <div class="search-input-wrap">
-                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="filterAlertSearch" placeholder="Buscar por peça, SKU..." oninput="debounceAlertFilter()" />
-              </div>
-              <div class="toolbar-filters">
-                <select id="filterAlertSelect" onchange="filterAlertTab(this.value)">
-                  <option value="todos">Todos os alertas</option>
-                  <option value="critico">Estoque Crítico (Zerado)</option>
-                  <option value="baixo">Abaixo do Mínimo</option>
-                  <option value="sem_local">Sem Localização</option>
-                  <option value="divergencia">Divergências de Inventário</option>
-                </select>
-                <button class="btn btn-secondary btn-icon" onclick="loadStockAlerts()" title="Atualizar">
-                  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 4v6h-6"></path><path d="M1 20v-6h6"></path><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                </button>
-              </div>
-            </div>
+          <div class="wms-panel ped-table-card">
 
             <div class="table-responsive">
               <table class="wms-table" id="tableAlerts">
@@ -1733,12 +1935,36 @@
               </h1>
               <p class="page-subtitle">Estrutura física do galpão: corredores, módulos, prateleiras e mapa visual</p>
             </div>
-            <div class="page-actions">
-              <button class="btn btn-secondary" onclick="openLocationPickerModal()">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                + Nova Posição
-              </button>
+          </div>
+
+          <!-- BARRA DE FILTROS SUPERIOR PADRONIZADA (MODELO PEDIDOS) -->
+          <div class="pedidos-toolbar">
+            <select class="wms-input-clean" id="filterLocAisleSelect" onchange="selectAisle(this.value)">
+              <option value="A">Corredor A</option>
+              <option value="B">Corredor B</option>
+              <option value="C">Corredor C</option>
+              <option value="D">Corredor D</option>
+              <option value="H" selected>Corredor H</option>
+            </select>
+            <div class="ped-date-range">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Mapa do Armazém</span>
             </div>
+            <div class="ped-search-wrap">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input type="text" id="filterLocSearch" placeholder="Buscar código de endereço (ex: H-04-04) ou peça..." oninput="filterWarehouseRackSearch(this.value)" />
+            </div>
+            <button class="btn btn-primary btn-sm" type="button" onclick="openLocationPickerModal()">
+              + Nova Posição
+            </button>
           </div>
 
           <!-- Warehouse Spatial Grid Layout (Screen 8) -->
@@ -2015,20 +2241,36 @@
             </div>
           </div>
 
-          <!-- TABELA DE NOTAS FISCAIS -->
-          <div class="wms-panel">
-            <div class="table-toolbar">
-              <div class="search-box">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input id="nfSearchInput" placeholder="Buscar por número da NF, chave de acesso ou cliente..." />
-              </div>
-              <button class="btn btn-primary btn-sm" id="emitAllPendingNfBtn">
-                ⚡ EMITIR NOTAS PENDENTES
-              </button>
+          <!-- BARRA DE FILTROS SUPERIOR PADRONIZADA (MODELO PEDIDOS) -->
+          <div class="pedidos-toolbar">
+            <select class="wms-input-clean" id="nfStatusFilter" onchange="filterNfStatus(this.value)">
+              <option value="">Todas as notas</option>
+              <option value="autorizada">Autorizadas</option>
+              <option value="pendente">Pendentes de Emissão</option>
+            </select>
+            <div class="ped-date-range">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>01/09/2026 - 09/09/2026</span>
             </div>
+            <div class="ped-search-wrap">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input id="nfSearchInput" placeholder="Buscar por número da NF, chave de acesso ou cliente..." />
+            </div>
+            <button class="btn btn-primary btn-sm" id="emitAllPendingNfBtn">
+              ⚡ Emitir Notas Pendentes
+            </button>
+          </div>
+
+          <!-- TABELA DE NOTAS FISCAIS -->
+          <div class="wms-panel ped-table-card">
 
             <div class="table-responsive">
               <table class="wms-table">
@@ -2083,59 +2325,125 @@
             </div>
           </div>
 
-          <!-- CARDS KPI DE RELATÓRIO -->
-          <div class="kpi-grid"
-            style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 20px;">
-            <div class="kpi-card">
-              <span class="kpi-title">TOTAL DE PEÇAS</span>
-              <div class="kpi-value" id="repTotalProducts">0</div>
-              <span class="kpi-sub">Cadastradas no catálogo</span>
+          <!-- CARDS KPI DE RELATÓRIO PADRONIZADOS (MODELO PEDIDOS) -->
+          <div class="pedidos-kpis-bar">
+            <div class="ped-kpi-card" onclick="filterRelatorios('all')">
+              <div class="ped-kpi-icon icon-blue-check">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"></rect><polyline points="9 11 12 14 22 4"></polyline></svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Total de Peças</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="repTotalProducts">0</strong>
+                  <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20">
+                    <path d="M0 18 Q 15 12, 35 15 T 60 5" fill="none" stroke="#2563eb" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-blue">Catálogo ativo</span>
+              </div>
             </div>
-            <div class="kpi-card">
-              <span class="kpi-title">ESTOQUE NORMAL</span>
-              <div class="kpi-value" id="repNormalStock" style="color: #00e676;">0</div>
-              <span class="kpi-sub">Mais de 5 unidades em galpão</span>
+
+            <div class="ped-kpi-card" onclick="filterRelatorios('normal')">
+              <div class="ped-kpi-icon icon-green-truck">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Estoque Normal</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="repNormalStock">0</strong>
+                  <svg class="mini-sparkline spark-green" viewBox="0 0 60 20">
+                    <path d="M0 17 Q 20 10, 40 12 T 60 3" fill="none" stroke="#10b981" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-green">&gt; 5 unidades</span>
+              </div>
             </div>
-            <div class="kpi-card">
-              <span class="kpi-title">ESTOQUE BAIXO</span>
-              <div class="kpi-value" id="repLowStock" style="color: #ffb300;">0</div>
-              <span class="kpi-sub">Entre 1 e 5 unidades (atenção)</span>
+
+            <div class="ped-kpi-card" onclick="filterRelatorios('baixo')">
+              <div class="ped-kpi-icon icon-orange-gear">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Estoque Baixo</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="repLowStock">0</strong>
+                  <svg class="mini-sparkline spark-orange" viewBox="0 0 60 20">
+                    <path d="M0 15 Q 20 18, 40 10 T 60 6" fill="none" stroke="#d97706" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-orange">Atenção (1 a 5 un.)</span>
+              </div>
             </div>
-            <div class="kpi-card kpi-card-danger" style="border-color: rgba(237, 28, 36, 0.4);">
-              <span class="kpi-title" style="color: #ff4d56;">PEÇAS ZERADAS</span>
-              <div class="kpi-value" id="repZeroStock" style="color: #ff3344;">0</div>
-              <span class="kpi-sub">Sem estoque (em falta)</span>
+
+            <div class="ped-kpi-card" onclick="filterRelatorios('zero')">
+              <div class="ped-kpi-icon icon-red-clock">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Peças Zeradas</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="repZeroStock">0</strong>
+                  <svg class="mini-sparkline spark-red" viewBox="0 0 60 20">
+                    <path d="M0 16 Q 15 18, 30 10 T 60 4" fill="none" stroke="#dc2626" stroke-width="2"></path>
+                  </svg>
+                </div>
+                <span class="ped-kpi-trend trend-red">Reposição urgente</span>
+              </div>
             </div>
-            <div class="kpi-card">
-              <span class="kpi-title">VALOR DO INVENTÁRIO</span>
-              <div class="kpi-value" id="repTotalStockValue" style="font-size: 20px;">R$ 0,00</div>
-              <span class="kpi-sub">Preço de venda total</span>
+
+            <div class="ped-kpi-card">
+              <div class="ped-kpi-icon icon-green-check">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              </div>
+              <div class="ped-kpi-content">
+                <span class="ped-kpi-label">Valor do Inventário</span>
+                <div class="ped-kpi-row">
+                  <strong class="ped-kpi-num" id="repTotalStockValue" style="font-size: 19px;">R$ 0,00</strong>
+                </div>
+                <span class="ped-kpi-trend trend-green">Valuation de estoque</span>
+              </div>
             </div>
           </div>
 
-          <!-- PAINEL DE RELATÓRIOS COM FILTROS E TABELA -->
-          <div class="wms-panel">
-            <div class="table-toolbar" style="flex-wrap: wrap; gap: 12px;">
-              <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="repFilterButtons">
-                <button class="btn btn-sm btn-secondary active" type="button" data-rep-filter="all"
-                  onclick="filterRelatorios('all')">Todos (<span id="repBadgeAll">0</span>)</button>
-                <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="zero"
-                  onclick="filterRelatorios('zero')" style="border-color: rgba(237, 28, 36, 0.4); color: #ff5560;">⚠️
-                  Peças Zeradas (<span id="repBadgeZero">0</span>)</button>
-                <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="baixo"
-                  onclick="filterRelatorios('baixo')">Estoque Baixo (<span id="repBadgeLow">0</span>)</button>
-                <button class="btn btn-sm btn-secondary" type="button" data-rep-filter="normal"
-                  onclick="filterRelatorios('normal')">Estoque Normal (<span id="repBadgeNormal">0</span>)</button>
-              </div>
-              <div class="search-box" style="margin-left: auto; max-width: 320px;">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="11" cy="11" r="8"></circle>
-                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                </svg>
-                <input id="repSearchInput" placeholder="Filtrar por peça, código ou local..."
-                  oninput="applyRelatoriosFilter()" />
-              </div>
+          <!-- Hidden span badges to preserve compatibility -->
+          <div style="display:none;" id="repFilterButtons">
+            <span id="repBadgeAll">0</span>
+            <span id="repBadgeZero">0</span>
+            <span id="repBadgeLow">0</span>
+            <span id="repBadgeNormal">0</span>
+          </div>
+
+          <!-- BARRA DE FILTROS SUPERIOR PADRONIZADA (MODELO PEDIDOS) -->
+          <div class="pedidos-toolbar">
+            <select class="wms-input-clean" id="repStatusSelect" onchange="filterRelatorios(this.value)">
+              <option value="all">Todos os status</option>
+              <option value="zero">Peças Zeradas</option>
+              <option value="baixo">Estoque Baixo</option>
+              <option value="normal">Estoque Normal</option>
+            </select>
+            <div class="ped-date-range">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              <span>Relatório Consolidado</span>
             </div>
+            <div class="ped-search-wrap">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+              <input id="repSearchInput" placeholder="Filtrar por peça, código ou localização..." oninput="applyRelatoriosFilter()" />
+            </div>
+            <button class="btn btn-primary btn-sm" type="button" onclick="exportStockCSV()">
+              Exportar CSV
+            </button>
+          </div>
+
+          <!-- PAINEL DE RELATÓRIOS COM FILTROS E TABELA -->
+          <div class="wms-panel ped-table-card">
 
             <div class="table-responsive">
               <table class="wms-table">

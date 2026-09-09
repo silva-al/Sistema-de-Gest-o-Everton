@@ -5132,9 +5132,21 @@ body.tema-claro .pv-desc-box {
   margin-bottom: 20px;
 }
 
+.pedidos-kpis-bar.kpi-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
 @media (max-width: 1080px) {
-  .pedidos-kpis-bar {
+  .pedidos-kpis-bar,
+  .pedidos-kpis-bar.kpi-cols-4 {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .pedidos-kpis-bar,
+  .pedidos-kpis-bar.kpi-cols-4 {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -5157,6 +5169,30 @@ body.tema-claro .pv-desc-box {
   box-shadow: 0 6px 16px rgba(15, 23, 42, 0.07);
 }
 
+.ped-kpi-card.active {
+  border-color: #ed1c24 !important;
+  box-shadow: 0 0 0 2px rgba(237, 28, 36, 0.25) !important;
+}
+
+body:not(.tema-claro) .ped-kpi-card {
+  background: #14171f;
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+body:not(.tema-claro) .ped-kpi-card:hover {
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
+}
+
+body:not(.tema-claro) .ped-kpi-label {
+  color: #94a3b8;
+}
+
+body:not(.tema-claro) .ped-kpi-num {
+  color: #ffffff;
+}
+
 .ped-kpi-icon {
   width: 36px;
   height: 36px;
@@ -5167,17 +5203,15 @@ body.tema-claro .pv-desc-box {
   flex-shrink: 0;
 }
 
-.icon-red-cart {
+.icon-red-cart,
+.icon-red-clock,
+.icon-red-alert {
   background: #fee2e2;
   color: #dc2626;
 }
 
-.icon-red-clock {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.icon-orange-gear {
+.icon-orange-gear,
+.icon-orange-alert {
   background: #fef3c7;
   color: #d97706;
 }
@@ -5187,9 +5221,15 @@ body.tema-claro .pv-desc-box {
   color: #2563eb;
 }
 
-.icon-green-truck {
+.icon-green-truck,
+.icon-green-check {
   background: #dcfce7;
   color: #16a34a;
+}
+
+.icon-purple-inv {
+  background: #ede9fe;
+  color: #8b5cf6;
 }
 
 .ped-kpi-content {
@@ -5272,19 +5312,35 @@ body.tema-claro .pv-desc-box {
   align-items: center;
   gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+}
+
+.pedidos-toolbar .btn.btn-primary.btn-sm,
+.pedidos-toolbar .btn.btn-primary {
+  height: 35px;
+  padding: 0 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
 }
 
 .wms-input-clean {
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 0 12px;
+  height: 35px;
   font-size: 12px;
   color: #0f172a;
   outline: none;
   font-family: inherit;
   transition: border-color .15s;
+  box-sizing: border-box;
 }
 
 .wms-input-clean:focus {
@@ -5298,14 +5354,18 @@ body.tema-claro .pv-desc-box {
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  padding: 7px 12px;
+  padding: 0 12px;
+  height: 35px;
   font-size: 11.5px;
   color: #475569;
   font-weight: 600;
+  white-space: nowrap;
+  box-sizing: border-box;
 }
 
 .ped-date-range svg {
   stroke: #64748b;
+  flex-shrink: 0;
 }
 
 .ped-search-wrap {
@@ -5328,15 +5388,47 @@ body.tema-claro .pv-desc-box {
   background: #ffffff;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
-  padding: 8px 12px 8px 32px;
+  padding: 0 12px 0 32px;
+  height: 35px;
   font-size: 12px;
   color: #0f172a;
   outline: none;
   font-family: inherit;
+  box-sizing: border-box;
 }
 
 .ped-search-wrap input:focus {
   border-color: #ed1c24;
+}
+
+body:not(.tema-claro) .wms-input-clean {
+  background: #14171f;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+body:not(.tema-claro) .ped-date-range {
+  background: #14171f;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+}
+
+body:not(.tema-claro) .ped-date-range svg {
+  stroke: #94a3b8;
+}
+
+body:not(.tema-claro) .ped-search-wrap input {
+  background: #14171f;
+  border-color: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+}
+
+body:not(.tema-claro) .ped-search-wrap input:focus {
+  border-color: #ed1c24;
+}
+
+body:not(.tema-claro) .ped-search-wrap svg {
+  stroke: #94a3b8;
 }
 
 /* Status pills em Pedidos */

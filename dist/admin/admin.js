@@ -1278,6 +1278,22 @@ document.getElementById('newProductToggleBtn')?.addEventListener('click', () => 
   }
 });
 
+function openNewProductForm() {
+  switchTab('estoque');
+  const panel = document.getElementById('productFormPanel');
+  if (panel) {
+    resetProductForm();
+    panel.classList.remove('hidden');
+    const yOffset = -75;
+    const y = panel.getBoundingClientRect().top + window.pageYOffset + yOffset;
+    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    setTimeout(() => {
+      document.getElementById('pName')?.focus();
+    }, 180);
+  }
+}
+window.openNewProductForm = openNewProductForm;
+
 function startEdit(id) {
   const p = allProducts.find(item => String(item.id) === String(id));
   if (!p) return;
@@ -3929,14 +3945,14 @@ window.loadStockAlerts = loadStockAlerts;
 
 function filterAlertTab(type) {
   currentAlertFilterType = type;
-  document.querySelectorAll('.wms-alert-cards-grid .wms-alert-card').forEach(c => {
+  document.querySelectorAll('#pane-alertas .ped-kpi-card, .wms-alert-cards-grid .wms-alert-card').forEach(c => {
     c.classList.remove('active');
   });
 
-  if (type === 'critico') document.querySelector('.wms-alert-card.card-critico')?.classList.add('active');
-  else if (type === 'baixo') document.querySelector('.wms-alert-card.card-baixo')?.classList.add('active');
-  else if (type === 'sem_local') document.querySelector('.wms-alert-card.card-sem-local')?.classList.add('active');
-  else if (type === 'divergencia') document.querySelector('.wms-alert-card.card-divergencia')?.classList.add('active');
+  if (type === 'critico') document.querySelector('#pane-alertas .card-critico, .wms-alert-card.card-critico')?.classList.add('active');
+  else if (type === 'baixo') document.querySelector('#pane-alertas .card-baixo, .wms-alert-card.card-baixo')?.classList.add('active');
+  else if (type === 'sem_local') document.querySelector('#pane-alertas .card-sem-local, .wms-alert-card.card-sem-local')?.classList.add('active');
+  else if (type === 'divergencia') document.querySelector('#pane-alertas .card-divergencia, .wms-alert-card.card-divergencia')?.classList.add('active');
 
   const select = document.getElementById('filterAlertSelect');
   if (select) select.value = type;
@@ -3944,6 +3960,89 @@ function filterAlertTab(type) {
   renderAlertsTable();
 }
 window.filterAlertTab = filterAlertTab;
+
+function filterMovByType(type) {
+  const sel = document.getElementById('filterMovType');
+  if (sel) {
+    sel.value = type;
+    loadStockMovements();
+  }
+}
+window.filterMovByType = filterMovByType;
+
+function filterInventoryByStatus(status) {
+  const sel = document.getElementById('filterInvStatus');
+  if (sel) {
+    sel.value = status;
+    loadInventoryAudit();
+  }
+}
+window.filterInventoryByStatus = filterInventoryByStatus;
+
+function filterInventoryByCorredor(corredor) {
+  const searchInput = document.getElementById('filterInvSearch');
+  if (searchInput) {
+    searchInput.value = corredor ? corredor + '-' : '';
+    loadInventoryAudit();
+  }
+}
+window.filterInventoryByCorredor = filterInventoryByCorredor;
+
+function filterAlertsByPriority(priority) {
+  renderAlertsTable();
+}
+window.filterAlertsByPriority = filterAlertsByPriority;
+
+function filterRecentOps(type) {
+  const rows = document.querySelectorAll('#recentOperationsTbody tr');
+  rows.forEach(tr => {
+    if (!type) {
+      tr.style.display = '';
+      return;
+    }
+    const text = tr.innerText.toLowerCase();
+    tr.style.display = text.includes(type.toLowerCase()) ? '' : 'none';
+  });
+}
+window.filterRecentOps = filterRecentOps;
+
+function filterRecentOpsSearch(query) {
+  const q = (query || '').toLowerCase().trim();
+  const rows = document.querySelectorAll('#recentOperationsTbody tr');
+  rows.forEach(tr => {
+    if (!q) {
+      tr.style.display = '';
+      return;
+    }
+    const text = tr.innerText.toLowerCase();
+    tr.style.display = text.includes(q) ? '' : 'none';
+  });
+}
+window.filterRecentOpsSearch = filterRecentOpsSearch;
+
+function filterWarehouseRackSearch(query) {
+  const q = (query || '').toUpperCase().trim();
+  if (q.length >= 1) {
+    const aisleMatch = q.charAt(0);
+    if (['A', 'B', 'C', 'D', 'H'].includes(aisleMatch) && typeof selectAisle === 'function') {
+      selectAisle(aisleMatch);
+    }
+  }
+}
+window.filterWarehouseRackSearch = filterWarehouseRackSearch;
+
+function filterNfStatus(status) {
+  const rows = document.querySelectorAll('#pane-notas-fiscais tbody tr');
+  rows.forEach(tr => {
+    if (!status) {
+      tr.style.display = '';
+      return;
+    }
+    const text = tr.innerText.toLowerCase();
+    tr.style.display = text.includes(status.toLowerCase()) ? '' : 'none';
+  });
+}
+window.filterNfStatus = filterNfStatus;
 
 function renderAlertsTable() {
   const tbody = document.getElementById('alertsTbody');
