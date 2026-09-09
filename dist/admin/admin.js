@@ -163,8 +163,8 @@ function switchTab(tabId, pushHistory = true, resetScroll = true) {
   let activePaneId = `pane-${tabId}`;
   let activeNavTab = tabId;
   if (tabId === 'estoque') {
-    activePaneId = 'pane-pecas';
-    activeNavTab = 'pecas';
+    activePaneId = 'pane-produtos';
+    activeNavTab = 'produtos';
   } else if (tabId === 'armazem') {
     activePaneId = 'pane-localizacoes';
     activeNavTab = 'localizacoes';
@@ -185,14 +185,17 @@ function switchTab(tabId, pushHistory = true, resetScroll = true) {
     updateDashboardMetrics();
     loadStockAlerts();
   }
-  if (tabId === 'produtos') renderCommercialProductsTable(allProducts);
-  if (tabId === 'pecas' || tabId === 'estoque' || tabId === 'armazem') renderProductsTable(allProducts);
+  if (tabId === 'produtos' || tabId === 'estoque') renderProductsTable(allProducts);
+  if (tabId === 'pecas') {
+    const formPanel = document.getElementById('productFormPanel');
+    if (formPanel) formPanel.classList.remove('hidden');
+  }
   if (tabId === 'pedidos') renderOrdersTable(allOrders);
   if (tabId === 'vendas') renderVendas();
   if (tabId === 'operacoes-estoque') loadRecentOperations();
   if (tabId === 'movimentacoes') loadStockMovements();
   if (tabId === 'inventario') loadInventoryAudit();
-  if (tabId === 'localizacoes') renderWarehouseLocation();
+  if (tabId === 'localizacoes' || tabId === 'armazem') renderWarehouseLocation();
   if (tabId === 'alertas') loadStockAlerts();
   if (tabId === 'expedicao') renderExpedicao();
   if (tabId === 'financeiro') renderFinances();
@@ -342,16 +345,22 @@ const refreshBtn = document.getElementById('refreshBtn');
 if (refreshBtn) {
   refreshBtn.addEventListener('click', async () => {
     refreshBtn.classList.add('is-refreshing');
+    showToast('Sincronizando catálogo e atualizando dados...');
     try {
+      try {
+        await api('/products/sync-catalog', { method: 'POST' });
+      } catch (syncErr) {
+        console.warn('Sincronização de catálogo:', syncErr);
+      }
       await refreshAllData();
-      showToast('Sistema e dados atualizados com sucesso!');
+      showToast('Catálogo sincronizado e dados atualizados com sucesso!');
     } catch (err) {
-      console.error('Erro ao atualizar dados:', err);
-      showToast('Erro ao atualizar dados.');
+      console.error('Erro ao sincronizar/atualizar dados:', err);
+      showToast('Erro ao sincronizar dados: ' + (err.message || err));
     } finally {
       setTimeout(() => {
         refreshBtn.classList.remove('is-refreshing');
-      }, 600);
+      }, 700);
     }
   });
 }
@@ -1357,7 +1366,8 @@ function startEdit(id) {
 
 function resetProductForm() {
   editingProductId = null;
-  document.getElementById('formTitle').textContent = 'Cadastrar Nova Peça';
+  const title = document.getElementById('formTitle');
+  if (title) title.textContent = 'Cadastrar Nova Peça';
   ['pName', 'pCode', 'pCategory', 'pPrice', 'pStock', 'pLocation', 'pPhoto', 'pDescription', 'pCompatibility'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
@@ -1370,16 +1380,26 @@ function resetProductForm() {
   const previewImg = document.getElementById('pPhotoPreview');
   if (previewImg) previewImg.src = '';
 
-  document.getElementById('cancelEditBtn').classList.add('hidden');
-  document.getElementById('saveProductBtn').textContent = 'SALVAR PEÇA NO SISTEMA';
-  document.getElementById('productFormError').classList.add('hidden');
-  document.getElementById('productFormMsg').classList.add('hidden');
+  const cancelBtn = document.getElementById('cancelEditBtn');
+  if (cancelBtn) cancelBtn.classList.add('hidden');
+  const saveBtn = document.getElementById('saveProductBtn');
+  if (saveBtn) saveBtn.textContent = 'SALVAR PEÇA NO SISTEMA';
+  const errEl = document.getElementById('productFormError');
+  if (errEl) errEl.classList.add('hidden');
+  const msgEl = document.getElementById('productFormMsg');
+  if (msgEl) msgEl.classList.add('hidden');
+
+  const panel = document.getElementById('productFormPanel');
+  if (panel) panel.classList.remove('hidden');
 }
 
-document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+function cancelPieceEdit() {
   resetProductForm();
-  document.getElementById('productFormPanel')?.classList.add('hidden');
-});
+  switchTab('produtos');
+}
+window.cancelPieceEdit = cancelPieceEdit;
+
+document.getElementById('cancelEditBtn')?.addEventListener('click', cancelPieceEdit);
 
 // Upload e Anexo de Foto do Produto (Upload de Arquivo Local)
 document.getElementById('pPhotoFile')?.addEventListener('change', async (e) => {
@@ -1497,9 +1517,11 @@ document.getElementById('saveProductBtn')?.addEventListener('click', async () =>
       showToast('Nova peça cadastrada com sucesso!');
     }
     msgEl.classList.remove('hidden');
+    const wasEditing = Boolean(editingProductId);
     resetProductForm();
-    document.getElementById('productFormPanel')?.classList.add('hidden');
     await refreshAllData();
+    showToast(wasEditing ? 'Peça atualizada com sucesso!' : 'Nova peça cadastrada com sucesso!');
+    switchTab('produtos');
   } catch (err) {
     errEl.textContent = err.message;
     errEl.classList.remove('hidden');
@@ -4587,7 +4609,7 @@ async function saveCommercialProduct() {
 window.saveCommercialProduct = saveCommercialProduct;
 
 function triggerSyncCatalog() {
-  const btn = document.getElementById('syncCatalogBtn');
+  const btn = document.getElementById('refreshBtn');
   if (btn) btn.click();
 }
 window.triggerSyncCatalog = triggerSyncCatalog;

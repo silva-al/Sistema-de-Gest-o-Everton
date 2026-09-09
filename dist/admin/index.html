@@ -287,7 +287,7 @@
               <path d="M20.5 14.2A8.6 8.6 0 0 1 9.8 3.5a8.6 8.6 0 1 0 10.7 10.7Z" />
             </svg>
           </button>
-          <button class="topbar-btn" id="refreshBtn" title="Atualizar dados do sistema">
+          <button class="topbar-btn" id="refreshBtn" title="Sincronizar Catálogo e Atualizar Sistema">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M23 4v6h-6"></path>
               <path d="M1 20v-6h6"></path>
@@ -476,7 +476,7 @@
         </section>
 
         <!-- ====================================================
-           1.1 PRODUTOS (CATÁLOGO COMERCIAL & LOJA VIRTUAL)
+           1.1 PRODUTOS (CATÁLOGO GERAL & GESTÃO DE ESTOQUE)
            ==================================================== -->
         <section class="tab-pane" id="pane-produtos">
           <!-- CABEÇALHO -->
@@ -490,260 +490,9 @@
                     <path d="M16 10a4 4 0 0 1-8 0"></path>
                   </svg>
                 </span>
-                Produtos &amp; Loja Virtual
+                Produtos &amp; Peças em Estoque
               </h1>
-              <p class="page-subtitle">Gerencie o catálogo de produtos da sua loja online, preços de venda, estoque comercial e fotos.</p>
-            </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <button class="btn btn-secondary" onclick="triggerSyncCatalog()"
-                title="Garante que todas as peças oficiais estejam sincronizadas">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M23 4v6h-6"></path>
-                  <path d="M1 20v-6h6"></path>
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                </svg>
-                <span>SINCRONIZAR</span>
-              </button>
-              <button class="btn btn-primary" onclick="openNewCommercialProductForm()">
-                + Novo Produto
-              </button>
-            </div>
-          </div>
-
-          <!-- 4 CARDS DE KPIS DE PRODUTOS PADRONIZADOS -->
-          <div class="pedidos-kpis-bar kpi-cols-4">
-            <div class="ped-kpi-card" onclick="filterCommercialProducts('all')">
-              <div class="ped-kpi-icon icon-blue-check">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                  <line x1="3" y1="6" x2="21" y2="6"></line>
-                </svg>
-              </div>
-              <div class="ped-kpi-content">
-                <span class="ped-kpi-label">Total de Produtos</span>
-                <div class="ped-kpi-row">
-                  <strong class="ped-kpi-num" id="prodTotalVal">0</strong>
-                  <svg class="mini-sparkline spark-blue" viewBox="0 0 60 20">
-                    <path d="M0 16 Q 20 12, 40 14 T 60 4" fill="none" stroke="#2563eb" stroke-width="2"></path>
-                  </svg>
-                </div>
-                <span class="ped-kpi-trend trend-blue">Catálogo comercial</span>
-              </div>
-            </div>
-
-            <div class="ped-kpi-card" onclick="filterCommercialProducts('ativo')">
-              <div class="ped-kpi-icon icon-green-truck">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-              </div>
-              <div class="ped-kpi-content">
-                <span class="ped-kpi-label">Ativos na Loja</span>
-                <div class="ped-kpi-row">
-                  <strong class="ped-kpi-num" id="prodActiveVal">0</strong>
-                  <svg class="mini-sparkline spark-green" viewBox="0 0 60 20">
-                    <path d="M0 18 Q 15 10, 35 14 T 60 2" fill="none" stroke="#10b981" stroke-width="2"></path>
-                  </svg>
-                </div>
-                <span class="ped-kpi-trend trend-green">Visíveis para compra</span>
-              </div>
-            </div>
-
-            <div class="ped-kpi-card" onclick="filterCommercialProducts('baixo')">
-              <div class="ped-kpi-icon icon-orange-gear">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                  <line x1="12" y1="9" x2="12" y2="13"></line>
-                  <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
-              </div>
-              <div class="ped-kpi-content">
-                <span class="ped-kpi-label">Estoque Baixo</span>
-                <div class="ped-kpi-row">
-                  <strong class="ped-kpi-num" id="prodLowVal">0</strong>
-                  <svg class="mini-sparkline spark-orange" viewBox="0 0 60 20">
-                    <path d="M0 15 Q 20 18, 40 8 T 60 4" fill="none" stroke="#f59e0b" stroke-width="2"></path>
-                  </svg>
-                </div>
-                <span class="ped-kpi-trend trend-orange">Atenção reposição</span>
-              </div>
-            </div>
-
-            <div class="ped-kpi-card" onclick="filterCommercialProducts('esgotado')">
-              <div class="ped-kpi-icon icon-red-alert">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="15" y1="9" x2="9" y2="15"></line>
-                  <line x1="9" y1="9" x2="15" y2="15"></line>
-                </svg>
-              </div>
-              <div class="ped-kpi-content">
-                <span class="ped-kpi-label">Sem Estoque</span>
-                <div class="ped-kpi-row">
-                  <strong class="ped-kpi-num" id="prodOutVal">0</strong>
-                  <svg class="mini-sparkline spark-red" viewBox="0 0 60 20">
-                    <path d="M0 16 Q 15 18, 30 10 T 60 4" fill="none" stroke="#dc2626" stroke-width="2"></path>
-                  </svg>
-                </div>
-                <span class="ped-kpi-trend trend-red">Indisponível na loja</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- FORMULÁRIO DE CADASTRO DE PRODUTO (NOVO PRODUTO COMERCIAL) -->
-          <div class="wms-panel hidden" id="commercialProductFormPanel" style="margin-bottom: 20px;">
-            <div class="panel-header">
-              <h3 id="commFormTitle">Cadastrar Novo Produto</h3>
-              <span class="panel-sub">Preencha os dados comerciais para disponibilizar o produto na vitrine da loja</span>
-            </div>
-
-            <div class="form-grid">
-              <div class="field">
-                <label>Nome do Produto *</label>
-                <input id="cpName" placeholder="Ex: Óleo Motor 5W30 Sintético 1L" />
-              </div>
-              <div class="field">
-                <label>Código / Referência</label>
-                <input id="cpCode" placeholder="Ex: PROD-5W30" />
-              </div>
-              <div class="field">
-                <label>Categoria Comercial *</label>
-                <input id="cpCategory" placeholder="Ex: Lubrificantes e Fluidos" list="commercialCategoryList" />
-                <datalist id="commercialCategoryList"></datalist>
-              </div>
-              <div class="field">
-                <label>Preço de Venda (R$) *</label>
-                <input id="cpPrice" inputmode="decimal" placeholder="59,90" />
-              </div>
-              <div class="field">
-                <label>Estoque para Venda *</label>
-                <input id="cpStock" inputmode="numeric" placeholder="20" />
-              </div>
-              <div class="field">
-                <label>Status na Loja *</label>
-                <select id="cpActive" class="wms-input-clean" style="height:38px;padding:6px 10px;border-radius:8px;">
-                  <option value="true">Ativo (Visível na loja)</option>
-                  <option value="false">Pausado (Oculto na loja)</option>
-                </select>
-              </div>
-              <div class="field full-width">
-                <label>Foto do Produto (URL ou anexo)</label>
-                <div class="photo-input-wrap">
-                  <input id="cpPhoto" placeholder="Cole a URL da imagem ou anexe um arquivo..." />
-                  <label for="cpPhotoFile" class="btn-attach-photo" id="btnAttachCommPhoto">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
-                    </svg>
-                    <span>Anexar</span>
-                    <input type="file" id="cpPhotoFile" accept="image/jpeg,image/png,image/webp,image/jpg" style="display:none" />
-                  </label>
-                </div>
-              </div>
-              <div class="field full-width">
-                <label>Descrição Comercial para o Cliente</label>
-                <textarea id="cpDescription" rows="2" placeholder="Ex: Lubrificante 100% sintético desenvolvido para motores modernos..."></textarea>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button class="btn btn-primary" id="saveCommProductBtn" onclick="saveCommercialProduct()">SALVAR PRODUTO NO CATÁLOGO</button>
-              <button class="btn btn-secondary" onclick="closeCommercialProductForm()" type="button">CANCELAR</button>
-            </div>
-            <div class="error hidden" id="commProductFormError"></div>
-          </div>
-
-          <!-- FILTROS PADRONIZADOS (MODELO PEDIDOS) -->
-          <div class="pedidos-toolbar">
-            <select class="wms-input-clean" id="commStatusFilter" onchange="applyCommercialFilter()">
-              <option value="">Todos os status</option>
-              <option value="ativo">Ativo na Loja</option>
-              <option value="pausado">Pausado</option>
-              <option value="esgotado">Sem Estoque</option>
-            </select>
-            <select class="wms-input-clean" id="commCategoryFilter" onchange="applyCommercialFilter()">
-              <option value="">Todas as categorias</option>
-            </select>
-            <div class="ped-date-range">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                <line x1="16" y1="2" x2="16" y2="6"></line>
-                <line x1="8" y1="2" x2="8" y2="6"></line>
-                <line x1="3" y1="10" x2="21" y2="10"></line>
-              </svg>
-              <span>Vitrine da Loja</span>
-            </div>
-            <div class="ped-search-wrap">
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-              <input id="commSearchInput" placeholder="Buscar por produto, marca, categoria..." oninput="applyCommercialFilter()" />
-            </div>
-            <button class="btn btn-primary btn-sm" type="button" onclick="openNewCommercialProductForm()">
-              + Novo Produto
-            </button>
-          </div>
-
-          <!-- TABELA DE PRODUTOS COMERCIAIS -->
-          <div class="wms-panel est-table-panel">
-            <div class="table-responsive">
-              <table class="wms-table">
-                <thead>
-                  <tr>
-                    <th style="width:45px"></th>
-                    <th>PRODUTO</th>
-                    <th>CÓDIGO / REF</th>
-                    <th>CATEGORIA</th>
-                    <th style="width:110px">PREÇO</th>
-                    <th style="width:90px;text-align:center">ESTOQUE</th>
-                    <th style="width:125px">STATUS LOJA</th>
-                    <th style="text-align:right;width:120px">AÇÕES</th>
-                  </tr>
-                </thead>
-                <tbody id="commercialProductsTableBody">
-                  <tr>
-                    <td colspan="8" style="text-align:center;padding:30px">Carregando produtos...</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- ====================================================
-           2. PEÇAS & COMPONENTES (CADASTRO TÉCNICO & WMS)
-           ==================================================== -->
-        <section class="tab-pane" id="pane-pecas">
-          <!-- CABEÇALHO -->
-          <div class="page-head">
-            <div class="page-title-wrap">
-              <h1 class="page-title">
-                <span class="page-title-icon red-square">
-                  <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.2">
-                    <path
-                      d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                    </path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                  </svg>
-                </span>
-                Cadastro &amp; Gestão de Peças
-              </h1>
-              <p class="page-subtitle">Controle técnico de autopeças, códigos SKU/OEM, compatibilidade veicular e localização no armazém.</p>
-            </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <button class="btn btn-secondary" id="syncCatalogBtn"
-                title="Garante que todas as peças oficiais estejam sincronizadas">
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M23 4v6h-6"></path>
-                  <path d="M1 20v-6h6"></path>
-                  <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
-                </svg>
-                <span>SINCRONIZAR CATÁLOGO</span>
-              </button>
-              <button class="btn btn-primary" id="newProductToggleBtn">
-                + Cadastrar Peça
-              </button>
+              <p class="page-subtitle">Gerencie seu catálogo de produtos e peças, acompanhe o estoque e localização no armazém.</p>
             </div>
           </div>
 
@@ -759,7 +508,7 @@
               </div>
               <div class="est-kpi-content">
                 <span class="est-kpi-label">Total de Peças</span>
-                <strong class="est-kpi-num" id="estTotalVal">458</strong>
+                <strong class="est-kpi-num" id="estTotalVal">0</strong>
               </div>
             </div>
 
@@ -772,7 +521,7 @@
               </div>
               <div class="est-kpi-content">
                 <span class="est-kpi-label">Em Estoque</span>
-                <strong class="est-kpi-num" id="estInStockVal">392</strong>
+                <strong class="est-kpi-num" id="estInStockVal">0</strong>
               </div>
             </div>
 
@@ -787,7 +536,7 @@
               </div>
               <div class="est-kpi-content">
                 <span class="est-kpi-label">Estoque Baixo</span>
-                <strong class="est-kpi-num" id="estLowStockVal">48</strong>
+                <strong class="est-kpi-num" id="estLowStockVal">0</strong>
               </div>
             </div>
 
@@ -801,89 +550,12 @@
               </div>
               <div class="est-kpi-content">
                 <span class="est-kpi-label">Sem Estoque</span>
-                <strong class="est-kpi-num" id="estOutStockVal">18</strong>
+                <strong class="est-kpi-num" id="estOutStockVal">0</strong>
               </div>
             </div>
           </div>
 
-          <!-- FORMULÁRIO DE CADASTRO/EDIÇÃO (POPUP / RETRÁTIL) -->
-          <div class="wms-panel hidden" id="productFormPanel">
-            <div class="panel-header">
-              <h3 id="formTitle">Cadastrar Nova Peça</h3>
-              <span class="panel-sub">Preencha as informações completas para o catálogo da loja</span>
-            </div>
-
-            <div class="form-grid">
-              <div class="field">
-                <label>Nome da Peça *</label>
-                <input id="pName" placeholder="Ex: Pastilha de freio dianteira cerâmica" />
-              </div>
-              <div class="field">
-                <label>Código da Peça (SKU/Part Number) *</label>
-                <input id="pCode" placeholder="Ex: PF-1001" />
-              </div>
-              <div class="field">
-                <label>Categoria *</label>
-                <input id="pCategory" placeholder="Ex: Freios" list="categoryList" />
-                <datalist id="categoryList"></datalist>
-              </div>
-              <div class="field">
-                <label>Preço de Venda (R$) *</label>
-                <input id="pPrice" inputmode="decimal" placeholder="189,90" />
-              </div>
-              <div class="field">
-                <label>Quantidade em Estoque *</label>
-                <input id="pStock" inputmode="numeric" placeholder="10" />
-              </div>
-              <div class="field">
-                <label>Localização no Armazém (Corredor-Estante-Posição) *</label>
-                <input id="pLocation" placeholder="Ex: A-02-03" />
-              </div>
-              <div class="field full-width">
-                <label>URL da Foto (HD) ou Anexo de Arquivo</label>
-                <div class="photo-input-wrap">
-                  <input id="pPhoto" placeholder="Cole a URL da imagem ou anexe um arquivo..." />
-                  <label for="pPhotoFile" class="btn-attach-photo" id="btnAttachPhoto"
-                    title="Anexar imagem do computador (JPG, PNG, WebP)">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                      <path
-                        d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
-                      </path>
-                    </svg>
-                    <span id="btnAttachPhotoText">Anexar</span>
-                    <input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp,image/jpg"
-                      style="display:none" />
-                  </label>
-                </div>
-                <div id="pPhotoPreviewWrap" class="photo-preview-wrap hidden">
-                  <img id="pPhotoPreview" src="" alt="Prévia da foto" />
-                  <div class="photo-preview-details">
-                    <span id="pPhotoPreviewName" class="photo-preview-name">foto-anexada.jpg</span>
-                    <span class="photo-preview-badge">✓ Imagem vinculada à peça</span>
-                  </div>
-                  <button type="button" class="btn-remove-photo" id="btnRemovePhoto" title="Remover imagem">✕</button>
-                </div>
-              </div>
-              <div class="field full-width">
-                <label>Descrição e Aplicação Rápida</label>
-                <input id="pDescription" placeholder="Ex: Aplicação compatível com linha Volkswagen" />
-              </div>
-              <div class="field full-width">
-                <label>Compatibilidade Veicular Completa (Modelos, Anos e Motores)</label>
-                <textarea id="pCompatibility" rows="3"
-                  placeholder="Ex: VW Gol G5/G6 1.0/1.6 8V (2008 a 2016)&#10;VW Fox 1.0/1.6 (2004 a 2014)&#10;VW Voyage 1.0/1.6 (2009 a 2016)"></textarea>
-              </div>
-            </div>
-
-            <div class="form-actions">
-              <button class="btn btn-primary" id="saveProductBtn">SALVAR PEÇA NO SISTEMA</button>
-              <button class="btn btn-secondary" id="cancelEditBtn" type="button">CANCELAR EDIÇÃO</button>
-            </div>
-            <div class="error hidden" id="productFormError"></div>
-            <div class="msg hidden" id="productFormMsg"></div>
-          </div>
-
-          <!-- GRID PRINCIPAL DE ESTOQUE: TABELA À ESQUERDA + WIDGET DE LOCALIZAÇÃO À DIREITA -->
+          <!-- GRID PRINCIPAL DE ESTOQUE: FILTROS E TABELA -->
           <div class="estoque-main-grid">
             <div class="estoque-left-col">
               <!-- FILTROS PADRONIZADOS (MODELO PEDIDOS) -->
@@ -913,9 +585,6 @@
                   </svg>
                   <input id="stockSearch" placeholder="Buscar por peça, código, categoria, localização..." />
                 </div>
-                <button class="btn btn-primary btn-sm" type="button" onclick="openNewProductForm()">
-                  + Cadastrar Peça
-                </button>
               </div>
 
               <!-- TABELA COM COLUNA DE LOCALIZAÇÃO -->
@@ -947,7 +616,7 @@
 
           <!-- 4 CARDS DE AÇÕES RÁPIDAS NO RODAPÉ DO ESTOQUE -->
           <div class="estoque-quick-actions-bar">
-            <div class="est-qa-card">
+            <div class="est-qa-card" onclick="switchTab('movimentacoes')">
               <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                   stroke-width="2">
                   <polyline points="17 1 21 5 17 9"></polyline>
@@ -961,7 +630,7 @@
               </div>
             </div>
 
-            <div class="est-qa-card">
+            <div class="est-qa-card" onclick="switchTab('localizacoes')">
               <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                   stroke-width="2">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -973,7 +642,7 @@
               </div>
             </div>
 
-            <div class="est-qa-card">
+            <div class="est-qa-card" onclick="switchTab('inventario')">
               <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                   stroke-width="2">
                   <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -985,7 +654,7 @@
               </div>
             </div>
 
-            <div class="est-qa-card">
+            <div class="est-qa-card" onclick="switchTab('produtos')">
               <div class="est-qa-icon"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
                   stroke-width="2">
                   <rect x="3" y="4" width="18" height="16" rx="2"></rect>
@@ -1008,6 +677,87 @@
               </svg>
               Baixar Relatório
             </button>
+          </div>
+        </section>
+
+        <!-- ====================================================
+           2. CADASTRO DE PEÇAS (LAYOUT EXCLUSIVO)
+           ==================================================== -->
+        <section class="tab-pane" id="pane-pecas">
+          <div class="wms-panel" id="productFormPanel" style="max-width: 100%; margin: 0; box-sizing: border-box;">
+            <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--panel-border); padding-bottom: 16px; margin-bottom: 20px;">
+              <h3 id="formTitle" style="margin: 0; font-size: 18px; font-weight: 800; color: var(--text-primary);">Cadastrar Nova Peça</h3>
+              <span class="panel-sub" style="font-size: 13px; color: var(--text-muted);">Preencha as informações completas para o catálogo da loja</span>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label>NOME DA PEÇA *</label>
+                <input id="pName" placeholder="Ex: Pastilha de freio dianteira cerâmica" />
+              </div>
+              <div class="field">
+                <label>CÓDIGO DA PEÇA (SKU/PART NUMBER) *</label>
+                <input id="pCode" placeholder="Ex: PF-1001" />
+              </div>
+              <div class="field">
+                <label>CATEGORIA *</label>
+                <input id="pCategory" placeholder="Ex: Freios" list="categoryList" />
+                <datalist id="categoryList"></datalist>
+              </div>
+              <div class="field">
+                <label>PREÇO DE VENDA (R$) *</label>
+                <input id="pPrice" inputmode="decimal" placeholder="189,90" />
+              </div>
+              <div class="field">
+                <label>QUANTIDADE EM ESTOQUE *</label>
+                <input id="pStock" inputmode="numeric" placeholder="10" />
+              </div>
+              <div class="field">
+                <label>LOCALIZAÇÃO NO ARMAZÉM (CORREDOR-ESTANTE-POSIÇÃO) *</label>
+                <input id="pLocation" placeholder="Ex: A-02-03" />
+              </div>
+              <div class="field full-width">
+                <label>URL DA FOTO (HD) OU ANEXO DE ARQUIVO</label>
+                <div class="photo-input-wrap">
+                  <input id="pPhoto" placeholder="Cole a URL da imagem ou anexe um arquivo..." />
+                  <label for="pPhotoFile" class="btn-attach-photo" id="btnAttachPhoto"
+                    title="Anexar imagem do computador (JPG, PNG, WebP)">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                      <path
+                        d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
+                      </path>
+                    </svg>
+                    <span id="btnAttachPhotoText">ANEXAR</span>
+                    <input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp,image/jpg"
+                      style="display:none" />
+                  </label>
+                </div>
+                <div id="pPhotoPreviewWrap" class="photo-preview-wrap hidden">
+                  <img id="pPhotoPreview" src="" alt="Prévia da foto" />
+                  <div class="photo-preview-details">
+                    <span id="pPhotoPreviewName" class="photo-preview-name">foto-anexada.jpg</span>
+                    <span class="photo-preview-badge">✓ Imagem vinculada à peça</span>
+                  </div>
+                  <button type="button" class="btn-remove-photo" id="btnRemovePhoto" title="Remover imagem">✕</button>
+                </div>
+              </div>
+              <div class="field full-width">
+                <label>DESCRIÇÃO E APLICAÇÃO RÁPIDA</label>
+                <input id="pDescription" placeholder="Ex: Aplicação compatível com linha Volkswagen" />
+              </div>
+              <div class="field full-width">
+                <label>COMPATIBILIDADE VEICULAR COMPLETA (MODELOS, ANOS E MOTORES)</label>
+                <textarea id="pCompatibility" rows="3"
+                  placeholder="Ex: VW Gol G5/G6 1.0/1.6 8V (2008 a 2016)&#10;VW Fox 1.0/1.6 (2004 a 2014)&#10;VW Voyage 1.0/1.6 (2009 a 2016)"></textarea>
+              </div>
+            </div>
+
+            <div class="form-actions" style="margin-top: 20px; display: flex; gap: 10px; align-items: center;">
+              <button class="btn btn-primary" id="saveProductBtn">SALVAR PEÇA NO SISTEMA</button>
+              <button class="btn btn-secondary hidden" id="cancelEditBtn" type="button" onclick="cancelPieceEdit()">CANCELAR EDIÇÃO</button>
+            </div>
+            <div class="error hidden" id="productFormError" style="margin-top: 12px;"></div>
+            <div class="msg hidden" id="productFormMsg" style="margin-top: 12px;"></div>
           </div>
         </section>
 
