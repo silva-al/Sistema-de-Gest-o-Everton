@@ -1139,7 +1139,8 @@ async function openProductViewModal(id) {
 
   const qrBox = document.getElementById('pvQrSvg');
   if (qrBox) {
-    qrBox.innerHTML = generateMiniQrSvg(p.code || `PROD-${p.id}`, 38);
+    const qrData = encodeURIComponent(`FAHREN WMS|${p.code || 'PROD-' + p.id}|${p.name || 'Peça'}|${getProductLocation(p)}`);
+    qrBox.innerHTML = `<img src="/api/stock/qrcode?text=${qrData}&size=76" alt="QR" width="38" height="38" style="display:block;border-radius:3px;background:#fff;" />`;
   }
   
   const compatEl = document.getElementById('pvCompatibility');
@@ -2864,13 +2865,8 @@ function moneyNum(v) {
   return Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// Gerador de Código de Barras Code 128 (Subset C) em SVG puro
-function generateCode128Svg(codeDigits, height = 36) {
-  const digits = String(codeDigits).replace(/\D/g, '');
-  const pairs = [];
-  for (let i = 0; i < digits.length; i += 2) {
-    pairs.push(parseInt(digits.substr(i, 2), 10));
-  }
+function generateCode128Svg(codeText, height = 36) {
+  const text = String(codeText);
   const patterns = [
     [2,1,2,2,2,2],[2,2,2,1,2,2],[2,2,2,2,2,1],[1,2,1,2,2,3],[1,2,1,3,2,2],[1,3,1,2,2,2],[1,2,2,2,1,3],[1,2,2,3,1,2],[1,3,2,2,1,2],[2,2,1,2,1,3],
     [2,2,1,3,1,2],[2,3,1,2,1,2],[1,1,2,2,3,2],[1,2,2,1,3,2],[1,2,2,2,3,1],[1,1,3,2,2,2],[1,2,3,1,2,2],[1,2,3,2,2,1],[2,2,3,2,1,1],[2,2,1,1,3,2],
@@ -2884,16 +2880,20 @@ function generateCode128Svg(codeDigits, height = 36) {
     [2,1,4,1,2,1],[4,1,2,1,2,1],[1,1,1,1,4,3],[1,1,1,3,4,1],[1,3,1,1,4,1],[1,1,4,1,1,3],[1,1,4,3,1,1],[4,1,1,1,1,3],[4,1,1,3,1,1],[1,1,3,1,4,1],
     [1,1,4,1,3,1],[3,1,1,1,4,1],[4,1,1,1,3,1],[2,1,1,4,1,2],[2,1,1,2,1,4],[2,1,1,2,3,2],[2,3,3,1,1,1,2]
   ];
-  const startCode = 105;
+  // Code 128 Subset B (Start B = 104) — encodes full ASCII (space to DEL)
+  const startCode = 104;
   let checksum = startCode;
   const sequence = [startCode];
-  pairs.forEach((val, idx) => {
-    sequence.push(val);
-    checksum += val * (idx + 1);
-  });
+  for (let i = 0; i < text.length; i++) {
+    const charCode = text.charCodeAt(i) - 32;
+    if (charCode >= 0 && charCode <= 95) {
+      sequence.push(charCode);
+      checksum += charCode * (i + 1);
+    }
+  }
   checksum %= 103;
   sequence.push(checksum);
-  sequence.push(106);
+  sequence.push(106); // Stop
   let modules = [];
   sequence.forEach(code => {
     const pattern = patterns[code];
@@ -2923,6 +2923,7 @@ function generateCode128Svg(codeDigits, height = 36) {
   svg += `</svg>`;
   return svg;
 }
+
 
 // ---------- MODAL DE IMPRESSÃO DO DANFE OFICIAL ----------
 // Fechar modal, cancelar edição ou voltar de telas/abas com tecla ESC
@@ -4376,12 +4377,17 @@ let currentLabelProduct = null;
 
 function generateLabelHtmlForFormat(product, format, isPrint = false) {
   const loc = getProductLocation(product);
-  const cleanDigits = (product.code || '789123456789').replace(/\D/g, '').padEnd(12, '0').slice(0, 12);
+  const barcodeText = product.code || `PROD-${product.id || '0000'}`;
+  const qrData = encodeURIComponent(`FAHREN WMS|${barcodeText}|${product.name || 'Peça'}|${loc}`);
   const prodName = product.name || 'Peça Automotiva';
   const prodCode = product.code || 'S/SKU';
   const category = product.category || 'Peça / Componente';
   const lotDate = new Date().toLocaleDateString('pt-BR');
   const lotNumber = `L-${new Date().getFullYear().toString().slice(-2)}${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+  function realQrImg(size) {
+    return `<img src="/api/stock/qrcode?text=${qrData}&size=${size}" alt="QR ${prodCode}" width="${size}" height="${size}" style="display:block;border-radius:3px;background:#fff;" />`;
+  }
+
 
   if (format === 'compacta') {
     // 60 x 30 mm (Peças Pequenas)
@@ -4403,11 +4409,11 @@ function generateLabelHtmlForFormat(product, format, isPrint = false) {
         </div>
         <div class="label-barcodes-container compact">
           <div class="label-barcode-left">
-            <div class="barcode-svg-render">${generateCode128Svg(cleanDigits, bcHeight)}</div>
-            <span class="barcode-num-text compact">${cleanDigits}</span>
+            <div class="barcode-svg-render">${generateCode128Svg(barcodeText, bcHeight)}</div>
+            <span class="barcode-num-text compact">${barcodeText}</span>
           </div>
           <div class="label-qrcode-right compact">
-            ${generateMiniQrSvg(prodCode || `PROD-${product.id}`, qrSize)}
+            ${realQrImg(qrSize)}
           </div>
         </div>
       </div>
@@ -4448,11 +4454,11 @@ function generateLabelHtmlForFormat(product, format, isPrint = false) {
         </div>
         <div class="label-barcodes-container grande">
           <div class="label-barcode-left">
-            <div class="barcode-svg-render">${generateCode128Svg(cleanDigits, bcHeight)}</div>
-            <span class="barcode-num-text grande">${cleanDigits}</span>
+            <div class="barcode-svg-render">${generateCode128Svg(barcodeText, bcHeight)}</div>
+            <span class="barcode-num-text grande">${barcodeText}</span>
           </div>
           <div class="label-qrcode-right grande">
-            ${generateMiniQrSvg(prodCode || `PROD-${product.id}`, qrSize)}
+            ${realQrImg(qrSize)}
           </div>
         </div>
         <div class="label-inspection-box">
@@ -4495,11 +4501,11 @@ function generateLabelHtmlForFormat(product, format, isPrint = false) {
       </div>
       <div class="label-barcodes-container">
         <div class="label-barcode-left">
-          <div class="barcode-svg-render">${generateCode128Svg(cleanDigits, bcHeight)}</div>
-          <span class="barcode-num-text">${cleanDigits}</span>
+          <div class="barcode-svg-render">${generateCode128Svg(barcodeText, bcHeight)}</div>
+          <span class="barcode-num-text">${barcodeText}</span>
         </div>
         <div class="label-qrcode-right">
-          ${generateMiniQrSvg(prodCode || `PROD-${product.id}`, qrSize)}
+          ${realQrImg(qrSize)}
         </div>
       </div>
       <div class="label-footer">
@@ -5052,7 +5058,7 @@ function renderCommercialProductsTable(products = allProducts) {
         <td>${statusBadge}</td>
         <td style="text-align:right;white-space:nowrap">
           <div style="display:inline-flex;gap:4px">
-            <button class="btn btn-secondary btn-sm" onclick="window.open('/', '_blank')" title="Ver produto na vitrine pública da loja">
+            <button class="btn btn-secondary btn-sm" onclick="window.open(window.location.origin + '/', '_blank')" title="Ver produto na vitrine pública da loja">
               🌐 Loja
             </button>
             <button class="btn btn-secondary btn-sm" onclick="editCommercialProduct(${p.id})" title="Editar dados do produto comercial">
