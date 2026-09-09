@@ -1006,29 +1006,32 @@ html[data-active-tab="configuracoes"] .sidebar-nav button[data-tab="configuracoe
 }
 
 .btn-secondary {
-  background: #1e293b;
-  color: #f1f5f9;
-  border: 1.5px solid #334155;
+  background: linear-gradient(135deg, #ed1c24 0%, #b8141b 100%);
+  color: #ffffff;
+  border: 1.5px solid #ed1c24;
   font-weight: 700;
+  box-shadow: 0 2px 10px rgba(237, 28, 36, 0.25);
 }
 
 .btn-secondary:hover {
-  background: #334155;
+  background: linear-gradient(135deg, #ff2a33 0%, #c9171e 100%);
   color: #ffffff;
-  border-color: #475569;
+  border-color: #ff2a33;
+  box-shadow: 0 4px 16px rgba(237, 28, 36, 0.45);
 }
 
 body.tema-claro .btn-secondary {
-  background: #f1f5f9 !important;
-  color: #1e293b !important;
-  border: 1.5px solid #cbd5e1 !important;
+  background: linear-gradient(135deg, #ed1c24 0%, #b8141b 100%) !important;
+  color: #ffffff !important;
+  border: 1.5px solid #b8141b !important;
   font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(237, 28, 36, 0.25) !important;
 }
 
 body.tema-claro .btn-secondary:hover {
-  background: #e2e8f0 !important;
-  color: #0f172a !important;
-  border-color: #94a3b8 !important;
+  background: linear-gradient(135deg, #ff2a33 0%, #c9171e 100%) !important;
+  color: #ffffff !important;
+  border-color: #ff2a33 !important;
 }
 
 .btn-sm {
@@ -6815,14 +6818,15 @@ body.tema-claro .op-card-body p { color: #64748b; }
   align-items: center;
   gap: 6px;
 }
-.btn-op-entrada { background: #10b981; color: #fff; }
-.btn-op-entrada:hover { background: #059669; }
-.btn-op-saida { background: #ef4444; color: #fff; }
-.btn-op-saida:hover { background: #dc2626; }
-.btn-op-transf { background: #3b82f6; color: #fff; }
-.btn-op-transf:hover { background: #2563eb; }
-.btn-op-inv { background: #8b5cf6; color: #fff; }
-.btn-op-inv:hover { background: #7c3aed; }
+.btn-op-entrada, .btn-op-saida, .btn-op-transf, .btn-op-inv {
+  background: linear-gradient(135deg, #ed1c24 0%, #b8141b 100%);
+  color: #fff;
+  border: 1px solid #ed1c24;
+}
+.btn-op-entrada:hover, .btn-op-saida:hover, .btn-op-transf:hover, .btn-op-inv:hover {
+  background: linear-gradient(135deg, #ff2a33 0%, #c9171e 100%);
+  color: #fff;
+}
 
 /* 2. KPIs de Movimentação & Auditoria */
 .wms-kpi-grid {

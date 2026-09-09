@@ -1,11 +1,32 @@
 // Rotas operacionais do WMS: Movimentações, Operações, Inventário e Alertas
 const express = require('express');
 const db = require('../db');
+const QRCode = require('qrcode');
 const { requireRole } = require('../middleware/auth');
 
 const router = express.Router();
 
 // -------------------------------------------------------------------
+// QR CODE SVG GENERATOR (para etiquetas reais e escaneáveis)
+// -------------------------------------------------------------------
+router.get('/qrcode', async (req, res) => {
+  try {
+    const { text, size } = req.query;
+    if (!text) return res.status(400).json({ error: 'Texto não informado.' });
+    const svgStr = await QRCode.toString(text, {
+      type: 'svg',
+      margin: 1,
+      width: Number(size) || 200,
+      color: { dark: '#0f172a', light: '#ffffff' }
+    });
+    res.type('image/svg+xml').send(svgStr);
+  } catch (err) {
+    console.error('Erro ao gerar QR Code:', err);
+    res.status(500).json({ error: 'Erro ao gerar QR Code.' });
+  }
+});
+
+
 // 1. HISTÓRICO DE MOVIMENTAÇÕES DE ESTOQUE
 // -------------------------------------------------------------------
 router.get('/movements', requireRole('admin'), async (req, res) => {
