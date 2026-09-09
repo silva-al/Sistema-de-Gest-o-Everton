@@ -2607,30 +2607,238 @@ html.has-admin-session #mainScreen {
   }
 }
 
+/* ===================================================================
+   MODAL UNIVERSAL: CABEÇALHO, FECHAR MODERNO, CORPO E RODAPÉ
+   =================================================================== */
+
+.modal-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.22);
+  max-width: 680px;
+  width: 95%;
+  margin: 30px auto;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-card.modal-lg {
+  max-width: 780px;
+}
+
+body:not(.tema-claro) .modal-card {
+  background: #0f172a;
+  border-color: #1e293b;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+}
+
+.modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 18px 24px !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+}
+
+body:not(.tema-claro) .modal-header {
+  background: #0f172a !important;
+  border-bottom-color: #1e293b !important;
+}
+
+.modal-title-box {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.modal-title-box h3 {
+  margin: 0 !important;
+  font-size: 18px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  letter-spacing: -0.2px !important;
+}
+
+body:not(.tema-claro) .modal-title-box h3 {
+  color: #ffffff !important;
+}
+
+.modal-title-box svg {
+  color: #ed1c24 !important;
+  flex-shrink: 0 !important;
+}
+
+/* BOTÃO FECHAR MODERNO (X) */
+.modal-close {
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #64748b !important;
+  cursor: pointer !important;
+  transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+}
+
+.modal-close:hover {
+  background: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #dc2626 !important;
+  transform: rotate(90deg) scale(1.08) !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+}
+
+body:not(.tema-claro) .modal-close {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+body:not(.tema-claro) .modal-close:hover {
+  background: rgba(239, 68, 68, 0.2) !important;
+  border-color: #f87171 !important;
+  color: #f87171 !important;
+}
+
+.modal-body {
+  padding: 22px 26px !important;
+}
+
 /* Modal de Visualização Completa da Peça */
 .pv-modal-grid {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 18px;
-  align-items: start;
+  display: grid !important;
+  grid-template-columns: 210px 1fr !important;
+  gap: 22px !important;
+  align-items: center !important;
 }
 
 .pv-photo-wrap {
-  width: 100%;
-  height: 180px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #08090c;
-  border: 1px solid var(--panel-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 210px !important;
+  height: 210px !important;
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
+  flex-shrink: 0 !important;
 }
 
-.pv-photo-wrap img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+body.tema-claro .pv-photo-wrap {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+}
+
+body:not(.tema-claro) .pv-photo-wrap {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+.pv-photo-wrap img,
+#pvPhoto {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  border-radius: 8px !important;
+  display: block !important;
+  margin: auto !important;
+}
+
+/* MODAL FOOTER E OS 3 BOTÕES COM DESIGN ELEVADO */
+.modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 12px !important;
+  padding: 18px 26px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+}
+
+body:not(.tema-claro) .modal-footer {
+  background: #0f172a !important;
+  border-top-color: #1e293b !important;
+}
+
+.modal-footer .btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  padding: 10px 20px !important;
+  border-radius: 10px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+  box-sizing: border-box !important;
+  text-decoration: none !important;
+  line-height: 1.2 !important;
+  color: #ffffff !important;
+}
+
+/* 1. Botão Fechar */
+.modal-footer .btn-modal-close,
+.modal-footer button[onclick*="closeProductViewModal"] {
+  background: #475569 !important;
+  color: #ffffff !important;
+  border: 1px solid #334155 !important;
+  box-shadow: 0 2px 8px rgba(71, 85, 105, 0.2) !important;
+}
+
+.modal-footer .btn-modal-close:hover,
+.modal-footer button[onclick*="closeProductViewModal"]:hover {
+  background: #334155 !important;
+  border-color: #1e293b !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(71, 85, 105, 0.3) !important;
+}
+
+/* 2. Botão Ajustar Estoque */
+.modal-footer .btn-modal-stock,
+.modal-footer #pvAdjustStockBtn {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border: 1px solid #0f172a !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25) !important;
+}
+
+.modal-footer .btn-modal-stock:hover,
+.modal-footer #pvAdjustStockBtn:hover {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.35) !important;
+}
+
+/* 3. Botão Editar Dados da Peça */
+.modal-footer .btn-modal-edit,
+.modal-footer #pvEditBtn {
+  background: linear-gradient(135deg, #ed1c24 0%, #c9171e 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid #dc2626 !important;
+  box-shadow: 0 4px 14px rgba(237, 28, 36, 0.35) !important;
+}
+
+.modal-footer .btn-modal-edit:hover,
+.modal-footer #pvEditBtn:hover {
+  background: linear-gradient(135deg, #ff2a33 0%, #b91016 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(237, 28, 36, 0.45) !important;
 }
 
 .pv-info-wrap {
@@ -4496,8 +4704,12 @@ body.tema-claro .cce-nf-summary {
 }
 
 body.tema-claro .pv-photo-wrap {
-  background: #f8fafc !important;
-  border: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  padding: 16px !important;
+  width: 210px !important;
+  height: 210px !important;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06) !important;
 }
 
 body.tema-claro .pv-name {
