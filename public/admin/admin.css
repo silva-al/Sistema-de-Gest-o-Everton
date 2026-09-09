@@ -2827,6 +2827,31 @@ body:not(.tema-claro) .modal-footer {
   border: 1.5px solid #cbd5e1 !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
   font-weight: 700 !important;
+  border-radius: 10px !important;
+  padding: 10px 20px !important;
+  font-size: 13.5px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+}
+
+.modal-footer .btn-secondary span,
+.modal-footer .btn-modal-close span,
+.modal-footer .btn-stock-cancel span,
+.btn-modal-close span,
+.btn-stock-cancel span {
+  color: inherit !important;
+}
+
+.modal-footer .btn-secondary svg,
+.modal-footer .btn-modal-close svg,
+.modal-footer .btn-stock-cancel svg,
+.btn-modal-close svg,
+.btn-stock-cancel svg {
+  color: inherit !important;
+  stroke: currentColor !important;
 }
 
 .modal-footer .btn-secondary:hover,
@@ -2851,9 +2876,26 @@ body:not(.tema-claro) .modal-footer button[onclick*="Close"],
 body:not(.tema-claro) .btn-modal-close,
 body:not(.tema-claro) .btn-stock-cancel {
   background: #1e293b !important;
-  color: #f1f5f9 !important;
-  border: 1.5px solid #334155 !important;
+  color: #f8fafc !important;
+  border: 1.5px solid #475569 !important;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+body:not(.tema-claro) .modal-footer .btn-secondary span,
+body:not(.tema-claro) .modal-footer .btn-modal-close span,
+body:not(.tema-claro) .modal-footer .btn-stock-cancel span,
+body:not(.tema-claro) .btn-modal-close span,
+body:not(.tema-claro) .btn-stock-cancel span {
+  color: inherit !important;
+}
+
+body:not(.tema-claro) .modal-footer .btn-secondary svg,
+body:not(.tema-claro) .modal-footer .btn-modal-close svg,
+body:not(.tema-claro) .modal-footer .btn-stock-cancel svg,
+body:not(.tema-claro) .btn-modal-close svg,
+body:not(.tema-claro) .btn-stock-cancel svg {
+  color: inherit !important;
+  stroke: currentColor !important;
 }
 
 body:not(.tema-claro) .modal-footer .btn-secondary:hover,
@@ -2864,7 +2906,7 @@ body:not(.tema-claro) .modal-footer button[onclick*="Close"]:hover,
 body:not(.tema-claro) .btn-modal-close:hover,
 body:not(.tema-claro) .btn-stock-cancel:hover {
   background: #334155 !important;
-  border-color: #475569 !important;
+  border-color: #64748b !important;
   color: #ffffff !important;
   transform: translateY(-1px) !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
@@ -3152,42 +3194,6 @@ body:not(.tema-claro) .stock-section-title {
 body:not(.tema-claro) .stock-modal-footer {
   background: #0f172a !important;
   border-top-color: #1e293b !important;
-}
-
-.modal-footer .btn-stock-cancel,
-.btn-stock-cancel {
-  background: #ffffff !important;
-  border: 1.5px solid #cbd5e1 !important;
-  color: #334155 !important;
-  border-radius: 10px !important;
-  padding: 10px 20px !important;
-  font-size: 13.5px !important;
-  font-weight: 700 !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  cursor: pointer !important;
-  transition: all 0.15s ease !important;
-  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
-}
-
-.modal-footer .btn-stock-cancel span,
-.btn-stock-cancel span {
-  color: #334155 !important;
-}
-
-.modal-footer .btn-stock-cancel svg,
-.btn-stock-cancel svg {
-  color: #334155 !important;
-  stroke: #334155 !important;
-}
-
-.modal-footer .btn-stock-cancel:hover,
-.btn-stock-cancel:hover {
-  background: #f8fafc !important;
-  border-color: #94a3b8 !important;
-  color: #0f172a !important;
-  transform: translateY(-1px) !important;
 }
 
 .btn-stock-save {
@@ -7340,118 +7346,345 @@ body.tema-claro .label-preview-wrapper {
   border-color: #94a3b8;
 }
 
-.stock-label-card {
-  background: #ffffff;
-  color: #000000;
-  width: 320px;
-  padding: 14px 16px;
-  border-radius: 6px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+.label-preview-wrapper {
+  background: var(--bg-surface-subtle, #0d1117);
+  border: 1px dashed var(--panel-border, #30363d);
+  border-radius: 8px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.label-preview-dimension-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  font-size: 11.5px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.label-preview-stage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Base Card de Etiqueta */
+.stock-label-card {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border-radius: 4px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  border: 1px solid #111;
+}
+
+/* ===================================================
+   MODELO 1: PADRÃO WMS (100 x 50 mm)
+   =================================================== */
+.label-preview-stage.format-padrao .stock-label-card,
+.stock-label-card.label-card-padrao {
+  width: 380px;
+  min-height: 190px;
+  padding: 12px 14px;
   gap: 6px;
 }
-.label-header {
+.label-card-padrao .label-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   border-bottom: 1.5px solid #000;
   padding-bottom: 4px;
 }
-.label-brand-main {
+.label-card-padrao .label-brand-main {
   font-size: 14px;
   font-weight: 900;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
+  color: #000;
 }
-.label-brand-sub {
+.label-card-padrao .label-brand-sub {
   font-size: 10px;
   font-weight: 700;
-  color: #ed1c24;
+  color: #dc2626;
   margin-left: 2px;
 }
-.label-tag {
+.label-card-padrao .label-tag {
   font-size: 9px;
   font-weight: 800;
-  border: 1px solid #000;
-  padding: 1px 4px;
-  border-radius: 3px;
+  background: #000;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
 }
-.label-product-name {
+.label-card-padrao .label-product-name {
   font-size: 13px;
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.2;
   color: #000;
-  margin: 2px 0;
-  max-height: 34px;
+  max-height: 32px;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
-.label-details-row {
+.label-card-padrao .label-details-row {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 4px;
 }
-.lbl-k { color: #555; }
-.lbl-v { font-weight: 800; font-family: monospace; }
-.label-barcodes-container {
+.label-card-padrao .lbl-k { color: #555; }
+.label-card-padrao .lbl-v { font-weight: 800; font-family: monospace; }
+.label-card-padrao .label-barcodes-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  margin: 4px 0;
-  padding: 6px 0;
-  border-top: 1px dashed #ccc;
-  border-bottom: 1px dashed #ccc;
+  gap: 12px;
+  margin: 2px 0;
 }
-.label-barcode-left {
+.label-card-padrao .label-barcode-left {
   flex: 1;
   text-align: center;
 }
-.barcode-svg-render {
+.label-card-padrao .barcode-svg-render svg {
   width: 100%;
+  height: 28px;
+  display: block;
 }
-.barcode-num-text {
+.label-card-padrao .barcode-num-text {
   display: block;
   font-size: 10px;
   font-family: monospace;
   font-weight: 700;
   letter-spacing: 1px;
   margin-top: 2px;
+  color: #000;
 }
-.label-qrcode-right {
-  width: 58px;
-  height: 58px;
+.label-card-padrao .label-qrcode-right svg {
+  width: 52px;
+  height: 52px;
+  display: block;
   flex-shrink: 0;
 }
-.label-footer {
+.label-card-padrao .label-footer {
   font-size: 8px;
-  color: #666;
+  color: #555;
   text-align: center;
+  border-top: 1px solid #eee;
+  padding-top: 2px;
 }
 
-/* Regras de Impressão Isolada da Etiqueta */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  #labelPrintContainer,
-  #labelPrintContainer * {
-    visibility: visible;
-  }
-  #labelPrintContainer {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    margin: 0;
-    padding: 0;
-    background: transparent !important;
-    border: none !important;
-  }
-  .stock-label-card {
-    box-shadow: none !important;
-    border: 1px solid #000 !important;
-    margin: 0 auto;
-    page-break-inside: avoid;
-  }
+/* ===================================================
+   MODELO 2: COMPACTA / PEÇAS PEQUENAS (60 x 30 mm)
+   =================================================== */
+.label-preview-stage.format-compacta .stock-label-card,
+.stock-label-card.label-card-compacta {
+  width: 260px;
+  min-height: 130px;
+  padding: 8px 10px;
+  gap: 4px;
+}
+.label-card-compacta .label-header.compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #000;
+  padding-bottom: 2px;
+}
+.label-card-compacta .label-brand-main {
+  font-size: 11px;
+  font-weight: 900;
+  color: #000;
+}
+.label-card-compacta .label-brand-sub {
+  font-size: 8px;
+  font-weight: 700;
+  color: #dc2626;
+}
+.label-card-compacta .label-tag-compact {
+  font-size: 7.5px;
+  font-weight: 800;
+  background: #000;
+  color: #fff;
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+.label-card-compacta .label-product-name.compact {
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.15;
+  color: #000;
+  max-height: 24px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.label-card-compacta .label-details-row.compact {
+  display: flex;
+  justify-content: space-between;
+  font-size: 8.5px;
+  border-bottom: 1px dashed #ccc;
+  padding-bottom: 2px;
+}
+.label-card-compacta .label-barcodes-container.compact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.label-card-compacta .barcode-svg-render svg {
+  width: 100%;
+  height: 20px;
+  display: block;
+}
+.label-card-compacta .barcode-num-text.compact {
+  display: block;
+  font-size: 8px;
+  font-family: monospace;
+  font-weight: 700;
+  text-align: center;
+  letter-spacing: 0.5px;
+  color: #000;
+}
+.label-card-compacta .label-qrcode-right.compact svg {
+  width: 36px;
+  height: 36px;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* ===================================================
+   MODELO 3: GRANDE / CAIXA MASTER (100 x 100 mm)
+   =================================================== */
+.label-preview-stage.format-grande .stock-label-card,
+.stock-label-card.label-card-grande {
+  width: 380px;
+  min-height: 380px;
+  padding: 16px;
+  gap: 8px;
+}
+.label-card-grande .label-header.grande {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #000;
+  padding-bottom: 6px;
+}
+.label-card-grande .label-brand-main {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: #000;
+}
+.label-card-grande .label-brand-sub {
+  font-size: 11px;
+  font-weight: 700;
+  color: #dc2626;
+  margin-left: 3px;
+}
+.label-card-grande .label-tag.grande {
+  font-size: 8.5px;
+  font-weight: 800;
+  background: #000;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+.label-card-grande .label-product-name.grande {
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.2;
+  color: #000;
+  max-height: 40px;
+  overflow: hidden;
+}
+.label-card-grande .label-grid-quad {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 4px 0;
+}
+.label-card-grande .quad-cell {
+  border: 1px solid #111;
+  padding: 6px 8px;
+  border-radius: 4px;
+}
+.label-card-grande .quad-label {
+  display: block;
+  font-size: 8px;
+  font-weight: 700;
+  color: #555;
+  text-transform: uppercase;
+}
+.label-card-grande .quad-val {
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  margin-top: 2px;
+  color: #000;
+  word-break: break-all;
+}
+.label-card-grande .quad-loc {
+  background: #f1f5f9;
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+.label-card-grande .label-barcodes-container.grande {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  border-top: 1px dashed #aaa;
+  border-bottom: 1px dashed #aaa;
+  padding: 8px 0;
+}
+.label-card-grande .barcode-svg-render svg {
+  width: 100%;
+  height: 38px;
+  display: block;
+}
+.label-card-grande .barcode-num-text.grande {
+  display: block;
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-align: center;
+  margin-top: 4px;
+  color: #000;
+}
+.label-card-grande .label-qrcode-right.grande svg {
+  width: 70px;
+  height: 70px;
+  display: block;
+  flex-shrink: 0;
+}
+.label-card-grande .label-inspection-box {
+  border: 1px solid #999;
+  padding: 6px 8px;
+  font-size: 9px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  color: #222;
+  background: #fafafa;
+}
+.label-card-grande .label-footer.grande {
+  font-size: 8px;
+  color: #555;
+  text-align: center;
 }

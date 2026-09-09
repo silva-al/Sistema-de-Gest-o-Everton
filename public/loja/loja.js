@@ -1475,8 +1475,9 @@ async function mountCardBrick(amounts) {
                 show('endereco');
                 return reject();
               }
-              const items = cart.map((i) => ({ productId: i.productId, quantity: i.quantity }));
               const { order } = await api('/api/orders', { method: 'POST', body: JSON.stringify({ items, paymentMethod: 'cartao' }) });
+              broadcastSync('ORDER_CREATED', { orderId: order.id });
+              refreshLojaStockData();
               const result = await api('/api/payments/card', { method: 'POST', body: JSON.stringify({ orderId: order.id, ...cardFormData }) });
 
               if (result.status === 'approved') {
@@ -1683,6 +1684,8 @@ function renderFallbackCardForm(amounts, container, statusEl) {
         method: 'POST',
         body: JSON.stringify({ items, paymentMethod: 'cartao' }),
       });
+      broadcastSync('ORDER_CREATED', { orderId: order.id });
+      refreshLojaStockData();
 
       const cardBrand = detectBrand(rawNumber);
       const result = await api('/api/payments/card', {
@@ -1916,7 +1919,9 @@ async function checkout() {
       return;
     }
     const items = cart.map(i => ({ productId: i.productId, quantity: i.quantity }));
-    await api('/api/orders', { method: 'POST', body: JSON.stringify({ items, paymentMethod }) });
+    const orderRes = await api('/api/orders', { method: 'POST', body: JSON.stringify({ items, paymentMethod }) });
+    broadcastSync('ORDER_CREATED', { orderId: orderRes?.order?.id });
+    refreshLojaStockData();
     cart = []; saveCart();
     if (paymentMethod === 'pix') {
       alert('Pedido realizado! Finalize o pagamento com o código Pix que você copiou e acompanhe o status na sua tela de Perfil.');
@@ -2522,5 +2527,68 @@ init();
     document.addEventListener('DOMContentLoaded', iniciar);
   } else {
     iniciar();
-  }
+})();
+
+/* ==========================================================================
+   SINCRONIZAÇÃO TOTAL EM TEMPO REAL (WMS ADMIN <-> LOJA VIRTUAL)
+   ========================================================================== */
+function broadcastSync(type, data = {}) {
+  try {
+    const ch = new BroadcastChannel('fahren_wms_sync');
+    ch.postMessage({ type, data, timestamp: Date.now() });
+    ch.close();
+  } catch (e) {}
+  try {
+    localStorage.setItem('fahren_sync_event', JSON.stringify({ type, data, timestamp: Date.now() }));
+  } catch (e) {}
+}
+window.broadcastSync = broadcastSync;
+
+function refreshLojaStockData() {
+  try {
+    loadCategories();
+    loadCategoryCarousel();
+    const searchInput = document.getElementById('catalogSearch');
+    if (searchInput && searchInput.value.trim()) {
+      if (typeof loadCatalog === 'function') loadCatalog();
+    }
+    const catSelect = document.getElementById('filterCategory');
+    if (catSelect && catSelect.value) {
+      if (typeof loadCatalog === 'function') loadCatalog();
+    }
+  } catch (e) {}
+}
+window.refreshLojaStockData = refreshLojaStockData;
+
+(function initStoreSyncChannel() {
+  const handleSyncEvent = (evtData) => {
+    if (!evtData || !evtData.type) return;
+    refreshLojaStockData();
+  };
+
+  try {
+    const ch = new BroadcastChannel('fahren_wms_sync');
+    ch.onmessage = (e) => handleSyncEvent(e.data);
+  } catch (e) {}
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'fahren_sync_event' && e.newValue) {
+      try {
+        handleSyncEvent(JSON.parse(e.newValue));
+      } catch (err) {}
+    }
+  });
+
+  // Polling a cada 15 segundos para atualizar estoque mesmo entre dispositivos distintos
+  setInterval(() => {
+    refreshLojaStockData();
+  }, 15000);
+
+  // Atualiza ao voltar para a aba ou janela
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshLojaStockData();
+  });
+  window.addEventListener('focus', () => {
+    refreshLojaStockData();
+  });
 })();

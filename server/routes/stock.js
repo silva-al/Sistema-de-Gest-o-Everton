@@ -10,7 +10,7 @@ const router = express.Router();
 // -------------------------------------------------------------------
 router.get('/movements', requireRole('admin'), async (req, res) => {
   try {
-    const { productId, type, limit = 150, days } = req.query;
+    const { productId, type, limit = 150, days, search, q } = req.query;
     const params = [];
     let sql = `
       SELECT 
@@ -41,6 +41,13 @@ router.get('/movements', requireRole('admin'), async (req, res) => {
       sql += ` AND sm.created_at >= now() - ($${params.length} || ' days')::interval`;
     }
 
+    const searchTerm = (search || q || '').trim();
+    if (searchTerm) {
+      params.push(`%${searchTerm}%`);
+      const idx = params.length;
+      sql += ` AND (p.name ILIKE $${idx} OR p.code ILIKE $${idx} OR p.location ILIKE $${idx} OR sm.from_location ILIKE $${idx} OR sm.to_location ILIKE $${idx} OR sm.reference ILIKE $${idx} OR sm.notes ILIKE $${idx} OR sm.user_name ILIKE $${idx})`;
+    }
+
     sql += ' ORDER BY sm.created_at DESC';
     params.push(Number(limit) || 150);
     sql += ` LIMIT $${params.length}`;
@@ -60,9 +67,19 @@ router.get('/movements', requireRole('admin'), async (req, res) => {
       WHERE created_at >= now() - interval '30 days'
     `);
 
+    const s = statsRes.rows[0] || {};
     res.json({
       movements: result.rows,
-      stats: statsRes.rows[0] || {}
+      stats: {
+        totalEntradas: Number(s.volume_entradas) || 0,
+        countEntradas: Number(s.total_entradas) || 0,
+        totalSaidas: Number(s.volume_saidas) || 0,
+        countSaidas: Number(s.total_saidas) || 0,
+        totalTransf: 0,
+        countTransf: Number(s.total_transferencias) || 0,
+        totalAjustes: 0,
+        countAjustes: Number(s.total_ajustes) || 0
+      }
     });
   } catch (err) {
     console.error('Erro ao buscar movimentações:', err);

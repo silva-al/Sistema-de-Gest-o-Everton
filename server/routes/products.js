@@ -44,7 +44,7 @@ router.get('/', async (req, res) => {
 
     if (q) {
       params.push(`%${q.trim()}%`);
-      clauses.push(`(name ILIKE $${params.length} OR code ILIKE $${params.length} OR description ILIKE $${params.length})`);
+      clauses.push(`(name ILIKE $${params.length} OR code ILIKE $${params.length} OR description ILIKE $${params.length} OR location ILIKE $${params.length} OR compatibility ILIKE $${params.length})`);
     }
     if (category) {
       params.push(category);
@@ -149,13 +149,17 @@ router.get('/:id', async (req, res) => {
 router.post('/', requireRole('admin'), async (req, res) => {
   try {
     const { name, code, category, description, compatibility, price, stockQty, photoUrl, location } = req.body || {};
-    if (!name || price === undefined) {
-      return res.status(400).json({ error: 'Nome e preço são obrigatórios.' });
+    const itemType = (req.body && (req.body.itemType || req.body.item_type)) || 'peca';
+    if (!name) {
+      return res.status(400).json({ error: 'O nome da peça/produto é obrigatório.' });
     }
+    const finalPrice = price !== undefined && price !== null && price !== '' ? toCents(price) : 0;
+    const initialStock = Math.max(0, parseInt(stockQty, 10) || 0);
+
     const result = await db.query(
-      `INSERT INTO products (name, code, category, description, compatibility, price_cents, stock_qty, photo_url, location)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
-      [name.trim(), code || null, category || null, description || null, compatibility || null, toCents(price), stockQty || 0, photoUrl || null, location || null]
+      `INSERT INTO products (name, code, category, description, compatibility, price_cents, stock_qty, photo_url, location, item_type)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [name.trim(), code || null, category || null, description || null, compatibility || null, finalPrice, initialStock, photoUrl || null, location || null, itemType]
     );
     const newProd = result.rows[0];
     if (newProd.stock_qty > 0) {
@@ -176,6 +180,7 @@ router.post('/', requireRole('admin'), async (req, res) => {
 router.put('/:id', requireRole('admin'), async (req, res) => {
   try {
     const { name, code, category, description, compatibility, price, stockQty, photoUrl, location, active } = req.body || {};
+    const itemType = (req.body && (req.body.itemType || req.body.item_type)) ?? null;
     const prevRes = await db.query('SELECT stock_qty, location FROM products WHERE id = $1', [req.params.id]);
     const prevProd = prevRes.rows[0];
 
@@ -191,8 +196,9 @@ router.put('/:id', requireRole('admin'), async (req, res) => {
          photo_url = COALESCE($8, photo_url),
          location = COALESCE($9, location),
          active = COALESCE($10, active),
+         item_type = COALESCE($11, item_type),
          updated_at = now()
-       WHERE id = $11 RETURNING *`,
+       WHERE id = $12 RETURNING *`,
       [
         name?.trim() ?? null,
         code ?? null,
@@ -204,6 +210,7 @@ router.put('/:id', requireRole('admin'), async (req, res) => {
         photoUrl ?? null,
         location ?? null,
         active !== undefined ? active : null,
+        itemType,
         req.params.id,
       ]
     );

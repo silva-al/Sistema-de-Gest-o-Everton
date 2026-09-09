@@ -34,6 +34,91 @@ async function api(path, options = {}) {
   return data;
 }
 
+/* ==========================================================================
+   SINCRONIZAÇÃO TOTAL EM TEMPO REAL (WMS ADMIN <-> LOJA VIRTUAL)
+   ========================================================================== */
+function broadcastSync(type, data = {}) {
+  try {
+    const ch = new BroadcastChannel('fahren_wms_sync');
+    ch.postMessage({ type, data, timestamp: Date.now() });
+    ch.close();
+  } catch (e) {}
+  try {
+    localStorage.setItem('fahren_sync_event', JSON.stringify({ type, data, timestamp: Date.now() }));
+  } catch (e) {}
+}
+window.broadcastSync = broadcastSync;
+
+async function quickAddStock(id, qty) {
+  const p = allProducts.find(x => String(x.id) === String(id));
+  if (!p) return;
+  const current = Number(p.stockQty) || 0;
+  const newStock = current + Number(qty);
+  try {
+    await api(`/products/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify({ stockQty: newStock, inStock: newStock > 0 })
+    });
+    showToast(`+${qty} un. adicionadas a "${p.name}" (Saldo: ${newStock})`);
+    await refreshAllData();
+    broadcastSync('STOCK_UPDATED');
+  } catch (err) {
+    showToast('Erro ao atualizar estoque: ' + err.message);
+  }
+}
+window.quickAddStock = quickAddStock;
+
+let adminSyncInitialized = false;
+function initAdminSyncChannel() {
+  if (adminSyncInitialized) return;
+  adminSyncInitialized = true;
+
+  const handleSyncEvent = async (evtData) => {
+    if (!evtData || !evtData.type) return;
+    console.log('[WMS Sync] Evento recebido no Admin:', evtData.type);
+    
+    // Atualiza todos os dados em background
+    await refreshAllData();
+
+    if (evtData.type === 'ORDER_CREATED') {
+      showToast('🔔 Novo pedido recebido da loja virtual!');
+    }
+  };
+
+  try {
+    const ch = new BroadcastChannel('fahren_wms_sync');
+    ch.onmessage = (e) => handleSyncEvent(e.data);
+  } catch (e) {}
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'fahren_sync_event' && e.newValue) {
+      try {
+        handleSyncEvent(JSON.parse(e.newValue));
+      } catch (err) {}
+    }
+  });
+
+  // Polling automático a cada 15 segundos se admin estiver logado
+  setInterval(() => {
+    if (currentAdmin) {
+      refreshAllData();
+    }
+  }, 15000);
+
+  // Sincroniza ao focar na janela
+  window.addEventListener('focus', () => {
+    if (currentAdmin) {
+      refreshAllData();
+    }
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && currentAdmin) {
+      refreshAllData();
+    }
+  });
+}
+window.initAdminSyncChannel = initAdminSyncChannel;
+
 function money(v) {
   return Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
@@ -87,6 +172,7 @@ function showMain(admin) {
 
   // Carrega dados do sistema preservando a rolagem onde o usuário estava
   refreshAllData();
+  initAdminSyncChannel();
 
   try {
     const savedScroll = sessionStorage.getItem('fm_admin_scroll_y_' + targetTab);
@@ -1105,17 +1191,22 @@ async function loadProductMovementHistory(productId) {
     }
     tbody.innerHTML = movements.map(m => {
       const isPos = m.type === 'entrada' || (m.type === 'ajuste' && m.new_stock > m.previous_stock);
-      const sign = isPos ? '+' : '-';
+      const sign = isPos ? '+' : '−';
+      const absQty = Math.abs(Number(m.quantity) || 0);
       const qtyClass = isPos ? 'text-success' : 'text-danger';
       const typeBadge = getMovementBadge(m.type);
+      const loc = m.to_location || m.current_location || m.location || m.from_location || 'H-04-04';
+      const docRef = m.reference || m.document_ref || '';
+      const note = m.notes || m.reason || (m.type === 'entrada' ? 'Recebimento' : m.type === 'saida' ? 'Saída' : 'Ajuste');
+      const currentStockVal = m.new_stock !== undefined && m.new_stock !== null ? m.new_stock : (m.stock_qty || 0);
       return `
         <tr>
           <td><small>${formatDate(m.created_at)}</small></td>
           <td>${typeBadge}</td>
-          <td><strong class="${qtyClass}">${sign}${m.quantity}</strong></td>
-          <td><small>${m.previous_stock} &rarr; <strong>${m.new_stock}</strong></small></td>
-          <td><span class="location-badge" style="font-size:10px;padding:1px 6px;">${m.location || '-'}</span></td>
-          <td><small>${m.user_name || 'Admin'} ${m.document_ref ? `(${m.document_ref})` : ''}</small></td>
+          <td><strong class="${qtyClass}">${sign}${absQty} un.</strong></td>
+          <td><strong style="color:var(--text-primary);">${currentStockVal} un.</strong></td>
+          <td><span class="location-badge" style="font-size:10px;padding:1px 6px;">📍 ${loc}</span></td>
+          <td><small>${m.user_name || 'Admin'} ${docRef ? `(${docRef})` : note ? `(${note})` : ''}</small></td>
         </tr>
       `;
     }).join('');
@@ -1199,6 +1290,8 @@ document.getElementById('btnSaveStockModal')?.addEventListener('click', async ()
     updateStockTabsBadges();
     updateDashboardMetrics();
     closeStockModal();
+    await refreshAllData();
+    broadcastSync('STOCK_UPDATED');
     showToast(`Peça "${prod.name}" atualizada com sucesso!`);
   } catch (err) {
     console.error('Erro ao salvar dados da peça:', err);
@@ -1259,6 +1352,7 @@ document.getElementById('syncCatalogBtn')?.addEventListener('click', async () =>
   try {
     const res = await api('/products/sync-catalog', { method: 'POST' });
     await refreshAllData();
+    broadcastSync('CATALOG_SYNCED');
     showToast(res.message || 'Catálogo sincronizado com sucesso!');
   } catch (err) {
     showToast('Erro ao sincronizar catálogo: ' + (err.message || err));
@@ -1520,6 +1614,7 @@ document.getElementById('saveProductBtn')?.addEventListener('click', async () =>
     const wasEditing = Boolean(editingProductId);
     resetProductForm();
     await refreshAllData();
+    broadcastSync('PRODUCT_SAVED');
     showToast(wasEditing ? 'Peça atualizada com sucesso!' : 'Nova peça cadastrada com sucesso!');
     switchTab('produtos');
   } catch (err) {
@@ -1536,6 +1631,7 @@ async function removeProduct(id) {
     await api('/products/' + id, { method: 'DELETE' });
     showToast(`Peça "${name}" excluída com sucesso!`);
     await refreshAllData();
+    broadcastSync('PRODUCT_SAVED');
   } catch (err) {
     showToast(err.message || 'Erro ao excluir peça');
   }
@@ -2050,6 +2146,8 @@ document.getElementById('noSubmitOrderBtn')?.addEventListener('click', async () 
     showToast(`Pedido #${res.order?.id || ''} criado com sucesso!`);
     closeNewOrderModal();
     await refreshAllData();
+    broadcastSync('ORDER_CREATED');
+    broadcastSync('STOCK_UPDATED');
     switchTab('pedidos');
   } catch (err) {
     console.error('Erro ao criar pedido manual:', err);
@@ -2228,6 +2326,7 @@ window.stepBackOrderStatus = async (orderId, prevStatus) => {
     });
     showToast(`Pedido #${orderId} retornou para "${ORDER_STATUS_LABEL[prevStatus] || prevStatus}".`);
     await refreshAllData();
+    broadcastSync('ORDER_UPDATED');
   } catch (err) {
     console.error('Erro ao voltar etapa:', err);
     alert('Erro ao voltar etapa: ' + err.message);
@@ -2242,6 +2341,8 @@ window.deleteExpedicaoOrder = async (orderId) => {
     await api(`/orders/${orderId}`, { method: 'DELETE' });
     showToast(`Pedido #${orderId} excluído com sucesso!`);
     await refreshAllData();
+    broadcastSync('ORDER_UPDATED');
+    broadcastSync('STOCK_UPDATED');
   } catch (err) {
     console.error('Erro ao excluir pedido:', err);
     alert('Erro ao excluir pedido: ' + err.message);
@@ -2253,6 +2354,7 @@ async function updateOrderStatusQuick(orderId, status) {
     await api(`/orders/${orderId}/status`, { method: 'PUT', body: JSON.stringify({ status }) });
     if (isAutoNfEnabled() && status !== 'cancelado') markNfAsIssued(orderId);
     await refreshAllData();
+    broadcastSync('ORDER_UPDATED');
   } catch (err) {
     alert(err.message);
   }
@@ -3427,8 +3529,13 @@ function renderMovementsTable(movements) {
   tbody.innerHTML = movements.map(m => {
     const isPos = m.type === 'entrada' || (m.type === 'ajuste' && m.new_stock > m.previous_stock);
     const sign = isPos ? '+' : '−';
+    const absQty = Math.abs(Number(m.quantity) || 0);
     const qtyColor = isPos ? '#10b981' : '#ef4444';
     const photo = m.product_photo ? getProductPhoto({ photo: m.product_photo }) : '/images/categorias/freios.jpg';
+    const loc = m.to_location || m.current_location || m.location || m.from_location || 'H-04-04';
+    const docRef = m.reference || m.document_ref || '';
+    const note = m.notes || m.reason || (m.type === 'entrada' ? 'Recebimento WMS' : m.type === 'saida' ? 'Saída de Pedido' : 'Ajuste de Estoque');
+    const currentStockVal = m.new_stock !== undefined && m.new_stock !== null ? m.new_stock : (m.stock_qty || 0);
 
     return `
       <tr>
@@ -3445,18 +3552,14 @@ function renderMovementsTable(movements) {
           </div>
         </td>
         <td>${getMovementBadge(m.type)}</td>
-        <td><strong style="font-size:13.5px;color:${qtyColor};">${sign}${m.quantity}</strong></td>
+        <td><strong style="font-size:13.5px;color:${qtyColor};">${sign}${absQty} un.</strong></td>
         <td>
-          <div style="font-size:12px;display:flex;align-items:center;gap:4px;">
-            <span>${m.previous_stock}</span>
-            <span style="color:var(--text-muted);">&rarr;</span>
-            <strong style="color:var(--text-primary);">${m.new_stock}</strong>
-          </div>
+          <strong style="font-size:13.5px;color:var(--text-primary);">${currentStockVal} un.</strong>
         </td>
         <td>
           <span class="location-badge" style="font-size:11px;" title="Posição no Armazém">
             <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-            ${m.location || 'H-04-04'}
+            ${loc}
           </span>
         </td>
         <td>
@@ -3464,8 +3567,8 @@ function renderMovementsTable(movements) {
         </td>
         <td>
           <div style="font-size:11.5px;max-width:240px;line-height:1.3;">
-            ${m.document_ref ? `<strong style="color:var(--text-primary);display:block;">${m.document_ref}</strong>` : ''}
-            <span style="color:var(--text-muted);">${m.reason || 'Movimentação padrão WMS'}</span>
+            ${docRef ? `<strong style="color:var(--text-primary);display:block;">${docRef}</strong>` : ''}
+            <span style="color:var(--text-muted);">${note}</span>
           </div>
         </td>
       </tr>
@@ -3518,17 +3621,24 @@ async function loadRecentOperations() {
       tbody.innerHTML = movements.map(m => {
         const isPos = m.type === 'entrada' || (m.type === 'ajuste' && m.new_stock > m.previous_stock);
         const sign = isPos ? '+' : '−';
+        const absQty = Math.abs(Number(m.quantity) || 0);
         const qtyColor = isPos ? '#10b981' : '#ef4444';
+        const loc = m.to_location || m.current_location || m.location || m.from_location || 'H-04-04';
+        const docRef = m.reference || m.document_ref || '';
+        const note = m.notes || m.reason || (m.type === 'entrada' ? 'Recebimento WMS' : m.type === 'saida' ? 'Saída WMS' : 'Ajuste de Estoque');
+        const displayRef = docRef ? `${docRef} — ${note}` : note;
+        const currentStockVal = m.new_stock !== undefined && m.new_stock !== null ? m.new_stock : (m.stock_qty || 0);
+
         return `
           <tr>
             <td><small>${formatDate(m.created_at)}</small></td>
             <td>${getMovementBadge(m.type)}</td>
             <td><strong>${m.product_name || 'Peça'}</strong> <small style="color:var(--text-muted);font-family:monospace;">(${m.product_code || ''})</small></td>
-            <td><strong style="color:${qtyColor};">${sign}${m.quantity}</strong></td>
-            <td>${m.previous_stock} &rarr; <strong>${m.new_stock}</strong></td>
-            <td><span class="location-badge" style="font-size:10.5px;">${m.location || '-'}</span></td>
+            <td><strong style="color:${qtyColor};">${sign}${absQty} un.</strong></td>
+            <td><strong style="font-size:13px;color:var(--text-primary);">${currentStockVal} un.</strong></td>
+            <td><span class="location-badge" style="font-size:10.5px;">📍 ${loc}</span></td>
             <td><small>${m.user_name || 'Admin'}</small></td>
-            <td><small>${m.document_ref || m.reason || '-'}</small></td>
+            <td><small title="${displayRef}">${displayRef}</small></td>
           </tr>
         `;
       }).join('');
@@ -3678,6 +3788,7 @@ async function submitStockOperation() {
     showToast(`Operação concluída: ${res.product?.name} (Saldo: ${res.newStock} un.)`);
     closeStockOperationModal();
     await refreshAllData();
+    broadcastSync('STOCK_UPDATED');
     loadRecentOperations();
     loadStockMovements();
     loadStockAlerts();
@@ -3909,6 +4020,7 @@ async function submitInventoryCount() {
     showToast(`Inventário de "${p.name}" salvo com sucesso!`);
     closeInventoryCountModal();
     await refreshAllData();
+    broadcastSync('STOCK_UPDATED');
     loadInventoryAudit();
     loadStockMovements();
     loadStockAlerts();
@@ -4258,33 +4370,152 @@ function openLocationPickerModal() {
 window.openLocationPickerModal = openLocationPickerModal;
 
 // -------------------------------------------------------------------
-// 6. ETIQUETA DE PRODUTO (SCREEN 9: CODE128 + QR CODE)
+// 6. ETIQUETA DE PRODUTO (SCREEN 9: CODE128 + QR CODE MULTI-FORMATO)
 // -------------------------------------------------------------------
 let currentLabelProduct = null;
+
+function generateLabelHtmlForFormat(product, format, isPrint = false) {
+  const loc = getProductLocation(product);
+  const cleanDigits = (product.code || '789123456789').replace(/\D/g, '').padEnd(12, '0').slice(0, 12);
+  const prodName = product.name || 'Peça Automotiva';
+  const prodCode = product.code || 'S/SKU';
+  const category = product.category || 'Peça / Componente';
+  const lotDate = new Date().toLocaleDateString('pt-BR');
+  const lotNumber = `L-${new Date().getFullYear().toString().slice(-2)}${String(new Date().getMonth() + 1).padStart(2, '0')}`;
+
+  if (format === 'compacta') {
+    // 60 x 30 mm (Peças Pequenas)
+    const bcHeight = isPrint ? 14 : 20;
+    const qrSize = isPrint ? 36 : 40;
+    return `
+      <div class="stock-label-card label-card-compacta" data-format="compacta">
+        <div class="label-header compact">
+          <div class="label-brand">
+            <span class="label-brand-main">FAHREN</span>
+            <span class="label-brand-sub">MOTORS</span>
+          </div>
+          <span class="label-tag-compact">WMS</span>
+        </div>
+        <div class="label-product-name compact" title="${prodName}">${prodName}</div>
+        <div class="label-details-row compact">
+          <span><strong>SKU:</strong> ${prodCode}</span>
+          <span><strong>LOC:</strong> ${loc}</span>
+        </div>
+        <div class="label-barcodes-container compact">
+          <div class="label-barcode-left">
+            <div class="barcode-svg-render">${generateCode128Svg(cleanDigits, bcHeight)}</div>
+            <span class="barcode-num-text compact">${cleanDigits}</span>
+          </div>
+          <div class="label-qrcode-right compact">
+            ${generateMiniQrSvg(prodCode || `PROD-${product.id}`, qrSize)}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (format === 'grande') {
+    // 100 x 100 mm (Caixa Master / Pallet)
+    const bcHeight = isPrint ? 32 : 38;
+    const qrSize = isPrint ? 72 : 70;
+    return `
+      <div class="stock-label-card label-card-grande" data-format="grande">
+        <div class="label-header grande">
+          <div class="label-brand">
+            <span class="label-brand-main">FAHREN</span>
+            <span class="label-brand-sub">MOTORS</span>
+          </div>
+          <div class="label-tag grande">CAIXA MASTER / IDENTIFICAÇÃO WMS</div>
+        </div>
+        <div class="label-product-name grande" title="${prodName}">${prodName}</div>
+        <div class="label-grid-quad">
+          <div class="quad-cell">
+            <span class="quad-label">CÓDIGO / SKU</span>
+            <strong class="quad-val">${prodCode}</strong>
+          </div>
+          <div class="quad-cell">
+            <span class="quad-label">LOCALIZAÇÃO WMS</span>
+            <strong class="quad-val quad-loc">${loc}</strong>
+          </div>
+          <div class="quad-cell">
+            <span class="quad-label">CATEGORIA</span>
+            <strong class="quad-val">${category}</strong>
+          </div>
+          <div class="quad-cell">
+            <span class="quad-label">DATA / LOTE</span>
+            <strong class="quad-val">${lotDate} &bull; ${lotNumber}</strong>
+          </div>
+        </div>
+        <div class="label-barcodes-container grande">
+          <div class="label-barcode-left">
+            <div class="barcode-svg-render">${generateCode128Svg(cleanDigits, bcHeight)}</div>
+            <span class="barcode-num-text grande">${cleanDigits}</span>
+          </div>
+          <div class="label-qrcode-right grande">
+            ${generateMiniQrSvg(prodCode || `PROD-${product.id}`, qrSize)}
+          </div>
+        </div>
+        <div class="label-inspection-box">
+          <span>CONFERÊNCIA WMS: [&nbsp;&nbsp;] APROVADO</span>
+          <span>RESPONSÁVEL: ___________________</span>
+        </div>
+        <div class="label-footer grande">
+          <span>Rastreabilidade Logística WMS &bull; Fahren Motors &bull; fahrenmotors.com.br</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Padrão WMS: 100 x 50 mm
+  const bcHeight = isPrint ? 24 : 28;
+  const qrSize = isPrint ? 52 : 52;
+  return `
+    <div class="stock-label-card label-card-padrao" data-format="padrao">
+      <div class="label-header">
+        <div class="label-brand">
+          <span class="label-brand-main">FAHREN</span>
+          <span class="label-brand-sub">MOTORS</span>
+        </div>
+        <div class="label-tag">WMS AUTO</div>
+      </div>
+      <div class="label-product-name" title="${prodName}">${prodName}</div>
+      <div class="label-details-row">
+        <div class="label-detail-item">
+          <span class="lbl-k">SKU:</span>
+          <strong class="lbl-v">${prodCode}</strong>
+        </div>
+        <div class="label-detail-item">
+          <span class="lbl-k">Local:</span>
+          <strong class="lbl-v">${loc}</strong>
+        </div>
+        <div class="label-detail-item">
+          <span class="lbl-k">Cat:</span>
+          <strong class="lbl-v">${category}</strong>
+        </div>
+      </div>
+      <div class="label-barcodes-container">
+        <div class="label-barcode-left">
+          <div class="barcode-svg-render">${generateCode128Svg(cleanDigits, bcHeight)}</div>
+          <span class="barcode-num-text">${cleanDigits}</span>
+        </div>
+        <div class="label-qrcode-right">
+          ${generateMiniQrSvg(prodCode || `PROD-${product.id}`, qrSize)}
+        </div>
+      </div>
+      <div class="label-footer">
+        <span>Peça Genuína / Fahren Motors &bull; fahrenmotors.com.br</span>
+      </div>
+    </div>
+  `;
+}
+window.generateLabelHtmlForFormat = generateLabelHtmlForFormat;
 
 function openStockLabelModal(prodId) {
   const p = allProducts.find(x => String(x.id) === String(prodId));
   if (!p) return;
   currentLabelProduct = p;
 
-  const loc = getProductLocation(p);
-  const cleanDigits = (p.code || '789123456789').replace(/\D/g, '').padEnd(12, '0').slice(0, 12);
-
-  document.getElementById('lblProdName').textContent = p.name;
-  document.getElementById('lblProdSku').textContent = p.code || 'S/SKU';
-  document.getElementById('lblProdLoc').textContent = loc;
-  document.getElementById('lblBarcodeText').textContent = cleanDigits;
-
-  const barcodeSvgBox = document.getElementById('lblBarcodeSvg');
-  if (barcodeSvgBox) {
-    barcodeSvgBox.innerHTML = generateCode128Svg(cleanDigits, 36);
-  }
-
-  const qrSvgBox = document.getElementById('lblQrSvg');
-  if (qrSvgBox) {
-    qrSvgBox.innerHTML = generateMiniQrSvg(p.code || `PROD-${p.id}`, 58);
-  }
-
+  updateLabelFormat();
   document.getElementById('stockLabelModal')?.classList.remove('hidden');
 }
 window.openStockLabelModal = openStockLabelModal;
@@ -4295,25 +4526,412 @@ function closeStockLabelModal() {
 window.closeStockLabelModal = closeStockLabelModal;
 
 function updateLabelFormat() {
+  if (!currentLabelProduct) return;
   const format = document.getElementById('labelSizeSelect')?.value || 'padrao';
-  const card = document.getElementById('stockLabelCard');
-  if (!card) return;
+  const container = document.getElementById('labelPrintContainer');
+  if (!container) return;
 
-  if (format === 'compacta') {
-    card.style.width = '240px';
-    card.style.padding = '8px 10px';
-  } else if (format === 'grande') {
-    card.style.width = '380px';
-    card.style.padding = '18px 20px';
-  } else {
-    card.style.width = '320px';
-    card.style.padding = '12px 14px';
-  }
+  const cardHtml = generateLabelHtmlForFormat(currentLabelProduct, format, false);
+
+  let dimLabel = '100 × 50 mm (Padrão Industrial WMS)';
+  if (format === 'compacta') dimLabel = '60 × 30 mm (Peças Pequenas / Micro)';
+  if (format === 'grande') dimLabel = '100 × 100 mm (Caixa Master / Pallet)';
+
+  container.innerHTML = `
+    <div class="label-preview-dimension-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>
+      Dimensão Física de Impressão: <strong>${dimLabel}</strong>
+    </div>
+    <div class="label-preview-stage format-${format}">
+      ${cardHtml}
+    </div>
+  `;
 }
 window.updateLabelFormat = updateLabelFormat;
 
 function printStockLabel() {
-  window.print();
+  if (!currentLabelProduct) {
+    showToast('Nenhum produto selecionado para impressão.');
+    return;
+  }
+  const format = document.getElementById('labelSizeSelect')?.value || 'padrao';
+  const copiesInput = document.getElementById('labelCopies');
+  let copies = parseInt(copiesInput?.value, 10) || 1;
+  if (copies < 1) copies = 1;
+  if (copies > 100) copies = 100;
+
+  let widthMm = 100;
+  let heightMm = 50;
+  if (format === 'compacta') {
+    widthMm = 60;
+    heightMm = 30;
+  } else if (format === 'grande') {
+    widthMm = 100;
+    heightMm = 100;
+  }
+
+  const singleCardHtml = generateLabelHtmlForFormat(currentLabelProduct, format, true);
+  let pagesHtml = '';
+  for (let i = 0; i < copies; i++) {
+    pagesHtml += `<div class="print-page">${singleCardHtml}</div>`;
+  }
+
+  const printDocumentHtml = `
+    <!DOCTYPE html>
+    <html lang="pt-BR">
+    <head>
+      <meta charset="utf-8">
+      <title>Etiqueta ${currentLabelProduct.code || 'WMS'} - ${widthMm}x${heightMm}mm</title>
+      <style>
+        @page {
+          size: ${widthMm}mm ${heightMm}mm;
+          margin: 0;
+        }
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        html, body {
+          width: ${widthMm}mm;
+          margin: 0;
+          padding: 0;
+          background: #fff;
+          color: #000;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+        .print-page {
+          width: ${widthMm}mm;
+          height: ${heightMm}mm;
+          page-break-after: always;
+          break-after: page;
+          box-sizing: border-box;
+          overflow: hidden;
+          background: #fff;
+          display: flex;
+          flex-direction: column;
+          padding: 0;
+        }
+        .print-page:last-child {
+          page-break-after: avoid;
+          break-after: avoid;
+        }
+
+        .stock-label-card {
+          width: 100%;
+          height: 100%;
+          border: 1px solid #000;
+          box-sizing: border-box;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          background: #fff;
+          color: #000;
+        }
+
+        /* MODELO PADRÃO (100 x 50 mm) */
+        .label-card-padrao {
+          padding: 2.5mm 3.5mm;
+        }
+        .label-card-padrao .label-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1.5px solid #000;
+          padding-bottom: 1.5mm;
+          margin-bottom: 1mm;
+        }
+        .label-card-padrao .label-brand-main {
+          font-size: 12pt;
+          font-weight: 900;
+          letter-spacing: 0.5px;
+        }
+        .label-card-padrao .label-brand-sub {
+          font-size: 8.5pt;
+          font-weight: 700;
+          color: #555;
+          margin-left: 2px;
+        }
+        .label-card-padrao .label-tag {
+          font-size: 7.5pt;
+          font-weight: 800;
+          background: #000;
+          color: #fff;
+          padding: 1px 5px;
+          border-radius: 2px;
+        }
+        .label-card-padrao .label-product-name {
+          font-size: 10pt;
+          font-weight: 800;
+          line-height: 1.15;
+          max-height: 2.3em;
+          overflow: hidden;
+          margin-bottom: 1mm;
+        }
+        .label-card-padrao .label-details-row {
+          display: flex;
+          justify-content: space-between;
+          font-size: 8pt;
+          border-bottom: 1px dashed #666;
+          padding-bottom: 1mm;
+          margin-bottom: 1mm;
+        }
+        .label-card-padrao .lbl-k { color: #444; }
+        .label-card-padrao .lbl-v { font-weight: 800; font-family: monospace; }
+        .label-card-padrao .label-barcodes-container {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 3mm;
+          flex: 1;
+        }
+        .label-card-padrao .label-barcode-left {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          overflow: hidden;
+        }
+        .label-card-padrao .barcode-svg-render svg {
+          width: 100%;
+          height: 22px;
+          display: block;
+        }
+        .label-card-padrao .barcode-num-text {
+          font-size: 7.5pt;
+          font-family: monospace;
+          font-weight: 700;
+          letter-spacing: 1px;
+          margin-top: 1px;
+        }
+        .label-card-padrao .label-qrcode-right svg {
+          width: 16mm;
+          height: 16mm;
+          display: block;
+        }
+        .label-card-padrao .label-footer {
+          font-size: 6pt;
+          text-align: center;
+          color: #444;
+          margin-top: 0.5mm;
+          border-top: 0.5px solid #ccc;
+          padding-top: 0.5mm;
+        }
+
+        /* MODELO COMPACTO (60 x 30 mm) */
+        .label-card-compacta {
+          padding: 1.2mm 2mm;
+        }
+        .label-card-compacta .label-header.compact {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 1px solid #000;
+          padding-bottom: 0.5mm;
+          margin-bottom: 0.5mm;
+        }
+        .label-card-compacta .label-brand-main {
+          font-size: 8pt;
+          font-weight: 900;
+        }
+        .label-card-compacta .label-brand-sub {
+          font-size: 6pt;
+          font-weight: 700;
+          color: #555;
+        }
+        .label-card-compacta .label-tag-compact {
+          font-size: 6pt;
+          font-weight: 800;
+          background: #000;
+          color: #fff;
+          padding: 0 3px;
+          border-radius: 2px;
+        }
+        .label-card-compacta .label-product-name.compact {
+          font-size: 7pt;
+          font-weight: 800;
+          line-height: 1.1;
+          max-height: 2.2em;
+          overflow: hidden;
+          margin-bottom: 0.5mm;
+        }
+        .label-card-compacta .label-details-row.compact {
+          display: flex;
+          justify-content: space-between;
+          font-size: 6pt;
+          border-bottom: 0.5px dashed #888;
+          padding-bottom: 0.5mm;
+          margin-bottom: 0.5mm;
+        }
+        .label-card-compacta .label-barcodes-container.compact {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1.5mm;
+          flex: 1;
+        }
+        .label-card-compacta .barcode-svg-render svg {
+          width: 100%;
+          height: 13px;
+          display: block;
+        }
+        .label-card-compacta .barcode-num-text.compact {
+          font-size: 5.5pt;
+          font-family: monospace;
+          font-weight: 700;
+          text-align: center;
+          display: block;
+        }
+        .label-card-compacta .label-qrcode-right.compact svg {
+          width: 10.5mm;
+          height: 10.5mm;
+          display: block;
+        }
+
+        /* MODELO GRANDE / CAIXA MASTER (100 x 100 mm) */
+        .label-card-grande {
+          padding: 3.5mm 4.5mm;
+        }
+        .label-card-grande .label-header.grande {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-bottom: 2px solid #000;
+          padding-bottom: 1.5mm;
+          margin-bottom: 2mm;
+        }
+        .label-card-grande .label-brand-main {
+          font-size: 14pt;
+          font-weight: 900;
+          letter-spacing: 0.5px;
+        }
+        .label-card-grande .label-brand-sub {
+          font-size: 9.5pt;
+          font-weight: 700;
+          color: #555;
+        }
+        .label-card-grande .label-tag.grande {
+          font-size: 7.5pt;
+          font-weight: 800;
+          background: #000;
+          color: #fff;
+          padding: 1.5px 6px;
+          border-radius: 2px;
+        }
+        .label-card-grande .label-product-name.grande {
+          font-size: 12.5pt;
+          font-weight: 900;
+          line-height: 1.15;
+          margin-bottom: 2.5mm;
+          max-height: 2.3em;
+          overflow: hidden;
+        }
+        .label-card-grande .label-grid-quad {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1.5mm;
+          margin-bottom: 2.5mm;
+        }
+        .label-card-grande .quad-cell {
+          border: 1px solid #000;
+          padding: 1.2mm 2mm;
+          border-radius: 2px;
+        }
+        .label-card-grande .quad-label {
+          display: block;
+          font-size: 6pt;
+          font-weight: 700;
+          color: #555;
+          text-transform: uppercase;
+        }
+        .label-card-grande .quad-val {
+          display: block;
+          font-size: 9pt;
+          font-weight: 800;
+          margin-top: 1px;
+        }
+        .label-card-grande .quad-loc {
+          background: #f0f0f0;
+          display: inline-block;
+          padding: 0 3px;
+        }
+        .label-card-grande .label-barcodes-container.grande {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 3mm;
+          border-top: 1px dashed #777;
+          border-bottom: 1px dashed #777;
+          padding: 2mm 0;
+          margin-bottom: 2mm;
+        }
+        .label-card-grande .barcode-svg-render svg {
+          width: 100%;
+          height: 28px;
+          display: block;
+        }
+        .label-card-grande .barcode-num-text.grande {
+          font-size: 8.5pt;
+          font-family: monospace;
+          font-weight: 700;
+          letter-spacing: 1.5px;
+          text-align: center;
+          display: block;
+          margin-top: 1mm;
+        }
+        .label-card-grande .label-qrcode-right.grande svg {
+          width: 22mm;
+          height: 22mm;
+          display: block;
+        }
+        .label-card-grande .label-inspection-box {
+          border: 1px solid #777;
+          padding: 1.2mm 1.8mm;
+          font-size: 6.5pt;
+          font-weight: 700;
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 1mm;
+        }
+        .label-card-grande .label-footer.grande {
+          font-size: 6.5pt;
+          text-align: center;
+          color: #444;
+        }
+      </style>
+    </head>
+    <body>
+      ${pagesHtml}
+    </body>
+    </html>
+  `;
+
+  let iframe = document.getElementById('wmsLabelPrintIframe');
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.id = 'wmsLabelPrintIframe';
+    iframe.style.position = 'fixed';
+    iframe.style.right = '0';
+    iframe.style.bottom = '0';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = '0';
+    document.body.appendChild(iframe);
+  }
+
+  iframe.srcdoc = printDocumentHtml;
+  iframe.onload = () => {
+    setTimeout(() => {
+      try {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+      } catch (err) {
+        console.error('Erro ao acionar janela de impressão:', err);
+      }
+    }, 250);
+  };
 }
 window.printStockLabel = printStockLabel;
 
@@ -4375,7 +4993,10 @@ function renderCommercialProductsTable(products = allProducts) {
     filtered = filtered.filter(p => 
       (p.name && p.name.toLowerCase().includes(q)) ||
       (p.code && p.code.toLowerCase().includes(q)) ||
-      (p.category && p.category.toLowerCase().includes(q))
+      (p.category && p.category.toLowerCase().includes(q)) ||
+      (getProductLocation(p).toLowerCase().includes(q)) ||
+      (p.brand && p.brand.toLowerCase().includes(q)) ||
+      (p.compatibility && p.compatibility.toLowerCase().includes(q))
     );
   }
 
@@ -4594,6 +5215,7 @@ async function saveCommercialProduct() {
 
     closeCommercialProductForm();
     await refreshAllData();
+    broadcastSync('PRODUCT_SAVED');
     renderCommercialProductsTable(allProducts);
     alert(editingCommercialProductId ? 'Produto comercial atualizado!' : 'Produto comercial cadastrado!');
   } catch (err) {
@@ -4645,5 +5267,8 @@ document.getElementById('cpPhotoFile')?.addEventListener('change', async (e) => 
     showToast(err.message || 'Erro ao enviar imagem');
   }
 });
+
+// Inicialização imediata do canal de sincronização em tempo real
+initAdminSyncChannel();
 
 

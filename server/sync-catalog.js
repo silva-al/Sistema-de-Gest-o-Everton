@@ -32,13 +32,13 @@ async function syncCatalog(force = false) {
           `INSERT INTO products (name, code, category, description, compatibility, price_cents, stock_qty, photo_url, location, active)
            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, true)
            ON CONFLICT (code) DO UPDATE SET
-             name = EXCLUDED.name,
-             category = EXCLUDED.category,
-             description = EXCLUDED.description,
-             compatibility = EXCLUDED.compatibility,
-             price_cents = EXCLUDED.price_cents,
-             stock_qty = EXCLUDED.stock_qty,
-             photo_url = EXCLUDED.photo_url,
+             name = COALESCE(products.name, EXCLUDED.name),
+             category = COALESCE(products.category, EXCLUDED.category),
+             description = COALESCE(products.description, EXCLUDED.description),
+             compatibility = COALESCE(products.compatibility, EXCLUDED.compatibility),
+             price_cents = COALESCE(products.price_cents, EXCLUDED.price_cents),
+             stock_qty = products.stock_qty,
+             photo_url = COALESCE(products.photo_url, EXCLUDED.photo_url),
              location = COALESCE(products.location, EXCLUDED.location),
              active = true;`,
           [p.name, p.code, p.category, p.description, p.compatibility || '', p.price_cents, p.stock_qty, p.photo_url, p.location || null]
