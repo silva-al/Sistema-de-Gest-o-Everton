@@ -147,3 +147,44 @@ VALUES ('admin', 'admin@fahrenmotors.com', '$2a$10$jdILRdQycbv51/aHwJ.ZcOczyGDwR
 ON CONFLICT (email) DO UPDATE SET
   name = EXCLUDED.name,
   password_hash = EXCLUDED.password_hash;
+
+-- ----------------------------------------------------
+-- WMS: MOVIMENTAÇÕES DE ESTOQUE & HISTÓRICO CENTRAL
+-- ----------------------------------------------------
+CREATE TABLE IF NOT EXISTS stock_movements (
+  id              SERIAL PRIMARY KEY,
+  product_id      INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  type            TEXT NOT NULL CHECK (type IN ('entrada', 'saida', 'transferencia', 'ajuste', 'inventario')),
+  quantity        INTEGER NOT NULL,
+  previous_stock  INTEGER NOT NULL DEFAULT 0,
+  new_stock       INTEGER NOT NULL DEFAULT 0,
+  from_location   TEXT,
+  to_location     TEXT,
+  user_name       TEXT NOT NULL DEFAULT 'Administrador',
+  reference       TEXT,
+  notes           TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_stock_movements_product_id ON stock_movements(product_id);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_created_at ON stock_movements(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_stock_movements_type ON stock_movements(type);
+
+-- ----------------------------------------------------
+-- WMS: AUDITORIA E CONCILIAÇÃO DE INVENTÁRIO FÍSICO
+-- ----------------------------------------------------
+CREATE TABLE IF NOT EXISTS stock_inventories (
+  id              SERIAL PRIMARY KEY,
+  product_id      INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+  system_stock    INTEGER NOT NULL,
+  counted_stock   INTEGER NOT NULL,
+  difference      INTEGER NOT NULL,
+  status          TEXT NOT NULL DEFAULT 'pendente' CHECK (status IN ('pendente', 'conciliado')),
+  auditor_name    TEXT NOT NULL DEFAULT 'Administrador',
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  reconciled_at   TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_stock_inventories_product_id ON stock_inventories(product_id);
+CREATE INDEX IF NOT EXISTS idx_stock_inventories_status ON stock_inventories(status);
+

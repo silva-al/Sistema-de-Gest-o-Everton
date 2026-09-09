@@ -79,6 +79,20 @@ router.post('/', requireRole('customer'), async (req, res) => {
         [order.id, product.id, qty, product.price_cents]
       );
       await client.query('UPDATE products SET stock_qty = stock_qty - $1 WHERE id = $2', [qty, product.id]);
+      await client.query(
+        `INSERT INTO stock_movements (product_id, type, quantity, previous_stock, new_stock, from_location, to_location, user_name, reference, notes)
+         VALUES ($1, 'saida', $2, $3, $4, $5, $5, $6, $7, $8)`,
+        [
+          product.id,
+          -qty,
+          product.stock_qty,
+          Math.max(0, product.stock_qty - qty),
+          product.location || 'Sem localização',
+          'Cliente (Loja Virtual)',
+          `Pedido #${order.id}`,
+          'Venda realizada pela loja online'
+        ]
+      );
     }
 
     await client.query('COMMIT');
@@ -177,6 +191,22 @@ router.delete('/:id', requireRole('admin'), async (req, res) => {
           'UPDATE products SET stock_qty = stock_qty + $1 WHERE id = $2',
           [item.quantity, item.product_id]
         );
+        const pRow = await client.query('SELECT stock_qty, location FROM products WHERE id = $1', [item.product_id]);
+        const cur = pRow.rows[0];
+        await client.query(
+          `INSERT INTO stock_movements (product_id, type, quantity, previous_stock, new_stock, from_location, to_location, user_name, reference, notes)
+           VALUES ($1, 'entrada', $2, $3, $4, $5, $5, $6, $7, $8)`,
+          [
+            item.product_id,
+            item.quantity,
+            cur ? cur.stock_qty - item.quantity : 0,
+            cur ? cur.stock_qty : item.quantity,
+            cur ? cur.location || 'Sem localização' : 'Sem localização',
+            'Administrador',
+            `Estorno Pedido #${order.id}`,
+            'Devolução de estoque por cancelamento/exclusão de pedido'
+          ]
+        );
       }
     }
 
@@ -257,6 +287,20 @@ router.post('/manual', requireRole('admin'), async (req, res) => {
         [order.id, product.id, qty, unitPriceCents]
       );
       await client.query('UPDATE products SET stock_qty = GREATEST(0, stock_qty - $1) WHERE id = $2', [qty, product.id]);
+      await client.query(
+        `INSERT INTO stock_movements (product_id, type, quantity, previous_stock, new_stock, from_location, to_location, user_name, reference, notes)
+         VALUES ($1, 'saida', $2, $3, $4, $5, $5, $6, $7, $8)`,
+        [
+          product.id,
+          -qty,
+          product.stock_qty,
+          Math.max(0, product.stock_qty - qty),
+          product.location || 'Sem localização',
+          'Administrador',
+          `Pedido #${order.id} (Balcão)`,
+          `Venda manual balcão para cliente ${name}`
+        ]
+      );
     }
 
     await client.query('COMMIT');

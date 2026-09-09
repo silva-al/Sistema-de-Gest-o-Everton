@@ -152,7 +152,15 @@ router.post('/', requireRole('admin'), async (req, res) => {
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
       [name.trim(), code || null, category || null, description || null, compatibility || null, toCents(price), stockQty || 0, photoUrl || null, location || null]
     );
-    res.status(201).json({ product: serialize(result.rows[0]) });
+    const newProd = result.rows[0];
+    if (newProd.stock_qty > 0) {
+      await db.query(
+        `INSERT INTO stock_movements (product_id, type, quantity, previous_stock, new_stock, to_location, user_name, reference, notes)
+         VALUES ($1, 'entrada', $2, 0, $2, $3, 'Administrador', 'Cadastro Inicial', 'Entrada de saldo inicial no cadastro')`,
+        [newProd.id, newProd.stock_qty, newProd.location || 'Sem localização']
+      );
+    }
+    res.status(201).json({ product: serialize(newProd) });
   } catch (err) {
     console.error(err);
     if (err.code === '23505') return res.status(409).json({ error: 'Já existe uma peça com esse código.' });
@@ -163,6 +171,9 @@ router.post('/', requireRole('admin'), async (req, res) => {
 router.put('/:id', requireRole('admin'), async (req, res) => {
   try {
     const { name, code, category, description, compatibility, price, stockQty, photoUrl, location, active } = req.body || {};
+    const prevRes = await db.query('SELECT stock_qty, location FROM products WHERE id = $1', [req.params.id]);
+    const prevProd = prevRes.rows[0];
+
     const result = await db.query(
       `UPDATE products SET
          name = COALESCE($1, name),
@@ -192,7 +203,25 @@ router.put('/:id', requireRole('admin'), async (req, res) => {
       ]
     );
     if (!result.rows.length) return res.status(404).json({ error: 'Peça não encontrada.' });
-    res.json({ product: serialize(result.rows[0]) });
+
+    const updatedProd = result.rows[0];
+    if (prevProd && stockQty !== undefined && Number(stockQty) !== Number(prevProd.stock_qty)) {
+      const diff = Number(stockQty) - Number(prevProd.stock_qty);
+      await db.query(
+        `INSERT INTO stock_movements (product_id, type, quantity, previous_stock, new_stock, from_location, to_location, user_name, reference, notes)
+         VALUES ($1, 'ajuste', $2, $3, $4, $5, $6, 'Administrador', 'Ajuste de Estoque', 'Alteração de saldo no painel')`,
+        [
+          req.params.id,
+          diff,
+          prevProd.stock_qty,
+          updatedProd.stock_qty,
+          prevProd.location || 'Sem localização',
+          updatedProd.location || 'Sem localização'
+        ]
+      );
+    }
+
+    res.json({ product: serialize(updatedProd) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Erro ao atualizar peça.' });

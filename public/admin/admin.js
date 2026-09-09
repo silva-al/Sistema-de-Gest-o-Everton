@@ -125,7 +125,11 @@ function startLiveClock() {
 }
 
 // ---------- Navegação por Abas do WMS ----------
-const VALID_TABS = ['dashboard', 'estoque', 'pedidos', 'vendas', 'armazem', 'expedicao', 'financeiro', 'notas-fiscais', 'relatorios', 'configuracoes'];
+const VALID_TABS = [
+  'dashboard', 'estoque', 'pedidos', 'vendas',
+  'operacoes-estoque', 'movimentacoes', 'inventario', 'localizacoes', 'alertas',
+  'armazem', 'expedicao', 'financeiro', 'notas-fiscais', 'relatorios', 'configuracoes'
+];
 let currentTabId = 'dashboard';
 const tabHistory = ['dashboard'];
 
@@ -169,10 +173,18 @@ function switchTab(tabId, pushHistory = true, resetScroll = true) {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }
 
-  if (tabId === 'dashboard') updateDashboardMetrics();
+  if (tabId === 'dashboard') {
+    updateDashboardMetrics();
+    loadStockAlerts();
+  }
   if (tabId === 'estoque' || tabId === 'armazem') renderProductsTable(allProducts);
   if (tabId === 'pedidos') renderOrdersTable(allOrders);
   if (tabId === 'vendas') renderVendas();
+  if (tabId === 'operacoes-estoque') loadRecentOperations();
+  if (tabId === 'movimentacoes') loadStockMovements();
+  if (tabId === 'inventario') loadInventoryAudit();
+  if (tabId === 'localizacoes') renderWarehouseLocation();
+  if (tabId === 'alertas') loadStockAlerts();
   if (tabId === 'expedicao') renderExpedicao();
   if (tabId === 'financeiro') renderFinances();
   if (tabId === 'notas-fiscais') renderFiscalTable();
@@ -941,8 +953,8 @@ function renderRelatorios() {
 }
 window.renderRelatorios = renderRelatorios;
 
-// Modal de visualização completa da peça
-function openProductViewModal(id) {
+// Modal de visualização completa da peça (Tela 3 do WMS)
+async function openProductViewModal(id) {
   const p = allProducts.find(item => String(item.id) === String(id));
   if (!p) return;
   const modal = document.getElementById('productViewModal');
@@ -951,6 +963,7 @@ function openProductViewModal(id) {
   const priceVal = Number(p.price) || 0;
   const pixVal = priceVal * 0.96;
   const photo = getProductPhoto(p);
+  const loc = getProductLocation(p);
 
   const photoEl = document.getElementById('pvPhoto');
   if (photoEl) {
@@ -972,6 +985,9 @@ function openProductViewModal(id) {
     }
   }
 
+  const locEl = document.getElementById('pvLocation');
+  if (locEl) locEl.textContent = loc;
+
   const nameEl = document.getElementById('pvName');
   if (nameEl) nameEl.textContent = p.name;
   
@@ -985,13 +1001,54 @@ function openProductViewModal(id) {
   if (regEl) regEl.textContent = money(priceVal);
   
   const stockEl = document.getElementById('pvStockQty');
-  if (stockEl) stockEl.textContent = `${p.stockQty || 0} unidades`;
+  if (stockEl) stockEl.textContent = String(p.stockQty || 0);
+
+  // Stepper interativo direto dentro do modal Ver Peça (com auditoria)
+  const minusBtn = document.getElementById('btnPvStockMinus');
+  const plusBtn = document.getElementById('btnPvStockPlus');
+  if (minusBtn) {
+    minusBtn.onclick = async () => {
+      const cur = Number(p.stockQty) || 0;
+      if (cur <= 0) return;
+      await quickUpdateStock(p.id, cur - 1);
+      if (stockEl) stockEl.textContent = String(p.stockQty || 0);
+      loadProductMovementHistory(p.id);
+    };
+  }
+  if (plusBtn) {
+    plusBtn.onclick = async () => {
+      const cur = Number(p.stockQty) || 0;
+      await quickUpdateStock(p.id, cur + 1);
+      if (stockEl) stockEl.textContent = String(p.stockQty || 0);
+      loadProductMovementHistory(p.id);
+    };
+  }
+
+  // Gera código de barras e QR code vetorial da peça
+  const barcodeBox = document.getElementById('pvBarcodeSvg');
+  if (barcodeBox) {
+    const rawDigits = (p.code || '789123456789').replace(/\D/g, '').padEnd(12, '0').slice(0, 12);
+    barcodeBox.innerHTML = generateCode128Svg(rawDigits, 24);
+  }
+
+  const qrBox = document.getElementById('pvQrSvg');
+  if (qrBox) {
+    qrBox.innerHTML = generateMiniQrSvg(p.code || `PROD-${p.id}`, 38);
+  }
   
   const compatEl = document.getElementById('pvCompatibility');
   if (compatEl) compatEl.textContent = p.compatibility || 'Aplicação compatível ou universal.';
   
   const descEl = document.getElementById('pvDescription');
   if (descEl) descEl.textContent = p.description || 'Sem descrição cadastrada.';
+
+  const lblBtn = document.getElementById('pvPrintLabelBtn');
+  if (lblBtn) {
+    lblBtn.onclick = () => {
+      closeProductViewModal();
+      openStockLabelModal(p.id);
+    };
+  }
 
   const editBtn = document.getElementById('pvEditBtn');
   if (editBtn) {
@@ -1009,12 +1066,50 @@ function openProductViewModal(id) {
     };
   }
 
+  // Carrega histórico individual desta peça (Tela 3)
+  loadProductMovementHistory(p.id);
+
   modal.classList.remove('hidden');
+}
+
+async function loadProductMovementHistory(productId) {
+  const tbody = document.getElementById('pvMovementsTbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="6" class="text-center py-2">Carregando histórico da peça...</td></tr>';
+  try {
+    const res = await api(`/stock/movements?productId=${productId}&limit=10`);
+    const movements = res.movements || [];
+    if (!movements.length) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-3 text-muted">Nenhuma movimentação anterior registrada para esta peça.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = movements.map(m => {
+      const isPos = m.type === 'entrada' || (m.type === 'ajuste' && m.new_stock > m.previous_stock);
+      const sign = isPos ? '+' : '-';
+      const qtyClass = isPos ? 'text-success' : 'text-danger';
+      const typeBadge = getMovementBadge(m.type);
+      return `
+        <tr>
+          <td><small>${formatDate(m.created_at)}</small></td>
+          <td>${typeBadge}</td>
+          <td><strong class="${qtyClass}">${sign}${m.quantity}</strong></td>
+          <td><small>${m.previous_stock} &rarr; <strong>${m.new_stock}</strong></small></td>
+          <td><span class="location-badge" style="font-size:10px;padding:1px 6px;">${m.location || '-'}</span></td>
+          <td><small>${m.user_name || 'Admin'} ${m.document_ref ? `(${m.document_ref})` : ''}</small></td>
+        </tr>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error('Erro ao carregar histórico da peça:', err);
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center py-2 text-danger">Não foi possível carregar o histórico.</td></tr>';
+  }
 }
 
 function closeProductViewModal() {
   document.getElementById('productViewModal')?.classList.add('hidden');
 }
+window.openProductViewModal = openProductViewModal;
+window.closeProductViewModal = closeProductViewModal;
 
 // Modal de ajuste de estoque e dados da peça
 function openStockModal(id) {
@@ -3128,4 +3223,965 @@ initAdmin();
     iniciar();
   }
 })();
+
+// ===================================================================
+// WMS EXPANDIDO: OPERAÇÕES, MOVIMENTAÇÕES, AUDITORIA & LOCALIZAÇÃO
+// ===================================================================
+
+// Helper de Badge de Tipo de Movimentação
+function getMovementBadge(type) {
+  switch (type) {
+    case 'entrada':
+      return '<span class="status-badge pronto" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;">Entrada (+)</span>';
+    case 'saida':
+      return '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Saída (−)</span>';
+    case 'transferencia':
+      return '<span class="status-badge" style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;">Transferência (⇄)</span>';
+    case 'ajuste':
+      return '<span class="status-badge" style="background:#f5f3ff;color:#7c3aed;border:1px solid #ddd6fe;">Ajuste</span>';
+    case 'inventario':
+      return '<span class="status-badge" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;">Inventário</span>';
+    default:
+      return `<span class="status-badge">${type}</span>`;
+  }
+}
+window.getMovementBadge = getMovementBadge;
+
+// Gerador de QR Code Vetorial em SVG Puro (Sem dependências externas)
+function generateMiniQrSvg(text, size = 48) {
+  const hash = String(text).split('').reduce((acc, char, i) => acc + char.charCodeAt(0) * (i + 1), 0);
+  const n = 21;
+  const grid = Array.from({ length: n }, () => Array(n).fill(false));
+
+  function fillBox(x, y, w, h, v) {
+    for (let r = y; r < y + h; r++) {
+      for (let c = x; c < x + w; c++) {
+        if (r < n && c < n) grid[r][c] = v;
+      }
+    }
+  }
+
+  // Finder pattern top-left
+  fillBox(0, 0, 7, 7, true);
+  fillBox(1, 1, 5, 5, false);
+  fillBox(2, 2, 3, 3, true);
+
+  // Finder pattern top-right
+  fillBox(n - 7, 0, 7, 7, true);
+  fillBox(n - 6, 1, 5, 5, false);
+  fillBox(n - 5, 2, 3, 3, true);
+
+  // Finder pattern bottom-left
+  fillBox(0, n - 7, 7, 7, true);
+  fillBox(1, n - 6, 5, 5, false);
+  fillBox(2, n - 5, 3, 3, true);
+
+  // Timing lines
+  for (let i = 8; i < n - 8; i++) {
+    grid[6][i] = i % 2 === 0;
+    grid[i][6] = i % 2 === 0;
+  }
+
+  // Pseudo-random data pattern determinístico baseado no hash do texto
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      const inFinder = (r < 8 && (c < 8 || c >= n - 8)) || (r >= n - 8 && c < 8);
+      if (!inFinder && r !== 6 && c !== 6) {
+        grid[r][c] = ((r * 7 + c * 13 + hash) % 3) === 0;
+      }
+    }
+  }
+
+  const cellSize = (size / n).toFixed(2);
+  let svg = `<svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="display:block;border-radius:3px;">`;
+  svg += `<rect width="${size}" height="${size}" fill="#ffffff"/>`;
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      if (grid[r][c]) {
+        svg += `<rect x="${(c * cellSize).toFixed(2)}" y="${(r * cellSize).toFixed(2)}" width="${cellSize}" height="${cellSize}" fill="#0f172a"/>`;
+      }
+    }
+  }
+  svg += `</svg>`;
+  return svg;
+}
+window.generateMiniQrSvg = generateMiniQrSvg;
+
+// -------------------------------------------------------------------
+// 1. MOVIMENTAÇÕES DE ESTOQUE (HISTÓRICO GERAL - TELA 4)
+// -------------------------------------------------------------------
+let movCurrentPage = 1;
+let movDebounceTimer = null;
+
+async function loadStockMovements(page = 1) {
+  movCurrentPage = page;
+  const tbody = document.getElementById('stockMovementsTbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">Carregando movimentações do armazém...</td></tr>';
+
+  const search = (document.getElementById('filterMovSearch')?.value || '').trim();
+  const type = document.getElementById('filterMovType')?.value || '';
+  const days = document.getElementById('filterMovDays')?.value || '30';
+
+  try {
+    const params = new URLSearchParams({
+      page: String(movCurrentPage),
+      limit: '25',
+      days: String(days)
+    });
+    if (search) params.append('search', search);
+    if (type) params.append('type', type);
+
+    const res = await api(`/stock/movements?${params.toString()}`);
+    const movements = res.movements || [];
+    const stats = res.stats || {};
+
+    // Atualiza KPIs da tela de movimentações
+    const elEntradas = document.getElementById('kpiMovEntradas');
+    if (elEntradas) elEntradas.textContent = `${stats.totalEntradas || 0} un.`;
+    const elEntradasCount = document.getElementById('kpiMovEntradasCount');
+    if (elEntradasCount) elEntradasCount.textContent = `${stats.countEntradas || 0} registros`;
+
+    const elSaidas = document.getElementById('kpiMovSaidas');
+    if (elSaidas) elSaidas.textContent = `${stats.totalSaidas || 0} un.`;
+    const elSaidasCount = document.getElementById('kpiMovSaidasCount');
+    if (elSaidasCount) elSaidasCount.textContent = `${stats.countSaidas || 0} registros`;
+
+    const elTransf = document.getElementById('kpiMovTransf');
+    if (elTransf) elTransf.textContent = `${stats.totalTransf || 0} un.`;
+    const elTransfCount = document.getElementById('kpiMovTransfCount');
+    if (elTransfCount) elTransfCount.textContent = `${stats.countTransf || 0} registros`;
+
+    const elAjustes = document.getElementById('kpiMovAjustes');
+    if (elAjustes) elAjustes.textContent = `${stats.totalAjustes || 0} un.`;
+    const elAjustesCount = document.getElementById('kpiMovAjustesCount');
+    if (elAjustesCount) elAjustesCount.textContent = `${stats.countAjustes || 0} registros`;
+
+    renderMovementsTable(movements);
+    renderMovPagination(res.pagination);
+  } catch (err) {
+    console.error('Erro ao carregar movimentações:', err);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Erro ao carregar dados: ${err.message}</td></tr>`;
+  }
+}
+window.loadStockMovements = loadStockMovements;
+
+function renderMovementsTable(movements) {
+  const tbody = document.getElementById('stockMovementsTbody');
+  if (!tbody) return;
+
+  if (!movements.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5 text-muted">Nenhuma movimentação encontrada para os filtros selecionados.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = movements.map(m => {
+    const isPos = m.type === 'entrada' || (m.type === 'ajuste' && m.new_stock > m.previous_stock);
+    const sign = isPos ? '+' : '−';
+    const qtyColor = isPos ? '#10b981' : '#ef4444';
+    const photo = m.product_photo ? getProductPhoto({ photo: m.product_photo }) : '/images/categorias/freios.jpg';
+
+    return `
+      <tr>
+        <td style="white-space:nowrap;">
+          <strong style="font-size:12.5px;display:block;">${formatDate(m.created_at)}</strong>
+        </td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="openProductViewModal(${m.product_id})">
+            <img src="${photo}" alt="" style="width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid var(--panel-border);aspect-ratio:1;flex-shrink:0;" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/>
+            <div>
+              <strong style="font-size:13px;display:block;color:var(--text-primary);">${m.product_name || 'Produto Removido'}</strong>
+              <small style="font-family:monospace;font-size:11px;color:var(--text-muted);">${m.product_code || 'S/SKU'}</small>
+            </div>
+          </div>
+        </td>
+        <td>${getMovementBadge(m.type)}</td>
+        <td><strong style="font-size:13.5px;color:${qtyColor};">${sign}${m.quantity}</strong></td>
+        <td>
+          <div style="font-size:12px;display:flex;align-items:center;gap:4px;">
+            <span>${m.previous_stock}</span>
+            <span style="color:var(--text-muted);">&rarr;</span>
+            <strong style="color:var(--text-primary);">${m.new_stock}</strong>
+          </div>
+        </td>
+        <td>
+          <span class="location-badge" style="font-size:11px;" title="Posição no Armazém">
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            ${m.location || 'H-04-04'}
+          </span>
+        </td>
+        <td>
+          <span style="font-size:12px;font-weight:600;">${m.user_name || 'Administrador'}</span>
+        </td>
+        <td>
+          <div style="font-size:11.5px;max-width:240px;line-height:1.3;">
+            ${m.document_ref ? `<strong style="color:var(--text-primary);display:block;">${m.document_ref}</strong>` : ''}
+            <span style="color:var(--text-muted);">${m.reason || 'Movimentação padrão WMS'}</span>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderMovPagination(pagination) {
+  const container = document.getElementById('movPagination');
+  if (!container || !pagination) return;
+  const { page, totalPages, total } = pagination;
+  if (totalPages <= 1) {
+    container.innerHTML = `<span style="font-size:12px;color:var(--text-muted);">Exibindo ${total} registros</span>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <span style="font-size:12px;color:var(--text-muted);">Página ${page} de ${totalPages} (${total} registros)</span>
+    <div style="display:inline-flex;gap:6px;">
+      <button class="btn btn-secondary btn-sm" ${page <= 1 ? 'disabled' : ''} onclick="loadStockMovements(${page - 1})">&larr; Anterior</button>
+      <button class="btn btn-secondary btn-sm" ${page >= totalPages ? 'disabled' : ''} onclick="loadStockMovements(${page + 1})">Próxima &rarr;</button>
+    </div>
+  `;
+}
+
+function debounceMovFilter() {
+  clearTimeout(movDebounceTimer);
+  movDebounceTimer = setTimeout(() => {
+    loadStockMovements(1);
+  }, 300);
+}
+window.debounceMovFilter = debounceMovFilter;
+
+// -------------------------------------------------------------------
+// 2. OPERAÇÕES DE ESTOQUE (TELA 5)
+// -------------------------------------------------------------------
+let currentOpType = 'entrada';
+
+async function loadRecentOperations() {
+  const tbody = document.getElementById('recentOperationsTbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">Carregando operações recentes...</td></tr>';
+  try {
+    const res = await api('/stock/movements?limit=10');
+    const movements = res.movements || [];
+    if (!movements.length) {
+      if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Nenhuma operação recente registrada.</td></tr>';
+      return;
+    }
+    if (tbody) {
+      tbody.innerHTML = movements.map(m => {
+        const isPos = m.type === 'entrada' || (m.type === 'ajuste' && m.new_stock > m.previous_stock);
+        const sign = isPos ? '+' : '−';
+        const qtyColor = isPos ? '#10b981' : '#ef4444';
+        return `
+          <tr>
+            <td><small>${formatDate(m.created_at)}</small></td>
+            <td>${getMovementBadge(m.type)}</td>
+            <td><strong>${m.product_name || 'Peça'}</strong> <small style="color:var(--text-muted);font-family:monospace;">(${m.product_code || ''})</small></td>
+            <td><strong style="color:${qtyColor};">${sign}${m.quantity}</strong></td>
+            <td>${m.previous_stock} &rarr; <strong>${m.new_stock}</strong></td>
+            <td><span class="location-badge" style="font-size:10.5px;">${m.location || '-'}</span></td>
+            <td><small>${m.user_name || 'Admin'}</small></td>
+            <td><small>${m.document_ref || m.reason || '-'}</small></td>
+          </tr>
+        `;
+      }).join('');
+    }
+  } catch (err) {
+    console.error('Erro ao carregar operações recentes:', err);
+  }
+}
+window.loadRecentOperations = loadRecentOperations;
+
+function openStockOperationModal(type = 'entrada', prodId = null) {
+  currentOpType = type;
+  selectOpType(type);
+
+  // Popula o select de produtos
+  const select = document.getElementById('stockOpProductSelect');
+  if (select) {
+    select.innerHTML = '<option value="">Selecione uma peça do armazém...</option>' +
+      allProducts.map(p => {
+        return `<option value="${p.id}" data-qty="${p.stockQty || 0}" data-loc="${getProductLocation(p)}">${p.name} (${p.code || 'S/SKU'}) — Saldo: ${p.stockQty || 0} un.</option>`;
+      }).join('');
+
+    if (prodId) {
+      select.value = String(prodId);
+      onStockOpProductChange();
+    } else {
+      select.value = '';
+      document.getElementById('stockOpInfoCard')?.classList.add('hidden');
+    }
+  }
+
+  const qtyInput = document.getElementById('stockOpQty');
+  if (qtyInput) qtyInput.value = '1';
+
+  const docInput = document.getElementById('stockOpDocRef');
+  if (docInput) docInput.value = '';
+
+  const notesInput = document.getElementById('stockOpNotes');
+  if (notesInput) notesInput.value = '';
+
+  document.getElementById('stockOperationModal')?.classList.remove('hidden');
+}
+window.openStockOperationModal = openStockOperationModal;
+
+function closeStockOperationModal() {
+  document.getElementById('stockOperationModal')?.classList.add('hidden');
+}
+window.closeStockOperationModal = closeStockOperationModal;
+
+function selectOpType(type) {
+  currentOpType = type;
+  document.querySelectorAll('#opTypePills .op-pill-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+  });
+
+  const transfFields = document.getElementById('stockOpTransfFields');
+  if (transfFields) {
+    transfFields.classList.toggle('hidden', type !== 'transferencia');
+  }
+
+  const title = document.getElementById('stockOpModalTitle');
+  if (title) {
+    if (type === 'entrada') title.textContent = 'Nova Entrada de Estoque (+)';
+    else if (type === 'saida') title.textContent = 'Nova Saída de Estoque (−)';
+    else if (type === 'transferencia') title.textContent = 'Transferência de Localização (⇄)';
+    else if (type === 'ajuste') title.textContent = 'Ajuste Manual de Estoque';
+  }
+}
+window.selectOpType = selectOpType;
+
+function onStockOpProductChange() {
+  const select = document.getElementById('stockOpProductSelect');
+  const infoCard = document.getElementById('stockOpInfoCard');
+  if (!select || !infoCard) return;
+
+  const opt = select.options[select.selectedIndex];
+  if (!opt || !opt.value) {
+    infoCard.classList.add('hidden');
+    return;
+  }
+
+  const qty = opt.dataset.qty || '0';
+  const loc = opt.dataset.loc || 'Não definida';
+
+  const elQty = document.getElementById('stockOpCurrentQty');
+  if (elQty) elQty.textContent = `${qty} un.`;
+
+  const elLoc = document.getElementById('stockOpCurrentLoc');
+  if (elLoc) elLoc.textContent = loc;
+
+  const destInput = document.getElementById('stockOpDestLocation');
+  if (destInput && !destInput.value) {
+    destInput.value = loc !== 'Não definida' ? loc : 'H-04-04';
+  }
+
+  infoCard.classList.remove('hidden');
+}
+window.onStockOpProductChange = onStockOpProductChange;
+
+function stepOpQty(delta) {
+  const inp = document.getElementById('stockOpQty');
+  if (!inp) return;
+  const cur = parseInt(inp.value, 10) || 1;
+  inp.value = Math.max(1, cur + delta);
+}
+window.stepOpQty = stepOpQty;
+
+async function submitStockOperation() {
+  const select = document.getElementById('stockOpProductSelect');
+  const prodId = select?.value;
+  if (!prodId) {
+    showToast('Selecione uma peça para realizar a operação.');
+    return;
+  }
+
+  const qty = parseInt(document.getElementById('stockOpQty')?.value, 10) || 1;
+  if (qty <= 0) {
+    showToast('Informe uma quantidade válida maior que zero.');
+    return;
+  }
+
+  const destinationLocation = document.getElementById('stockOpDestLocation')?.value?.trim();
+  const documentRef = document.getElementById('stockOpDocRef')?.value?.trim();
+  const userName = document.getElementById('stockOpUser')?.value?.trim() || 'Administrador';
+  const reason = document.getElementById('stockOpNotes')?.value?.trim();
+
+  const btn = document.getElementById('btnSubmitStockOp');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Processando...';
+  }
+
+  try {
+    const res = await api('/stock/operations', {
+      method: 'POST',
+      body: JSON.stringify({
+        productId: Number(prodId),
+        type: currentOpType,
+        quantity: qty,
+        destinationLocation: currentOpType === 'transferencia' ? destinationLocation : undefined,
+        documentRef,
+        userName,
+        reason
+      })
+    });
+
+    showToast(`Operação concluída: ${res.product?.name} (Saldo: ${res.newStock} un.)`);
+    closeStockOperationModal();
+    await refreshAllData();
+    loadRecentOperations();
+    loadStockMovements();
+    loadStockAlerts();
+  } catch (err) {
+    console.error('Erro ao executar operação de estoque:', err);
+    showToast(err.message || 'Erro ao registrar operação.');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Confirmar Operação`;
+    }
+  }
+}
+window.submitStockOperation = submitStockOperation;
+
+// -------------------------------------------------------------------
+// 3. INVENTÁRIO & AUDITORIA (TELA 6)
+// -------------------------------------------------------------------
+let invDebounceTimer = null;
+
+async function loadInventoryAudit() {
+  const tbody = document.getElementById('inventoryAuditTbody');
+  if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">Carregando itens para auditoria de inventário...</td></tr>';
+
+  try {
+    const res = await api('/stock/inventory');
+    const items = res.inventory || [];
+    const stats = res.stats || {};
+
+    // Atualiza KPIs
+    const elAccuracy = document.getElementById('invKpiAccuracy');
+    if (elAccuracy) elAccuracy.textContent = `${stats.accuracy || 100}%`;
+
+    const elAudited = document.getElementById('invKpiAudited');
+    if (elAudited) elAudited.textContent = `${stats.auditedCount || 0} / ${stats.totalProducts || 0}`;
+
+    const elAuditedPct = document.getElementById('invKpiAuditedPct');
+    if (elAuditedPct) elAuditedPct.textContent = `${stats.auditedPercent || 0}% do catálogo`;
+
+    const elDisc = document.getElementById('invKpiDiscrepancies');
+    if (elDisc) elDisc.textContent = `${stats.discrepancyCount || 0} itens`;
+
+    renderInventoryTable(items);
+  } catch (err) {
+    console.error('Erro ao carregar inventário:', err);
+    if (tbody) tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Erro: ${err.message}</td></tr>`;
+  }
+}
+window.loadInventoryAudit = loadInventoryAudit;
+
+function renderInventoryTable(items) {
+  const tbody = document.getElementById('inventoryAuditTbody');
+  if (!tbody) return;
+
+  const search = (document.getElementById('filterInvSearch')?.value || '').toLowerCase().trim();
+  const statusFilter = document.getElementById('filterInvStatus')?.value || '';
+
+  const filtered = items.filter(item => {
+    const name = (item.name || '').toLowerCase();
+    const code = (item.code || '').toLowerCase();
+    const loc = (item.location || '').toLowerCase();
+    const matchSearch = !search || name.includes(search) || code.includes(search) || loc.includes(search);
+
+    let matchStatus = true;
+    if (statusFilter === 'ok') matchStatus = item.audit_status === 'ok';
+    else if (statusFilter === 'divergente') matchStatus = item.audit_status === 'divergente';
+    else if (statusFilter === 'pendente') matchStatus = item.audit_status === 'pendente' || !item.audit_status;
+
+    return matchSearch && matchStatus;
+  });
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">Nenhum item corresponde aos critérios de inventário.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(item => {
+    const photo = item.photo ? getProductPhoto({ photo: item.photo }) : '/images/categorias/freios.jpg';
+    let statusBadge = '';
+    if (item.audit_status === 'ok') {
+      statusBadge = '<span class="status-badge pronto" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;">Conferido (OK)</span>';
+    } else if (item.audit_status === 'divergente') {
+      statusBadge = '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">Divergente</span>';
+    } else {
+      statusBadge = '<span class="status-badge" style="background:#f8fafc;color:#64748b;border:1px solid #e2e8f0;">Pendente</span>';
+    }
+
+    const countedDisplay = item.physical_qty !== null && item.physical_qty !== undefined ? `${item.physical_qty} un.` : '<span style="color:var(--text-muted);">&mdash;</span>';
+    const diffDisplay = item.difference !== null && item.difference !== undefined ? (
+      item.difference === 0 ? '<strong style="color:#10b981;">0 un.</strong>' :
+      item.difference > 0 ? `<strong style="color:#10b981;">+${item.difference} un.</strong>` :
+      `<strong style="color:#ef4444;">${item.difference} un.</strong>`
+    ) : '<span style="color:var(--text-muted);">&mdash;</span>';
+
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <img src="${photo}" alt="" style="width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid var(--panel-border);aspect-ratio:1;flex-shrink:0;" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/>
+            <div>
+              <strong style="font-size:13px;display:block;color:var(--text-primary);">${item.name}</strong>
+              <small style="font-family:monospace;font-size:11px;color:var(--text-muted);">${item.code || 'S/SKU'}</small>
+            </div>
+          </div>
+        </td>
+        <td><span class="location-badge" style="font-size:11px;">${item.location || 'H-04-04'}</span></td>
+        <td><strong style="font-size:13px;">${item.system_qty} un.</strong></td>
+        <td>${countedDisplay}</td>
+        <td>${diffDisplay}</td>
+        <td>${statusBadge}</td>
+        <td><small>${item.last_counted_at ? formatDate(item.last_counted_at) : 'Nunca auditado'}</small></td>
+        <td>
+          <button class="btn btn-secondary btn-sm" onclick="openNewInventoryModal(${item.id})" style="font-weight:700;">
+            ${item.audit_status === 'divergente' ? 'Conciliar' : 'Contar'}
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openNewInventoryModal(prodId = null) {
+  const targetId = prodId || (allProducts[0] ? allProducts[0].id : null);
+  const p = allProducts.find(x => String(x.id) === String(targetId));
+  if (!p) return;
+
+  document.getElementById('invModalProdId').value = p.id;
+  document.getElementById('invModalProdName').textContent = p.name;
+  document.getElementById('invModalProdSku').textContent = `SKU: ${p.code || 'S/SKU'}`;
+  document.getElementById('invModalSystemQty').textContent = `${p.stockQty || 0} un.`;
+  document.getElementById('invModalLocation').textContent = getProductLocation(p);
+
+  const countedInput = document.getElementById('invModalCountedQty');
+  if (countedInput) {
+    countedInput.value = String(p.stockQty || 0);
+  }
+
+  calcInvDiscrepancy();
+  document.getElementById('inventoryCountModal')?.classList.remove('hidden');
+}
+window.openNewInventoryModal = openNewInventoryModal;
+
+function closeInventoryCountModal() {
+  document.getElementById('inventoryCountModal')?.classList.add('hidden');
+}
+window.closeInventoryCountModal = closeInventoryCountModal;
+
+function stepInvCount(delta) {
+  const inp = document.getElementById('invModalCountedQty');
+  if (!inp) return;
+  const cur = parseInt(inp.value, 10) || 0;
+  inp.value = Math.max(0, cur + delta);
+  calcInvDiscrepancy();
+}
+window.stepInvCount = stepInvCount;
+
+function calcInvDiscrepancy() {
+  const prodId = document.getElementById('invModalProdId')?.value;
+  const p = allProducts.find(x => String(x.id) === String(prodId));
+  if (!p) return;
+
+  const sys = Number(p.stockQty) || 0;
+  const count = parseInt(document.getElementById('invModalCountedQty')?.value, 10) || 0;
+  const diff = count - sys;
+
+  const banner = document.getElementById('invDiscrepancyBanner');
+  const diffVal = document.getElementById('invDiffVal');
+  const statusText = document.getElementById('invDiffStatusText');
+
+  if (diffVal) {
+    diffVal.textContent = diff === 0 ? '0 un.' : (diff > 0 ? `+${diff} un.` : `${diff} un.`);
+  }
+
+  if (banner && statusText) {
+    if (diff === 0) {
+      banner.style.background = 'rgba(16,185,129,0.1)';
+      banner.style.borderColor = 'rgba(16,185,129,0.3)';
+      diffVal.style.color = '#10b981';
+      statusText.textContent = 'Contagem física idêntica ao sistema (100% acurado)';
+    } else {
+      banner.style.background = 'rgba(239,68,68,0.1)';
+      banner.style.borderColor = 'rgba(239,68,68,0.3)';
+      diffVal.style.color = '#ef4444';
+      statusText.textContent = `Divergência detectada! O estoque será ajustado para ${count} un.`;
+    }
+  }
+}
+window.calcInvDiscrepancy = calcInvDiscrepancy;
+
+async function submitInventoryCount() {
+  const prodId = document.getElementById('invModalProdId')?.value;
+  const p = allProducts.find(x => String(x.id) === String(prodId));
+  if (!p) return;
+
+  const physicalQty = parseInt(document.getElementById('invModalCountedQty')?.value, 10) || 0;
+  const notes = document.getElementById('invModalNotes')?.value?.trim();
+
+  const btn = document.getElementById('btnSaveInventoryCount');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Conciliando...';
+  }
+
+  try {
+    // 1. Registra contagem
+    await api('/stock/inventory/count', {
+      method: 'POST',
+      body: JSON.stringify({
+        productId: Number(prodId),
+        physicalQty,
+        notes,
+        auditorName: 'Administrador'
+      })
+    });
+
+    // 2. Se houver divergência, reconcilia o estoque automaticamente
+    const currentStock = Number(p.stockQty) || 0;
+    if (physicalQty !== currentStock) {
+      await api('/stock/inventory/reconcile', {
+        method: 'POST',
+        body: JSON.stringify({
+          productId: Number(prodId),
+          reconciledStock: physicalQty,
+          reason: `Conciliação de inventário: saldo corrigido de ${currentStock} para ${physicalQty} un.`
+        })
+      });
+    }
+
+    showToast(`Inventário de "${p.name}" salvo com sucesso!`);
+    closeInventoryCountModal();
+    await refreshAllData();
+    loadInventoryAudit();
+    loadStockMovements();
+    loadStockAlerts();
+  } catch (err) {
+    console.error('Erro ao salvar inventário:', err);
+    showToast(err.message || 'Erro ao registrar contagem.');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg> Salvar Contagem e Conciliar`;
+    }
+  }
+}
+window.submitInventoryCount = submitInventoryCount;
+
+function debounceInvFilter() {
+  clearTimeout(invDebounceTimer);
+  invDebounceTimer = setTimeout(() => {
+    loadInventoryAudit();
+  }, 250);
+}
+window.debounceInvFilter = debounceInvFilter;
+
+// -------------------------------------------------------------------
+// 4. ALERTAS & ESTOQUE CRÍTICO (TELA 7)
+// -------------------------------------------------------------------
+let currentAlertFilterType = 'todos';
+let alertDebounceTimer = null;
+let stockAlertsCache = null;
+
+async function loadStockAlerts() {
+  try {
+    const res = await api('/stock/alerts');
+    stockAlertsCache = res;
+
+    // Atualiza contadores dos cards de alerta
+    const elCrit = document.getElementById('alertCardCriticoCount');
+    if (elCrit) elCrit.textContent = String(res.counts?.critical || 0);
+
+    const elLow = document.getElementById('alertCardBaixoCount');
+    if (elLow) elLow.textContent = String(res.counts?.low || 0);
+
+    const elNoLoc = document.getElementById('alertCardSemLocalCount');
+    if (elNoLoc) elNoLoc.textContent = String(res.counts?.noLocation || 0);
+
+    const elDisc = document.getElementById('alertCardDivergenciaCount');
+    if (elDisc) elDisc.textContent = String(res.counts?.discrepancy || 0);
+
+    // Atualiza box "⚠ PRECISA DE ATENÇÃO" do Dashboard Operacional
+    const dCrit = document.getElementById('dashCritCount');
+    if (dCrit) dCrit.textContent = String(res.counts?.critical || 0);
+
+    const dLow = document.getElementById('dashLowCount');
+    if (dLow) dLow.textContent = String(res.counts?.low || 0);
+
+    const dNoLoc = document.getElementById('dashNoLocCount');
+    if (dNoLoc) dNoLoc.textContent = String(res.counts?.noLocation || 0);
+
+    const dDisc = document.getElementById('dashDiscCount');
+    if (dDisc) dDisc.textContent = String(res.counts?.discrepancy || 0);
+
+    renderAlertsTable();
+  } catch (err) {
+    console.error('Erro ao carregar alertas:', err);
+  }
+}
+window.loadStockAlerts = loadStockAlerts;
+
+function filterAlertTab(type) {
+  currentAlertFilterType = type;
+  document.querySelectorAll('.wms-alert-cards-grid .wms-alert-card').forEach(c => {
+    c.classList.remove('active');
+  });
+
+  if (type === 'critico') document.querySelector('.wms-alert-card.card-critico')?.classList.add('active');
+  else if (type === 'baixo') document.querySelector('.wms-alert-card.card-baixo')?.classList.add('active');
+  else if (type === 'sem_local') document.querySelector('.wms-alert-card.card-sem-local')?.classList.add('active');
+  else if (type === 'divergencia') document.querySelector('.wms-alert-card.card-divergencia')?.classList.add('active');
+
+  const select = document.getElementById('filterAlertSelect');
+  if (select) select.value = type;
+
+  renderAlertsTable();
+}
+window.filterAlertTab = filterAlertTab;
+
+function renderAlertsTable() {
+  const tbody = document.getElementById('alertsTbody');
+  if (!tbody || !stockAlertsCache) return;
+
+  const search = (document.getElementById('filterAlertSearch')?.value || '').toLowerCase().trim();
+  const alertItems = stockAlertsCache.alerts || [];
+
+  const filtered = alertItems.filter(item => {
+    const matchSearch = !search || item.name.toLowerCase().includes(search) || (item.code || '').toLowerCase().includes(search);
+    let matchType = true;
+    if (currentAlertFilterType !== 'todos') {
+      matchType = item.alertType === currentAlertFilterType;
+    }
+    return matchSearch && matchType;
+  });
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="text-center py-5 text-muted">Nenhum produto em estado crítico para esta categoria. Tudo em ordem no armazém!</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(item => {
+    let alertBadge = '';
+    let actionBtn = '';
+
+    if (item.alertType === 'critico') {
+      alertBadge = '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca;">🔴 Crítico (Zerado)</span>';
+      actionBtn = `<button class="btn btn-primary btn-sm" onclick="openStockOperationModal('entrada', ${item.id})">+ Repor Estoque</button>`;
+    } else if (item.alertType === 'baixo') {
+      alertBadge = '<span class="status-badge em_preparacao" style="background:#fffbeb;color:#d97706;border:1px solid #fde68a;">🟠 Baixo Estoque</span>';
+      actionBtn = `<button class="btn btn-secondary btn-sm" onclick="openStockOperationModal('entrada', ${item.id})">+ Adicionar</button>`;
+    } else if (item.alertType === 'sem_local') {
+      alertBadge = '<span class="status-badge" style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;">📍 Sem Endereço</span>';
+      actionBtn = `<button class="btn btn-secondary btn-sm" onclick="openStockOperationModal('transferencia', ${item.id})">Endereçar</button>`;
+    } else if (item.alertType === 'divergencia') {
+      alertBadge = '<span class="status-badge" style="background:#fff7ed;color:#ea580c;border:1px solid #ffedd5;">📋 Divergência</span>';
+      actionBtn = `<button class="btn btn-secondary btn-sm" onclick="openNewInventoryModal(${item.id})">Conciliar</button>`;
+    }
+
+    const photo = item.photo ? getProductPhoto({ photo: item.photo }) : '/images/categorias/freios.jpg';
+
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="openProductViewModal(${item.id})">
+            <img src="${photo}" alt="" style="width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid var(--panel-border);aspect-ratio:1;flex-shrink:0;" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/>
+            <div>
+              <strong style="font-size:13px;display:block;color:var(--text-primary);">${item.name}</strong>
+              <small style="font-family:monospace;font-size:11px;color:var(--text-muted);">${item.code || 'S/SKU'}</small>
+            </div>
+          </div>
+        </td>
+        <td><span class="cat-pill-badge">${item.category || 'Geral'}</span></td>
+        <td><strong style="font-size:13.5px;color:${item.stockQty <= 0 ? '#ef4444' : '#d97706'};">${item.stockQty} un.</strong></td>
+        <td><span style="font-size:12px;color:var(--text-muted);">${item.minStock || 5} un.</span></td>
+        <td><span class="location-badge" style="font-size:11px;">${item.location || 'Sem posição'}</span></td>
+        <td>${alertBadge}</td>
+        <td>${actionBtn}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function debounceAlertFilter() {
+  clearTimeout(alertDebounceTimer);
+  alertDebounceTimer = setTimeout(renderAlertsTable, 200);
+}
+window.debounceAlertFilter = debounceAlertFilter;
+
+// -------------------------------------------------------------------
+// 5. LOCALIZAÇÕES DO ARMAZÉM (TELA 8)
+// -------------------------------------------------------------------
+let currentWarehouseAisle = 'H';
+let currentWarehouseModule = '04';
+let currentWarehouseShelf = '04';
+
+function selectAisle(aisle) {
+  currentWarehouseAisle = aisle;
+  document.querySelectorAll('#aisleChips .aisle-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.aisle === aisle);
+  });
+  renderWarehouseLocation();
+}
+window.selectAisle = selectAisle;
+
+function selectModule(mod) {
+  currentWarehouseModule = mod;
+  document.querySelectorAll('#moduleChips .module-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.module === mod);
+  });
+  renderWarehouseLocation();
+}
+window.selectModule = selectModule;
+
+function selectShelf(shelf) {
+  currentWarehouseShelf = shelf;
+  document.querySelectorAll('#shelfChips .shelf-chip').forEach(c => {
+    c.classList.toggle('active', c.dataset.shelf === shelf);
+  });
+  renderWarehouseLocation();
+}
+window.selectShelf = selectShelf;
+
+function renderWarehouseLocation() {
+  const code = `${currentWarehouseAisle}-${currentWarehouseModule}-${currentWarehouseShelf}`;
+
+  const codeEl = document.getElementById('locCurrentCode');
+  if (codeEl) codeEl.textContent = code;
+
+  const breadAisle = document.getElementById('locBreadAisle');
+  if (breadAisle) breadAisle.textContent = `Corredor ${currentWarehouseAisle}`;
+
+  const breadMod = document.getElementById('locBreadModule');
+  if (breadMod) breadMod.textContent = `Módulo ${currentWarehouseModule}`;
+
+  const breadShelf = document.getElementById('locBreadShelf');
+  if (breadShelf) breadShelf.textContent = `Prateleira ${currentWarehouseShelf}`;
+
+  // Filtra produtos nesta localização
+  const matchingProducts = allProducts.filter(p => {
+    const loc = getProductLocation(p).toUpperCase();
+    return loc.includes(code.toUpperCase()) || loc.includes(currentWarehouseAisle);
+  });
+
+  const countEl = document.getElementById('locItemCount');
+  if (countEl) countEl.textContent = `${matchingProducts.length} produto(s)`;
+
+  const totalUnits = matchingProducts.reduce((sum, p) => sum + (Number(p.stockQty) || 0), 0);
+  const unitsEl = document.getElementById('locTotalUnits');
+  if (unitsEl) unitsEl.textContent = `${totalUnits} un.`;
+
+  const tbody = document.getElementById('locProductsTbody');
+  if (!tbody) return;
+
+  if (!matchingProducts.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" class="text-center py-4 text-muted">
+          Nenhuma peça alocada diretamente no endereço <strong>${code}</strong>.
+          <br/><button class="btn btn-sm btn-secondary" style="margin-top:8px;" onclick="openStockOperationModal('transferencia')">Mover Peça para Cá</button>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = matchingProducts.map(p => {
+    const photo = getProductPhoto(p);
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="openProductViewModal(${p.id})">
+            <img src="${photo}" alt="" style="width:32px;height:32px;border-radius:6px;object-fit:cover;border:1px solid var(--panel-border);aspect-ratio:1;flex-shrink:0;" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/>
+            <div>
+              <strong style="font-size:13px;display:block;color:var(--text-primary);">${p.name}</strong>
+              <small style="font-family:monospace;font-size:11px;color:var(--text-muted);">${p.code || 'S/SKU'}</small>
+            </div>
+          </div>
+        </td>
+        <td><span class="cat-pill-badge">${p.category || 'Geral'}</span></td>
+        <td><strong style="font-size:13px;">${p.stockQty || 0} un.</strong></td>
+        <td>${p.stockQty > 5 ? '<span class="status-badge pronto">Disponível</span>' : '<span class="status-badge em_preparacao">Baixo</span>'}</td>
+        <td>
+          <div style="display:inline-flex;gap:4px;">
+            <button class="btn btn-secondary btn-sm" onclick="openStockLabelModal(${p.id})" title="Imprimir Etiqueta">&#128224; Etiqueta</button>
+            <button class="btn btn-secondary btn-sm" onclick="openStockOperationModal('transferencia', ${p.id})" title="Transferir de Local">⇄ Mover</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+window.renderWarehouseLocation = renderWarehouseLocation;
+
+function openLocationPickerModal() {
+  openStockOperationModal('transferencia');
+}
+window.openLocationPickerModal = openLocationPickerModal;
+
+// -------------------------------------------------------------------
+// 6. ETIQUETA DE PRODUTO (SCREEN 9: CODE128 + QR CODE)
+// -------------------------------------------------------------------
+let currentLabelProduct = null;
+
+function openStockLabelModal(prodId) {
+  const p = allProducts.find(x => String(x.id) === String(prodId));
+  if (!p) return;
+  currentLabelProduct = p;
+
+  const loc = getProductLocation(p);
+  const cleanDigits = (p.code || '789123456789').replace(/\D/g, '').padEnd(12, '0').slice(0, 12);
+
+  document.getElementById('lblProdName').textContent = p.name;
+  document.getElementById('lblProdSku').textContent = p.code || 'S/SKU';
+  document.getElementById('lblProdLoc').textContent = loc;
+  document.getElementById('lblBarcodeText').textContent = cleanDigits;
+
+  const barcodeSvgBox = document.getElementById('lblBarcodeSvg');
+  if (barcodeSvgBox) {
+    barcodeSvgBox.innerHTML = generateCode128Svg(cleanDigits, 36);
+  }
+
+  const qrSvgBox = document.getElementById('lblQrSvg');
+  if (qrSvgBox) {
+    qrSvgBox.innerHTML = generateMiniQrSvg(p.code || `PROD-${p.id}`, 58);
+  }
+
+  document.getElementById('stockLabelModal')?.classList.remove('hidden');
+}
+window.openStockLabelModal = openStockLabelModal;
+
+function closeStockLabelModal() {
+  document.getElementById('stockLabelModal')?.classList.add('hidden');
+}
+window.closeStockLabelModal = closeStockLabelModal;
+
+function updateLabelFormat() {
+  const format = document.getElementById('labelSizeSelect')?.value || 'padrao';
+  const card = document.getElementById('stockLabelCard');
+  if (!card) return;
+
+  if (format === 'compacta') {
+    card.style.width = '240px';
+    card.style.padding = '8px 10px';
+  } else if (format === 'grande') {
+    card.style.width = '380px';
+    card.style.padding = '18px 20px';
+  } else {
+    card.style.width = '320px';
+    card.style.padding = '12px 14px';
+  }
+}
+window.updateLabelFormat = updateLabelFormat;
+
+function printStockLabel() {
+  window.print();
+}
+window.printStockLabel = printStockLabel;
+
 

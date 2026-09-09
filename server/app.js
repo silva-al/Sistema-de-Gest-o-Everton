@@ -13,6 +13,7 @@ const addressRoutes = require('./routes/addresses');
 const vehicleRoutes = require('./routes/vehicles');
 const paymentRoutes = require('./routes/payments');
 const uploadRoutes = require('./routes/uploads');
+const stockRoutes = require('./routes/stock');
 
 const app = express();
 
@@ -57,6 +58,7 @@ app.use('/api/vehicles', vehicleRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/admin/upload', uploadRoutes);
+app.use('/api/stock', stockRoutes);
 
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
 
