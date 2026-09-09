@@ -2527,6 +2527,7 @@ init();
     document.addEventListener('DOMContentLoaded', iniciar);
   } else {
     iniciar();
+  }
 })();
 
 /* ==========================================================================
