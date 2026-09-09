@@ -836,7 +836,7 @@
                   <input type="text" id="pedSearchInput" placeholder="Buscar por nº do pedido, cliente, produto..." />
                 </div>
                 <button class="btn btn-primary btn-sm" id="pedNovoPedidoBtn" type="button"
-                  onclick="switchTab('estoque')">
+                  onclick="openNewOrderModal()">
                   + Novo Pedido
                 </button>
               </div>
@@ -1599,7 +1599,7 @@
                   onclick="document.getElementById('syncCatalogBtn')?.click()">
                   ⚡ Sincronizar Catálogo Oficial Agora
                 </button>
-                <button class="btn btn-secondary" type="button"
+                <button class="btn btn-primary" type="button"
                   onclick="refreshAllData(); showToast('Dados atualizados com sucesso!');">
                   🔄 Recarregar Dados em Tempo Real
                 </button>
@@ -2039,6 +2039,139 @@
     </div>
   </div>
 
+  <!-- ====================================================
+     MODAL DE NOVO PEDIDO (VENDA BALCÃO / MANUAL)
+     ==================================================== -->
+  <div class="modal-overlay hidden" id="newOrderModal">
+    <div class="modal-card modal-lg" style="max-width: 800px;">
+      <div class="modal-header">
+        <div class="modal-title-box">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="9" cy="21" r="1"></circle>
+            <circle cx="20" cy="21" r="1"></circle>
+            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+          </svg>
+          <div>
+            <h3>Novo Pedido Manual / Venda Balcão</h3>
+            <p>Registre um novo pedido de cliente diretamente no sistema</p>
+          </div>
+        </div>
+        <button class="btn-close-modal" onclick="closeNewOrderModal()" type="button">✕</button>
+      </div>
+
+      <div class="modal-body" style="max-height: 72vh; overflow-y: auto; padding: 20px;">
+        <!-- DADOS DO CLIENTE -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px; margin-bottom: 18px;">
+          <h4 style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            👤 Informações do Cliente
+          </h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+            <div class="field">
+              <label>Nome do Cliente *</label>
+              <input type="text" id="noCustomerName" placeholder="Ex: Carlos Silva ou Oficina AutoFix" required />
+            </div>
+            <div class="field">
+              <label>WhatsApp / Telefone</label>
+              <input type="text" id="noCustomerPhone" placeholder="Ex: (11) 98765-4321" />
+            </div>
+          </div>
+        </div>
+
+        <!-- ADICIONAR ITENS AO PEDIDO -->
+        <div style="background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px; margin-bottom: 18px;">
+          <h4 style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: var(--text-primary); display: flex; align-items: center; gap: 6px;">
+            📦 Adicionar Peças ao Pedido
+          </h4>
+          <div style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 10px; align-items: flex-end;">
+            <div class="field" style="margin: 0;">
+              <label>Selecione a Peça *</label>
+              <select id="noProductSelect" class="wms-input-clean" style="width: 100%; height: 38px;">
+                <option value="">Selecione uma peça...</option>
+              </select>
+            </div>
+            <div class="field" style="margin: 0;">
+              <label>Quantidade</label>
+              <input type="number" id="noProductQty" value="1" min="1" style="height: 38px;" />
+            </div>
+            <div class="field" style="margin: 0;">
+              <label>Preço Unit. (R$)</label>
+              <input type="text" id="noProductPrice" placeholder="0,00" style="height: 38px;" />
+            </div>
+            <button class="btn btn-primary" id="noAddItemBtn" type="button" style="height: 38px; white-space: nowrap;">
+              + Adicionar Item
+            </button>
+          </div>
+
+          <!-- TABELA DE ITENS INCLUÍDOS -->
+          <div style="margin-top: 14px; border: 1px solid var(--panel-border); border-radius: 8px; overflow: hidden;">
+            <table class="wms-table" style="margin: 0;">
+              <thead>
+                <tr>
+                  <th>PEÇA</th>
+                  <th style="width: 80px; text-align: center;">QTD</th>
+                  <th style="width: 110px; text-align: right;">VALOR UN.</th>
+                  <th style="width: 110px; text-align: right;">SUBTOTAL</th>
+                  <th style="width: 50px; text-align: center;"></th>
+                </tr>
+              </thead>
+              <tbody id="noItemsTableBody">
+                <tr>
+                  <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 18px;">
+                    Nenhum item adicionado ainda.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- PAGAMENTO & STATUS -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 18px;">
+          <div class="field">
+            <label>Forma de Pagamento</label>
+            <select id="noPaymentMethod" class="wms-input-clean" style="width: 100%; height: 38px;">
+              <option value="pix">Pix (com 4% de desconto)</option>
+              <option value="cartao">Cartão de Crédito</option>
+              <option value="retirada">Dinheiro / Retirada no Balcão</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Status Inicial do Pedido</label>
+            <select id="noStatus" class="wms-input-clean" style="width: 100%; height: 38px;">
+              <option value="novo">Novo</option>
+              <option value="em_preparacao">Em preparação</option>
+              <option value="pronto">Pronto</option>
+              <option value="entregue">Entregue / Concluído</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- RESUMO FINANCEIRO -->
+        <div style="background: rgba(237, 28, 36, 0.06); border: 1px solid rgba(237, 28, 36, 0.2); border-radius: 10px; padding: 14px 18px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <span style="font-size: 12px; color: var(--text-muted); display: block;">Total do Pedido</span>
+            <div style="display: flex; gap: 14px; font-size: 13px; margin-top: 2px;">
+              <span id="noSubtotalLabel">Subtotal: R$ 0,00</span>
+              <span id="noDiscountLabel" style="color: #16a34a;">Desconto Pix: R$ 0,00</span>
+            </div>
+          </div>
+          <div style="text-align: right;">
+            <strong id="noTotalVal" style="font-size: 24px; font-weight: 900; color: #ed1c24;">R$ 0,00</strong>
+          </div>
+        </div>
+
+        <div id="noErrorMsg" class="error hidden" style="margin-top: 12px;"></div>
+      </div>
+
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-secondary" onclick="closeNewOrderModal()" type="button">Cancelar</button>
+        <button class="btn btn-primary" id="noSubmitOrderBtn" type="button" style="font-weight: 800;">
+          ✓ Confirmar e Criar Pedido
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION DE ATUALIZAÇÃO -->
   <div class="wms-toast" id="wmsToast">
     <span class="wms-toast-icon">
@@ -2049,7 +2182,7 @@
     <span id="wmsToastMsg">Sistema atualizado com sucesso!</span>
   </div>
 
-  <script src="/admin/admin.js?v=20260908_6"></script>
+  <script src="/admin/admin.js?v=20260908_8"></script>
 </body>
 
 </html>

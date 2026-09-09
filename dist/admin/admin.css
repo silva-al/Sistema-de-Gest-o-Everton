@@ -2922,11 +2922,11 @@ body:not(.tema-claro) .stock-modal-info {
 
 .stock-modal-dark-input {
   width: 100% !important;
-  background: #1e293b !important;
-  border: 1px solid #334155 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
   border-radius: 8px !important;
   padding: 9px 12px !important;
-  color: #ffffff !important;
+  color: #0f172a !important;
   font-size: 13.5px !important;
   font-weight: 600 !important;
   box-sizing: border-box !important;
@@ -2941,11 +2941,11 @@ body:not(.tema-claro) .stock-modal-info {
 
 .stock-modal-dark-textarea {
   width: 100% !important;
-  background: #1e293b !important;
-  border: 1px solid #334155 !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
   border-radius: 8px !important;
   padding: 9px 12px !important;
-  color: #e2e8f0 !important;
+  color: #0f172a !important;
   font-size: 12.5px !important;
   font-family: inherit !important;
   resize: vertical !important;
@@ -4441,11 +4441,28 @@ body.tema-claro .table-counts {
   font-weight: 600 !important;
 }
 
-body.tema-claro .prod-thumb-img {
+.prod-thumb-img {
   width: 44px !important;
   height: 44px !important;
+  max-width: 44px !important;
+  max-height: 44px !important;
+  aspect-ratio: 1 / 1 !important;
   border-radius: 8px !important;
   object-fit: cover !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  background: rgba(255, 255, 255, 0.05) !important;
+  display: block !important;
+}
+
+.wms-table td img,
+.estoque-table td img {
+  max-width: 44px !important;
+  max-height: 44px !important;
+  object-fit: cover !important;
+  border-radius: 8px !important;
+}
+
+body.tema-claro .prod-thumb-img {
   border: 1px solid #e2e8f0 !important;
   background: #f8fafc !important;
 }
@@ -4542,6 +4559,34 @@ body.tema-claro .btn-stock-adjust {
 .prod-actions-stack .btn-prod-action svg,
 .prod-actions-stack .btn-prod-delete svg {
   flex-shrink: 0 !important;
+}
+
+.prod-actions-stack .btn-prod-action {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  color: #f1f5f9 !important;
+  font-weight: 600 !important;
+}
+
+.prod-actions-stack .btn-prod-action:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+}
+
+.prod-actions-stack .btn-prod-delete {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1px solid rgba(239, 68, 68, 0.25) !important;
+  color: #f87171 !important;
+  font-weight: 600 !important;
+}
+
+.prod-actions-stack .btn-prod-delete:hover {
+  background: rgba(239, 68, 68, 0.22) !important;
+  border-color: rgba(239, 68, 68, 0.45) !important;
+  color: #fca5a5 !important;
+  transform: translateY(-1px) !important;
 }
 
 body.tema-claro .btn-prod-action,
@@ -5891,8 +5936,8 @@ body.tema-claro .pv-desc-box {
 }
 
 .est-kpi-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #14171f;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 14px 16px;
   display: flex;
@@ -5900,11 +5945,21 @@ body.tema-claro .pv-desc-box {
   gap: 12px;
   cursor: pointer;
   transition: all .2s;
-  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
 
 .est-kpi-card:hover {
   transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+body.tema-claro .est-kpi-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+body.tema-claro .est-kpi-card:hover {
   border-color: #cbd5e1;
 }
 
@@ -5945,15 +6000,23 @@ body.tema-claro .pv-desc-box {
 
 .est-kpi-label {
   font-size: 11.5px;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 600;
 }
 
 .est-kpi-num {
   font-size: 22px;
   font-weight: 800;
-  color: #0f172a;
+  color: #ffffff;
   line-height: 1.1;
+}
+
+body.tema-claro .est-kpi-label {
+  color: #64748b;
+}
+
+body.tema-claro .est-kpi-num {
+  color: #0f172a;
 }
 
 /* Grid Estoque (Largura Total) */
@@ -5980,19 +6043,31 @@ body.tema-claro .pv-desc-box {
 }
 
 .est-tab-btn {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: #14171f;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 20px;
   padding: 6px 14px;
   font-size: 11.5px;
   font-weight: 600;
-  color: #475569;
+  color: #94a3b8;
   cursor: pointer;
   white-space: nowrap;
   transition: all .15s;
 }
 
 .est-tab-btn.active {
+  background: #ed1c24;
+  border-color: #ed1c24;
+  color: #ffffff;
+}
+
+body.tema-claro .est-tab-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #475569;
+}
+
+body.tema-claro .est-tab-btn.active {
   background: #0f172a;
   border-color: #0f172a;
   color: #ffffff;
@@ -6023,17 +6098,23 @@ body.tema-claro .pv-desc-box {
 
 .est-search-wrap input {
   width: 100%;
-  background: #ffffff;
-  border: 1px solid #cbd5e1;
+  background: #14171f;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 8px;
   padding: 8px 12px 8px 32px;
   font-size: 12px;
-  color: #0f172a;
+  color: #ffffff;
   outline: none;
 }
 
 .est-search-wrap input:focus {
   border-color: #ed1c24;
+}
+
+body.tema-claro .est-search-wrap input {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
 }
 
 /* Badge de Localização (A-02-03) */
@@ -6042,18 +6123,30 @@ body.tema-claro .pv-desc-box {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  background: #f1f5f9;
-  border: 1.5px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
   font-size: 11.5px;
   font-weight: 800;
-  color: #0f172a;
+  color: #f1f5f9;
   font-family: monospace;
   cursor: pointer;
   transition: all .15s;
 }
 
 .location-badge:hover {
+  background: rgba(237, 28, 36, 0.15);
+  border-color: #ed1c24;
+  color: #ff8080;
+}
+
+body.tema-claro .location-badge {
+  background: #f1f5f9;
+  border: 1.5px solid #cbd5e1;
+  color: #0f172a;
+}
+
+body.tema-claro .location-badge:hover {
   background: #fee2e2;
   border-color: #ed1c24;
   color: #dc2626;
@@ -6374,4 +6467,105 @@ body.tema-claro #pane-relatorios .table-responsive::-webkit-scrollbar-thumb {
   flex-shrink: 0 !important;
   object-fit: cover !important;
   border-radius: 6px !important;
+}
+
+/* ===================================================================
+   PADRONIZAÇÃO DOS BOTÕES FISCAIS E ÍCONE DE CÓPIA
+   =================================================================== */
+.fiscal-actions-group {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-wrap: wrap !important;
+}
+
+.fiscal-actions-group .order-action-btn,
+.fiscal-actions-group .btn-danfe-action,
+.fiscal-actions-group button {
+  background: #ed1c24 !important;
+  color: #ffffff !important;
+  border: 1px solid #ed1c24 !important;
+  font-weight: 700 !important;
+  font-size: 11.5px !important;
+  border-radius: 9999px !important;
+  padding: 5px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 5px !important;
+  cursor: pointer !important;
+  box-shadow: 0 2px 6px rgba(237, 28, 36, 0.25) !important;
+  transition: all 0.15s ease !important;
+  text-decoration: none !important;
+}
+
+.fiscal-actions-group .order-action-btn:hover,
+.fiscal-actions-group .btn-danfe-action:hover,
+.fiscal-actions-group button:hover {
+  background: #c81018 !important;
+  border-color: #c81018 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 10px rgba(237, 28, 36, 0.35) !important;
+}
+
+.fiscal-actions-group .order-action-btn svg,
+.fiscal-actions-group .btn-danfe-action svg,
+.fiscal-actions-group button svg {
+  stroke: #ffffff !important;
+}
+
+/* Ícone de Cópia da Chave de Acesso Sem Borda */
+.fiscal-copy-btn {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  vertical-align: middle !important;
+}
+
+.fiscal-copy-btn svg {
+  stroke: #64748b !important;
+  transition: stroke 0.15s ease !important;
+}
+
+.fiscal-copy-btn:hover svg {
+  stroke: #ed1c24 !important;
+}
+
+/* ===================================================================
+   MODAL DE NOVO PEDIDO (ADMIN)
+   =================================================================== */
+#newOrderModal .modal-body label {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-muted, #94a3b8);
+  margin-bottom: 5px;
+  display: block;
+}
+
+body.tema-claro #newOrderModal .modal-body label {
+  color: #475569;
+}
+
+#newOrderModal input,
+#newOrderModal select {
+  font-size: 13px;
+  border-radius: 8px;
+}
+
+#newOrderModal .wms-table th {
+  padding: 10px 12px;
+  font-size: 10.5px;
+}
+
+#newOrderModal .wms-table td {
+  padding: 10px 12px;
+  font-size: 12.5px;
 }

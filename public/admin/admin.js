@@ -669,7 +669,7 @@ function renderProductsTable(products, activeFilter = null) {
           <strong class="prod-name-strong">${p.name}</strong>
         </td>
         <td>
-          <span class="prod-sku-code" style="font-weight:700;font-family:monospace;color:#1e293b">${p.code || 'S/CÓD'}</span>
+          <span class="prod-sku-code" style="font-weight:700;font-family:monospace">${p.code || 'S/CÓD'}</span>
         </td>
         <td><span class="cat-pill-badge">${p.category || 'Geral'}</span></td>
         <td>
@@ -1157,23 +1157,43 @@ document.getElementById('syncCatalogBtn')?.addEventListener('click', async () =>
 
 document.getElementById('newProductToggleBtn')?.addEventListener('click', () => {
   switchTab('estoque');
-  resetProductForm();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
   const panel = document.getElementById('productFormPanel');
   if (panel) {
-    const yOffset = -75;
-    const y = panel.getBoundingClientRect().top + window.pageYOffset + yOffset;
-    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    if (panel.classList.contains('hidden')) {
+      resetProductForm();
+      panel.classList.remove('hidden');
+      const yOffset = -75;
+      const y = panel.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      setTimeout(() => {
+        document.getElementById('pName')?.focus();
+      }, 180);
+    } else if (editingProductId) {
+      resetProductForm();
+      panel.classList.remove('hidden');
+      const yOffset = -75;
+      const y = panel.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      setTimeout(() => {
+        document.getElementById('pName')?.focus();
+      }, 180);
+    } else {
+      panel.classList.add('hidden');
+    }
   }
-  setTimeout(() => {
-    document.getElementById('pName')?.focus();
-  }, 180);
 });
 
 function startEdit(id) {
   const p = allProducts.find(item => String(item.id) === String(id));
   if (!p) return;
+  switchTab('estoque');
   editingProductId = p.id;
+
+  const panel = document.getElementById('productFormPanel');
+  if (panel) {
+    panel.classList.remove('hidden');
+  }
+
   document.getElementById('formTitle').textContent = `Editar Peça: ${p.name}`;
   document.getElementById('pName').value = p.name || '';
   document.getElementById('pCode').value = p.code || '';
@@ -1202,8 +1222,6 @@ function startEdit(id) {
   document.getElementById('cancelEditBtn').classList.remove('hidden');
   document.getElementById('saveProductBtn').textContent = 'SALVAR ALTERAÇÕES';
   
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  const panel = document.getElementById('productFormPanel');
   if (panel) {
     const yOffset = -75;
     const y = panel.getBoundingClientRect().top + window.pageYOffset + yOffset;
@@ -1235,7 +1253,10 @@ function resetProductForm() {
   document.getElementById('productFormMsg').classList.add('hidden');
 }
 
-document.getElementById('cancelEditBtn')?.addEventListener('click', resetProductForm);
+document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+  resetProductForm();
+  document.getElementById('productFormPanel')?.classList.add('hidden');
+});
 
 // Upload e Anexo de Foto do Produto (Upload de Arquivo Local)
 document.getElementById('pPhotoFile')?.addEventListener('change', async (e) => {
@@ -1354,6 +1375,7 @@ document.getElementById('saveProductBtn')?.addEventListener('click', async () =>
     }
     msgEl.classList.remove('hidden');
     resetProductForm();
+    document.getElementById('productFormPanel')?.classList.add('hidden');
     await refreshAllData();
   } catch (err) {
     errEl.textContent = err.message;
@@ -1655,6 +1677,248 @@ function setupOrderStatusFilter() {
   });
 }
 setupOrderStatusFilter();
+
+// =========================================================
+// GESTÃO DE NOVO PEDIDO MANUAL / BALCÃO (ADMIN)
+// =========================================================
+let newOrderItems = [];
+
+function openNewOrderModal() {
+  const modal = document.getElementById('newOrderModal');
+  if (!modal) return;
+
+  newOrderItems = [];
+  const custNameEl = document.getElementById('noCustomerName');
+  if (custNameEl) custNameEl.value = '';
+  const custPhoneEl = document.getElementById('noCustomerPhone');
+  if (custPhoneEl) custPhoneEl.value = '';
+  const qtyEl = document.getElementById('noProductQty');
+  if (qtyEl) qtyEl.value = '1';
+  const priceEl = document.getElementById('noProductPrice');
+  if (priceEl) priceEl.value = '';
+  const payEl = document.getElementById('noPaymentMethod');
+  if (payEl) payEl.value = 'pix';
+  const statusEl = document.getElementById('noStatus');
+  if (statusEl) statusEl.value = 'novo';
+  const errEl = document.getElementById('noErrorMsg');
+  if (errEl) {
+    errEl.classList.add('hidden');
+    errEl.textContent = '';
+  }
+
+  // Popula o select de produtos
+  const select = document.getElementById('noProductSelect');
+  if (select) {
+    select.innerHTML = '<option value="">Selecione uma peça do catálogo...</option>' +
+      allProducts.map(p => {
+        const pPrice = Number(p.price || 0).toFixed(2).replace('.', ',');
+        return `<option value="${p.id}" data-price="${p.price || 0}">${p.name} (${p.code || 'S/CÓD'}) - R$ ${pPrice} [Estoque: ${p.stockQty || 0}]</option>`;
+      }).join('');
+
+    select.onchange = () => {
+      const opt = select.options[select.selectedIndex];
+      if (opt && opt.dataset.price) {
+        const val = Number(opt.dataset.price);
+        const pInput = document.getElementById('noProductPrice');
+        if (pInput) pInput.value = val > 0 ? val.toFixed(2).replace('.', ',') : '';
+      }
+    };
+  }
+
+  renderNewOrderItemsTable();
+  modal.classList.remove('hidden');
+  setTimeout(() => document.getElementById('noCustomerName')?.focus(), 150);
+}
+
+function closeNewOrderModal() {
+  document.getElementById('newOrderModal')?.classList.add('hidden');
+}
+
+function renderNewOrderItemsTable() {
+  const tbody = document.getElementById('noItemsTableBody');
+  if (!tbody) return;
+
+  if (!newOrderItems.length) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align:center; color:var(--text-muted); padding:18px;">
+          Nenhum item adicionado ainda. Selecione uma peça acima e clique em "+ Adicionar Item".
+        </td>
+      </tr>
+    `;
+  } else {
+    tbody.innerHTML = newOrderItems.map((item, idx) => {
+      const subtotal = item.quantity * item.unitPrice;
+      return `
+        <tr>
+          <td>
+            <strong>${item.name}</strong>
+            ${item.code ? `<div style="font-size:11.5px;color:var(--text-muted);font-family:monospace">${item.code}</div>` : ''}
+          </td>
+          <td style="text-align:center; font-weight:700;">${item.quantity}x</td>
+          <td style="text-align:right;">R$ ${item.unitPrice.toFixed(2).replace('.', ',')}</td>
+          <td style="text-align:right; font-weight:700; color:var(--text-primary);">R$ ${subtotal.toFixed(2).replace('.', ',')}</td>
+          <td style="text-align:center;">
+            <button type="button" onclick="removeNewOrderItem(${idx})" style="background:none; border:none; color:#ef4444; font-size:15px; cursor:pointer; padding:2px 6px;" title="Remover item">✕</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  // Recalcula totais
+  const subtotal = newOrderItems.reduce((sum, i) => sum + (i.quantity * i.unitPrice), 0);
+  const payMethod = document.getElementById('noPaymentMethod')?.value || 'pix';
+  const discountRate = payMethod === 'pix' ? 0.04 : 0;
+  const discountVal = subtotal * discountRate;
+  const total = Math.max(0, subtotal - discountVal);
+
+  const subLabel = document.getElementById('noSubtotalLabel');
+  if (subLabel) subLabel.textContent = `Subtotal: R$ ${subtotal.toFixed(2).replace('.', ',')}`;
+
+  const discLabel = document.getElementById('noDiscountLabel');
+  if (discLabel) {
+    if (payMethod === 'pix') {
+      discLabel.textContent = `Desconto Pix (4%): - R$ ${discountVal.toFixed(2).replace('.', ',')}`;
+      discLabel.style.display = 'inline';
+    } else {
+      discLabel.textContent = 'Sem desconto';
+      discLabel.style.display = 'none';
+    }
+  }
+
+  const totalVal = document.getElementById('noTotalVal');
+  if (totalVal) totalVal.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+}
+
+function removeNewOrderItem(idx) {
+  newOrderItems.splice(idx, 1);
+  renderNewOrderItemsTable();
+}
+
+window.openNewOrderModal = openNewOrderModal;
+window.closeNewOrderModal = closeNewOrderModal;
+window.removeNewOrderItem = removeNewOrderItem;
+
+// Botão Adicionar Item
+document.getElementById('noAddItemBtn')?.addEventListener('click', () => {
+  const select = document.getElementById('noProductSelect');
+  const qtyInput = document.getElementById('noProductQty');
+  const priceInput = document.getElementById('noProductPrice');
+  const errEl = document.getElementById('noErrorMsg');
+  if (errEl) errEl.classList.add('hidden');
+
+  const prodId = select?.value;
+  if (!prodId) {
+    if (errEl) {
+      errEl.textContent = 'Por favor, selecione uma peça para adicionar.';
+      errEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const product = allProducts.find(p => String(p.id) === String(prodId));
+  if (!product) return;
+
+  const quantity = Math.max(1, parseInt(qtyInput?.value, 10) || 1);
+  let unitPrice = parseFloat((priceInput?.value || '').replace(',', '.'));
+  if (isNaN(unitPrice) || unitPrice < 0) {
+    unitPrice = Number(product.price) || 0;
+  }
+
+  // Se o item já existir na lista, apenas incrementa a quantidade
+  const existingIndex = newOrderItems.findIndex(i => String(i.productId) === String(prodId));
+  if (existingIndex >= 0) {
+    newOrderItems[existingIndex].quantity += quantity;
+    newOrderItems[existingIndex].unitPrice = unitPrice;
+  } else {
+    newOrderItems.push({
+      productId: product.id,
+      name: product.name,
+      code: product.code || '',
+      quantity,
+      unitPrice
+    });
+  }
+
+  // Reseta campos de adição
+  if (select) select.value = '';
+  if (qtyInput) qtyInput.value = '1';
+  if (priceInput) priceInput.value = '';
+  renderNewOrderItemsTable();
+});
+
+document.getElementById('noPaymentMethod')?.addEventListener('change', renderNewOrderItemsTable);
+
+// Submissão do Novo Pedido
+document.getElementById('noSubmitOrderBtn')?.addEventListener('click', async () => {
+  const errEl = document.getElementById('noErrorMsg');
+  if (errEl) errEl.classList.add('hidden');
+
+  const customerName = (document.getElementById('noCustomerName')?.value || '').trim();
+  const customerPhone = (document.getElementById('noCustomerPhone')?.value || '').trim();
+  const paymentMethod = document.getElementById('noPaymentMethod')?.value || 'pix';
+  const status = document.getElementById('noStatus')?.value || 'novo';
+
+  if (!customerName) {
+    if (errEl) {
+      errEl.textContent = 'Informe o nome do cliente.';
+      errEl.classList.remove('hidden');
+    }
+    document.getElementById('noCustomerName')?.focus();
+    return;
+  }
+
+  if (!newOrderItems.length) {
+    if (errEl) {
+      errEl.textContent = 'Adicione ao menos 1 peça ao pedido antes de salvar.';
+      errEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const btn = document.getElementById('noSubmitOrderBtn');
+  const originalText = btn ? btn.textContent : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Criando pedido...';
+  }
+
+  try {
+    const payload = {
+      customerName,
+      customerPhone,
+      items: newOrderItems.map(i => ({
+        productId: i.productId,
+        quantity: i.quantity,
+        unitPrice: i.unitPrice
+      })),
+      paymentMethod,
+      status
+    };
+
+    const res = await api('/orders/manual', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+
+    showToast(`Pedido #${res.order?.id || ''} criado com sucesso!`);
+    closeNewOrderModal();
+    await refreshAllData();
+    switchTab('pedidos');
+  } catch (err) {
+    console.error('Erro ao criar pedido manual:', err);
+    if (errEl) {
+      errEl.textContent = err.message || 'Erro ao criar pedido.';
+      errEl.classList.remove('hidden');
+    }
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = originalText;
+    }
+  }
+});
 
 // ---------- 3. MÓDULO DE VENDAS (ANALYTICS COMERCIAL & FINANCEIRO) ----------
 let currentVendasPeriod = 30;
@@ -2043,15 +2307,15 @@ function renderFiscalTable() {
                 <button class="order-action-btn btn-danfe-action" onclick="openDanfeForOrder(${o.id})" title="Imprimir Documento Fiscal">
                   🖨️ DANFE
                 </button>
-                <button class="btn btn-secondary btn-sm" onclick="openEditNfModal(${o.id})" title="Editar campos da DANFE / NFe" style="justify-content:center;padding:4px 8px;font-size:11.5px;font-weight:600">
+                <button class="order-action-btn btn-danfe-action" onclick="openEditNfModal(${o.id})" title="Editar campos da DANFE / NFe">
                   ✏️ Editar NF
                 </button>
-                <button class="btn btn-secondary btn-sm" onclick="openCceModal(${o.id})" title="${hasCce ? 'Editar Carta de Correção (CC-e)' : 'Emitir Carta de Correção (CC-e)'}" style="justify-content:center;padding:4px 8px;font-size:11.5px;font-weight:600;border-color:rgba(217,119,6,0.35);color:#b45309;display:flex;align-items:center;gap:4px">
+                <button class="order-action-btn btn-danfe-action" onclick="openCceModal(${o.id})" title="${hasCce ? 'Editar Carta de Correção (CC-e)' : 'Emitir Carta de Correção (CC-e)'}">
                   <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                   <span>${hasCce ? 'Editar CC-e' : 'CC-e'}</span>
                 </button>
                 ${hasCce ? `
-                  <button class="btn btn-secondary btn-sm" onclick="openDacceForOrder(${o.id})" title="Visualizar e Imprimir a Carta de Correção" style="justify-content:center;padding:4px 8px;font-size:11px;font-weight:700;border-color:rgba(22,163,74,0.35);color:#15803d">
+                  <button class="order-action-btn btn-danfe-action" onclick="openDacceForOrder(${o.id})" title="Visualizar e Imprimir a Carta de Correção">
                     🖨️ Imprimir Correção
                   </button>
                 ` : ''}

@@ -193,4 +193,94 @@ router.delete('/:id', requireRole('admin'), async (req, res) => {
   }
 });
 
+// Admin: Criar pedido manual / venda balcão
+router.post('/manual', requireRole('admin'), async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const { customerName, customerPhone, items, paymentMethod: rawPaymentMethod, status: rawStatus } = req.body || {};
+    if (!Array.isArray(items) || !items.length) {
+      return res.status(400).json({ error: 'Nenhum item adicionado ao pedido.' });
+    }
+
+    const paymentMethod = PAYMENT_METHODS.includes(rawPaymentMethod) ? rawPaymentMethod : 'retirada';
+    const status = VALID_STATUSES.includes(rawStatus) ? rawStatus : 'novo';
+
+    await client.query('BEGIN');
+
+    let customerId;
+    const name = (customerName || 'Cliente Balcão').trim();
+    const phone = (customerPhone || '').trim();
+
+    let custRes;
+    if (phone) {
+      custRes = await client.query('SELECT id FROM customers WHERE phone = $1 LIMIT 1', [phone]);
+    }
+    if (!custRes || !custRes.rows.length) {
+      const email = `balcao_${Date.now()}@fahrenmotors.com.br`;
+      const newCust = await client.query(
+        `INSERT INTO customers (name, email, phone, password_hash)
+         VALUES ($1, $2, $3, $4) RETURNING id`,
+        [name, email, phone, 'MANUAL_ORDER']
+      );
+      customerId = newCust.rows[0].id;
+    } else {
+      customerId = custRes.rows[0].id;
+    }
+
+    let subtotalCents = 0;
+    const lineItems = [];
+    for (const item of items) {
+      const productResult = await client.query('SELECT * FROM products WHERE id = $1 FOR UPDATE', [
+        item.productId,
+      ]);
+      const product = productResult.rows[0];
+      if (!product) throw Object.assign(new Error(`Peça ID ${item.productId} não encontrada.`), { status: 404 });
+      const qty = Math.max(1, Number(item.quantity) || 1);
+      const unitPriceCents = item.unitPrice ? Math.round(Number(item.unitPrice) * 100) : product.price_cents;
+      subtotalCents += unitPriceCents * qty;
+      lineItems.push({ product, qty, unitPriceCents });
+    }
+
+    const discountCents = paymentMethod === 'pix' ? Math.round(subtotalCents * PIX_DISCOUNT_RATE) : 0;
+    const totalCents = Math.max(0, subtotalCents - discountCents);
+
+    const orderResult = await client.query(
+      `INSERT INTO orders (customer_id, status, address_snapshot, total_cents, payment_method, discount_cents)
+       VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+      [customerId, status, JSON.stringify({ name, phone, type: 'balcao' }), totalCents, paymentMethod, discountCents]
+    );
+    const order = orderResult.rows[0];
+
+    for (const { product, qty, unitPriceCents } of lineItems) {
+      await client.query(
+        'INSERT INTO order_items (order_id, product_id, quantity, unit_price_cents) VALUES ($1,$2,$3,$4)',
+        [order.id, product.id, qty, unitPriceCents]
+      );
+      await client.query('UPDATE products SET stock_qty = GREATEST(0, stock_qty - $1) WHERE id = $2', [qty, product.id]);
+    }
+
+    await client.query('COMMIT');
+
+    const items2 = lineItems.map(({ product, qty, unitPriceCents }) => ({
+      product_id: product.id,
+      name: product.name,
+      quantity: qty,
+      unit_price_cents: unitPriceCents,
+    }));
+    res.status(201).json({
+      order: {
+        ...serializeOrder(order, items2),
+        customerName: name,
+        customerPhone: phone,
+      }
+    });
+  } catch (err) {
+    await client.query('ROLLBACK');
+    console.error('Erro ao criar pedido manual:', err);
+    res.status(err.status || 500).json({ error: err.status ? err.message : 'Erro ao criar pedido manual.' });
+  } finally {
+    client.release();
+  }
+});
+
 module.exports = router;
