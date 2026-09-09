@@ -2841,6 +2841,315 @@ body:not(.tema-claro) .modal-footer {
   box-shadow: 0 6px 18px rgba(237, 28, 36, 0.45) !important;
 }
 
+/* ===================================================================
+   MODAL DE AJUSTE DE ESTOQUE (stockModal) — PADRÃO DESIGN OFICIAL
+   =================================================================== */
+
+.modal-stock-card {
+  max-width: 580px !important;
+  width: 95% !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+}
+
+/* Ícone quadrado vermelho no cabeçalho */
+.modal-title-badge-icon.red-square {
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  background: #ed1c24 !important;
+  color: #ffffff !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 3px 10px rgba(237, 28, 36, 0.3) !important;
+  flex-shrink: 0 !important;
+}
+
+.modal-title-badge-icon.red-square svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+.modal-title-box h3 {
+  font-size: 17px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  margin: 0 !important;
+}
+
+body:not(.tema-claro) .modal-title-box h3 {
+  color: #ffffff !important;
+}
+
+/* Card interno de Nome / Descrição */
+.stock-modal-info {
+  background: #ffffff !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  padding: 14px 16px !important;
+  margin-bottom: 18px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.03) !important;
+}
+
+body:not(.tema-claro) .stock-modal-info {
+  background: #111827 !important;
+  border-color: #1f2937 !important;
+}
+
+.stock-info-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 6px !important;
+}
+
+.stock-field-label {
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #64748b !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin: 0 !important;
+}
+
+.stock-sku-badge {
+  color: #64748b !important;
+  font-size: 11px !important;
+  font-family: inherit !important;
+  font-weight: 600 !important;
+}
+
+.stock-modal-dark-input {
+  width: 100% !important;
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  padding: 9px 12px !important;
+  color: #ffffff !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  transition: all 0.15s ease !important;
+}
+
+.stock-modal-dark-input:focus {
+  border-color: #ed1c24 !important;
+  box-shadow: 0 0 0 2px rgba(237, 28, 36, 0.2) !important;
+}
+
+.stock-modal-dark-textarea {
+  width: 100% !important;
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  padding: 9px 12px !important;
+  color: #e2e8f0 !important;
+  font-size: 12.5px !important;
+  font-family: inherit !important;
+  resize: vertical !important;
+  min-height: 58px !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  margin-top: 6px !important;
+  transition: all 0.15s ease !important;
+}
+
+.stock-modal-dark-textarea:focus {
+  border-color: #ed1c24 !important;
+  box-shadow: 0 0 0 2px rgba(237, 28, 36, 0.2) !important;
+}
+
+/* Seções de quantidade e atalhos */
+.stock-section-title {
+  display: block !important;
+  font-size: 11.5px !important;
+  font-weight: 800 !important;
+  color: #475569 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 8px !important;
+}
+
+body:not(.tema-claro) .stock-section-title {
+  color: #94a3b8 !important;
+}
+
+.stock-stepper {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 18px !important;
+}
+
+.btn-stepper {
+  width: 44px !important;
+  height: 44px !important;
+  background: #f1f5f9 !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.15s ease !important;
+  padding: 0 !important;
+}
+
+.btn-stepper:hover {
+  background: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  transform: translateY(-1px) !important;
+}
+
+.stock-stepper input,
+#stockModalQty {
+  flex: 1 !important;
+  height: 44px !important;
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  text-align: center !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  padding: 0 10px !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+.stock-stepper input:focus,
+#stockModalQty:focus {
+  border-color: #ed1c24 !important;
+  box-shadow: 0 0 0 2px rgba(237, 28, 36, 0.15) !important;
+}
+
+/* Tags de atalhos rápidos */
+.quick-tags {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+}
+
+.tag-qty {
+  padding: 7px 14px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.tag-qty.tag-blue,
+.tag-qty:not(.tag-red) {
+  background: #f0f9ff !important;
+  border: 1.5px solid #bae6fd !important;
+  color: #0284c7 !important;
+}
+
+.tag-qty.tag-blue:hover,
+.tag-qty:not(.tag-red):hover {
+  background: #e0f2fe !important;
+  border-color: #7dd3fc !important;
+  color: #0369a1 !important;
+  transform: translateY(-1px) !important;
+}
+
+.tag-qty.tag-red {
+  background: #fff1f2 !important;
+  border: 1.5px solid #fecdd3 !important;
+  color: #e11d48 !important;
+}
+
+.tag-qty.tag-red:hover {
+  background: #ffe4e6 !important;
+  border-color: #fda4af !important;
+  color: #be123c !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Rodapé do modal de ajuste de estoque */
+.stock-modal-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 12px !important;
+  padding: 16px 24px !important;
+  border-top: 1px solid #e2e8f0 !important;
+  background: #ffffff !important;
+}
+
+body:not(.tema-claro) .stock-modal-footer {
+  background: #0f172a !important;
+  border-top-color: #1e293b !important;
+}
+
+.modal-footer .btn-stock-cancel,
+.btn-stock-cancel {
+  background: #ffffff !important;
+  border: 1.5px solid #cbd5e1 !important;
+  color: #334155 !important;
+  border-radius: 10px !important;
+  padding: 10px 20px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04) !important;
+}
+
+.modal-footer .btn-stock-cancel span,
+.btn-stock-cancel span {
+  color: #334155 !important;
+}
+
+.modal-footer .btn-stock-cancel svg,
+.btn-stock-cancel svg {
+  color: #334155 !important;
+  stroke: #334155 !important;
+}
+
+.modal-footer .btn-stock-cancel:hover,
+.btn-stock-cancel:hover {
+  background: #f8fafc !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+  transform: translateY(-1px) !important;
+}
+
+.btn-stock-save {
+  background: linear-gradient(135deg, #ed1c24 0%, #c9171e 100%) !important;
+  border: 1px solid #dc2626 !important;
+  color: #ffffff !important;
+  border-radius: 10px !important;
+  padding: 10px 24px !important;
+  font-size: 13.5px !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.15s ease !important;
+  box-shadow: 0 4px 14px rgba(237, 28, 36, 0.35) !important;
+}
+
+.btn-stock-save:hover {
+  background: linear-gradient(135deg, #ff2a33 0%, #b91016 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 18px rgba(237, 28, 36, 0.45) !important;
+}
+
 .pv-info-wrap {
   display: flex;
   flex-direction: column;
