@@ -2872,27 +2872,27 @@ html, body {
 .cat-grid-item:hover .cat-card-thumb img{transform:scale(1.05)}
 
 /* Corpo do Card */
-.cat-card-body{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1;background:#ffffff}
+.cat-card-body{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1;background:#ffffff !important}
 
 /* Cabeçalho com ícone badge circular vermelho e título */
 .cat-card-head{display:flex;align-items:center;gap:8px}
-.cat-card-icon-badge{width:26px;height:26px;border-radius:50%;background:#ed1c24;color:#ffffff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(237,28,36,0.3)}
-.cat-card-icon-badge svg{width:14px;height:14px;stroke:#ffffff;stroke-width:2.2}
+.cat-card-icon-badge{width:26px;height:26px;border-radius:50%;background:#ed1c24 !important;color:#ffffff !important;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(237,28,36,0.3)}
+.cat-card-icon-badge svg{width:14px;height:14px;stroke:#ffffff !important;stroke-width:2.2}
 .cat-card-title{font-size:13.5px;font-weight:800;color:#0f172a !important;margin:0;letter-spacing:0.3px;text-transform:uppercase;line-height:1.2}
 
 /* Subtítulo com lista de peças */
 .cat-card-sub{font-size:10.5px;color:#64748b !important;margin:6px 0 0 0;line-height:1.35;min-height:28px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 
 /* Linha vermelha de destaque */
-.cat-card-line{width:26px;height:2.5px;background:#ed1c24;border-radius:2px;margin:8px 0 10px}
+.cat-card-line{width:26px;height:2.5px;background:#ed1c24 !important;border-radius:2px;margin:8px 0 10px}
 
 /* Rodapé com contagem e seta vermelha */
 .cat-card-footer{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}
-.cat-card-count-box{display:inline-flex;align-items:center;gap:5px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;padding:4px 7px;font-size:10.5px;font-weight:600;color:#334155}
+.cat-card-count-box{display:inline-flex;align-items:center;gap:5px;background:#f8fafc !important;border:1px solid #e2e8f0 !important;border-radius:6px;padding:4px 7px;font-size:10.5px;font-weight:600;color:#334155 !important}
 .cat-card-count-box svg{width:13px;height:13px;stroke:#64748b;flex-shrink:0}
 .cat-card-count-box .cat-grid-count{color:#ed1c24 !important;font-weight:700;background:none !important;padding:0 !important;border-radius:0 !important;font-size:10.5px !important}
-.cat-card-arrow-btn{width:24px;height:24px;background:#ed1c24;color:#ffffff;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s ease}
-.cat-grid-item:hover .cat-card-arrow-btn{background:#c8131a;transform:translateX(2px)}
+.cat-card-arrow-btn{width:24px;height:24px;background:#ed1c24 !important;color:#ffffff !important;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s ease}
+.cat-grid-item:hover .cat-card-arrow-btn{background:#c8131a !important;transform:translateX(2px)}
 
 /* Card CTA: NÃO ENCONTROU O QUE PROCURA? (Ocupa 2 colunas no desktop) */
 .cat-grid-cta{grid-column:span 2;background:radial-gradient(circle at 88% 50%,rgba(237,28,36,0.28) 0%,rgba(138,12,16,0.15) 45%,transparent 70%),linear-gradient(135deg,#3d0306 0%,#110103 100%);border:1px solid #5a090e;border-radius:14px;padding:18px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 16px rgba(61,3,6,0.35);transition:transform .22s ease,box-shadow .22s ease,border-color .22s ease}
