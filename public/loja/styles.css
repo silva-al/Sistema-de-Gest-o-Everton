@@ -2912,7 +2912,7 @@ html, body {
 .cat-card-title{font-size:13.5px;font-weight:800;color:#ffffff !important;margin:0;letter-spacing:0.3px;text-transform:uppercase;line-height:1.2}
 
 /* Subtítulo com lista de peças */
-.cat-card-sub{font-size:10.5px;color:#8b9199 !important;margin:6px 0 0 0;line-height:1.35;min-height:28px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cat-card-sub{font-size:11.5px !important;color:#e2e8f0 !important;font-weight:500 !important;margin:6px 0 0 0;line-height:1.4;min-height:28px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 2px rgba(0,0,0,0.5)}
 
 /* Linha vermelha de destaque */
 .cat-card-line{width:26px;height:2.5px;background:#ed1c24 !important;border-radius:2px;margin:8px 0 10px}
@@ -5151,9 +5151,18 @@ body.tema-claro .kicker .brand-fahren {
   text-shadow: 0 1px 3px rgba(0,0,0,0.7) !important;
 }
 
+.cat-card-sub {
+  color: #e2e8f0 !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.6) !important;
+}
+
 .cat-card-compat {
-  color: #94a3b8 !important;
-  font-size: 11px !important;
+  color: #e2e8f0 !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
   padding: 2px 14px 4px !important;
 }
 
@@ -5163,8 +5172,8 @@ body.tema-claro .kicker .brand-fahren {
 }
 
 .cat-card-pix-label {
-  color: #94a3b8 !important;
-  font-size: 11.5px !important;
+  color: #cbd5e1 !important;
+  font-size: 12px !important;
   font-weight: 600 !important;
   display: block !important;
   margin-bottom: 2px !important;
@@ -5183,8 +5192,9 @@ body.tema-claro .kicker .brand-fahren {
 
 .cat-card-installment,
 .cat-card-alt {
-  color: #94a3b8 !important;
-  font-size: 11px !important;
+  color: #cbd5e1 !important;
+  font-size: 11.5px !important;
+  font-weight: 500 !important;
   margin-top: 2px !important;
 }
 
