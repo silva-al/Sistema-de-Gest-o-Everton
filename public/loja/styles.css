@@ -5023,12 +5023,13 @@ body.tema-claro .hero-clean-title span {
 }
 
 /* ===================================================================
-   IDENTIDADE VISUAL OFICIAL: FAHREN (VERMELHO) & PARTS (PRETO)
+   IDENTIDADE VISUAL OFICIAL: FAHREN (VERMELHO) & PARTS (PRETO / BRANCO)
    =================================================================== */
 .brand-fahren,
 .logo .brand-fahren,
 .logo-text .brand-fahren,
-.splash-logo .brand-fahren {
+.splash-logo .brand-fahren,
+.kicker .brand-fahren {
   color: #ed1c24 !important;
   font-weight: 900 !important;
   letter-spacing: 0.2px !important;
@@ -5037,22 +5038,36 @@ body.tema-claro .hero-clean-title span {
   display: inline-block !important;
 }
 
+/* Modo Escuro (Dark Mode padrão): PARTS em BRANCO (#ffffff) */
 .brand-parts,
 .logo .brand-parts,
 .logo-text .brand-parts,
-.splash-logo .brand-parts {
-  color: #000000 !important;
+.splash-logo .brand-parts,
+.kicker .brand-parts {
+  color: #ffffff !important;
   font-weight: 900 !important;
   letter-spacing: 0.2px !important;
-  -webkit-text-fill-color: #000000 !important;
+  -webkit-text-fill-color: #ffffff !important;
   background: none !important;
   margin-left: 3px !important;
   display: inline-block !important;
 }
 
+/* Modo Claro (Light Mode): PARTS em PRETO (#000000) */
+body.tema-claro .brand-parts,
+.tema-claro .brand-parts,
+body.tema-claro .logo .brand-parts,
+body.tema-claro .logo-text .brand-parts,
+body.tema-claro .splash-logo .brand-parts,
+body.tema-claro .kicker .brand-parts {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
 body.tema-claro .brand-fahren,
 body.tema-claro .logo-text .brand-fahren,
-body.tema-claro .splash-logo .brand-fahren {
+body.tema-claro .splash-logo .brand-fahren,
+body.tema-claro .kicker .brand-fahren {
   color: #ed1c24 !important;
   -webkit-text-fill-color: #ed1c24 !important;
 }

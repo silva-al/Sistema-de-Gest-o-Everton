@@ -7694,7 +7694,7 @@ body.tema-claro .label-preview-wrapper {
 }
 
 /* ===================================================================
-   IDENTIDADE VISUAL OFICIAL: FAHREN (VERMELHO) & PARTS (PRETO)
+   IDENTIDADE VISUAL OFICIAL: FAHREN (VERMELHO) & PARTS (PRETO / BRANCO)
    =================================================================== */
 .brand-fahren,
 .brand-title .brand-fahren,
@@ -7705,14 +7705,24 @@ body.tema-claro .label-preview-wrapper {
   -webkit-text-fill-color: #ed1c24 !important;
 }
 
+/* Modo Escuro (Dark Mode padrão): PARTS em BRANCO (#ffffff) */
 .brand-parts,
 .brand-title .brand-parts,
 .brand-info strong .brand-parts {
-  color: #000000 !important;
+  color: #ffffff !important;
   font-weight: 900 !important;
   letter-spacing: 0.3px !important;
-  -webkit-text-fill-color: #000000 !important;
+  -webkit-text-fill-color: #ffffff !important;
   margin-left: 2px !important;
+}
+
+/* Modo Claro (Light Mode): PARTS em PRETO (#000000) */
+body.tema-claro .brand-parts,
+.tema-claro .brand-parts,
+body.tema-claro .brand-title .brand-parts,
+body.tema-claro .brand-info strong .brand-parts {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
 }
 
 body.tema-claro .brand-fahren,
