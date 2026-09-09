@@ -25,11 +25,12 @@ function serialize(row) {
     photoUrl: row.photo_url,
     location: row.location || null,
     active: row.active,
+    itemType: row.item_type || 'peca',
   };
 }
 
-// GET /api/products?q=&category=&min_price=&max_price=&in_stock=true
-// Busca avançada: texto (nome/código), categoria, faixa de preço, disponibilidade.
+// GET /api/products?q=&category=&min_price=&max_price=&in_stock=true&type=
+// Busca avançada: texto (nome/código), categoria, faixa de preço, disponibilidade, tipo.
 const { syncCatalog } = require('../sync-catalog');
 
 router.get('/', async (req, res) => {
@@ -37,7 +38,7 @@ router.get('/', async (req, res) => {
     // Garante sincronização inicial do catálogo se o banco estiver vazio ou desatualizado
     await syncCatalog();
 
-    const { q, category, min_price, max_price, in_stock } = req.query;
+    const { q, category, min_price, max_price, in_stock, type } = req.query;
     const clauses = ['active = true'];
     const params = [];
 
@@ -48,6 +49,10 @@ router.get('/', async (req, res) => {
     if (category) {
       params.push(category);
       clauses.push(`category = $${params.length}`);
+    }
+    if (type) {
+      params.push(type);
+      clauses.push(`item_type = $${params.length}`);
     }
     if (min_price) {
       params.push(toCents(min_price));

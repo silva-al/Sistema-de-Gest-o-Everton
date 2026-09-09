@@ -126,7 +126,7 @@ function startLiveClock() {
 
 // ---------- Navegação por Abas do WMS ----------
 const VALID_TABS = [
-  'dashboard', 'estoque', 'pedidos', 'vendas',
+  'dashboard', 'produtos', 'pecas', 'estoque', 'pedidos', 'vendas',
   'operacoes-estoque', 'movimentacoes', 'inventario', 'localizacoes', 'alertas',
   'armazem', 'expedicao', 'financeiro', 'notas-fiscais', 'relatorios', 'configuracoes'
 ];
@@ -160,10 +160,18 @@ function switchTab(tabId, pushHistory = true, resetScroll = true) {
     }
   } catch (e) {}
 
-  const activePaneId = tabId === 'armazem' ? 'pane-estoque' : `pane-${tabId}`;
+  let activePaneId = `pane-${tabId}`;
+  let activeNavTab = tabId;
+  if (tabId === 'estoque') {
+    activePaneId = 'pane-pecas';
+    activeNavTab = 'pecas';
+  } else if (tabId === 'armazem') {
+    activePaneId = 'pane-localizacoes';
+    activeNavTab = 'localizacoes';
+  }
 
   document.querySelectorAll('.sidebar-nav .nav-item').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.tab === tabId);
+    btn.classList.toggle('active', btn.dataset.tab === activeNavTab);
   });
   document.querySelectorAll('.tab-pane').forEach(pane => {
     pane.classList.toggle('active', pane.id === activePaneId);
@@ -177,7 +185,8 @@ function switchTab(tabId, pushHistory = true, resetScroll = true) {
     updateDashboardMetrics();
     loadStockAlerts();
   }
-  if (tabId === 'estoque' || tabId === 'armazem') renderProductsTable(allProducts);
+  if (tabId === 'produtos') renderCommercialProductsTable(allProducts);
+  if (tabId === 'pecas' || tabId === 'estoque' || tabId === 'armazem') renderProductsTable(allProducts);
   if (tabId === 'pedidos') renderOrdersTable(allOrders);
   if (tabId === 'vendas') renderVendas();
   if (tabId === 'operacoes-estoque') loadRecentOperations();
@@ -228,6 +237,7 @@ async function refreshAllData() {
     if (cachedProducts) {
       allProducts = JSON.parse(cachedProducts);
       renderProductsTable(allProducts);
+      renderCommercialProductsTable(allProducts);
       fillCategoryList(allProducts);
     }
     if (cachedOrders) {
@@ -260,6 +270,7 @@ async function refreshAllData() {
       allProducts = productsRes.value.products || [];
       localStorage.setItem('fm_cache_products', JSON.stringify(allProducts));
       renderProductsTable(allProducts);
+      renderCommercialProductsTable(allProducts);
       fillCategoryList(allProducts);
     }
     if (ordersRes.status === 'fulfilled' && ordersRes.value) {
@@ -940,11 +951,11 @@ function renderRelatorios() {
         <td><strong style="font-size:12.5px">${money(price)}</strong></td>
         <td><strong style="font-size:12.5px;color:#cbd5e1">${money(totalItemValue)}</strong></td>
         <td>${statusBadge}</td>
-        <td style="text-align:right;white-space:nowrap">
-          <div style="display:inline-flex;gap:4px">
-            <button class="btn btn-secondary btn-sm" onclick="quickAddStock(${p.id}, 5)" title="Adicionar 5 unidades rapidamente" style="padding:4px 8px;font-size:11px;font-weight:700">+5</button>
-            <button class="btn btn-secondary btn-sm" onclick="quickAddStock(${p.id}, 10)" title="Adicionar 10 unidades rapidamente" style="padding:4px 8px;font-size:11px;font-weight:700">+10</button>
-            <button class="btn btn-secondary btn-sm" onclick="openStockModal(${p.id})" title="Ajustar estoque completo" style="padding:4px 8px;font-size:11px">Ajustar</button>
+        <td style="text-align:right;white-space:nowrap;vertical-align:middle">
+          <div style="display:inline-flex;flex-direction:column;gap:3px;align-items:stretch;width:58px">
+            <button class="btn btn-secondary btn-sm" onclick="quickAddStock(${p.id}, 5)" title="Adicionar 5 unidades rapidamente" style="padding:2px 6px;font-size:10.5px;font-weight:700;text-align:center;line-height:1.2">+5</button>
+            <button class="btn btn-secondary btn-sm" onclick="quickAddStock(${p.id}, 10)" title="Adicionar 10 unidades rapidamente" style="padding:2px 6px;font-size:10.5px;font-weight:700;text-align:center;line-height:1.2">+10</button>
+            <button class="btn btn-secondary btn-sm" onclick="openStockModal(${p.id})" title="Ajustar estoque completo" style="padding:2px 6px;font-size:10.5px;text-align:center;line-height:1.2">Ajustar</button>
           </div>
         </td>
       </tr>
@@ -1279,7 +1290,7 @@ document.getElementById('newProductToggleBtn')?.addEventListener('click', () => 
 });
 
 function openNewProductForm() {
-  switchTab('estoque');
+  switchTab('pecas');
   const panel = document.getElementById('productFormPanel');
   if (panel) {
     resetProductForm();
@@ -1293,11 +1304,12 @@ function openNewProductForm() {
   }
 }
 window.openNewProductForm = openNewProductForm;
+window.openNewPartForm = openNewProductForm;
 
 function startEdit(id) {
   const p = allProducts.find(item => String(item.id) === String(id));
   if (!p) return;
-  switchTab('estoque');
+  switchTab('pecas');
   editingProductId = p.id;
 
   const panel = document.getElementById('productFormPanel');
@@ -4282,5 +4294,334 @@ function printStockLabel() {
   window.print();
 }
 window.printStockLabel = printStockLabel;
+
+// ==========================================
+// Gestão de Produtos Comerciais (Loja Virtual)
+// ==========================================
+let currentCommercialFilter = 'all';
+
+function renderCommercialProductsTable(products = allProducts) {
+  const tbody = document.getElementById('commercialProductsTableBody');
+  if (!tbody) return;
+
+  const prods = (products || allProducts);
+  
+  // Atualiza KPIs
+  const total = prods.length;
+  const activeCount = prods.filter(p => p.active !== false).length;
+  const lowCount = prods.filter(p => Number(p.stockQty) > 0 && Number(p.stockQty) <= 5).length;
+  const outCount = prods.filter(p => Number(p.stockQty) <= 0).length;
+
+  const elTotal = document.getElementById('prodTotalVal');
+  if (elTotal) elTotal.textContent = total;
+  const elActive = document.getElementById('prodActiveVal');
+  if (elActive) elActive.textContent = activeCount;
+  const elLow = document.getElementById('prodLowVal');
+  if (elLow) elLow.textContent = lowCount;
+  const elOut = document.getElementById('prodOutVal');
+  if (elOut) elOut.textContent = outCount;
+
+  // Popula categorias no select se vazio
+  const catSelect = document.getElementById('commCategoryFilter');
+  if (catSelect && catSelect.options.length <= 1) {
+    const cats = Array.from(new Set(allProducts.map(p => p.category).filter(Boolean))).sort();
+    cats.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      opt.textContent = c;
+      catSelect.appendChild(opt);
+    });
+  }
+
+  // Popula datalist do form
+  const dl = document.getElementById('commercialCategoryList');
+  if (dl && dl.options.length === 0) {
+    const cats = Array.from(new Set(allProducts.map(p => p.category).filter(Boolean))).sort();
+    cats.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c;
+      dl.appendChild(opt);
+    });
+  }
+
+  let filtered = [...prods];
+  const q = (document.getElementById('commSearchInput')?.value || '').toLowerCase().trim();
+  const status = document.getElementById('commStatusFilter')?.value || currentCommercialFilter;
+  const cat = document.getElementById('commCategoryFilter')?.value || '';
+
+  if (q) {
+    filtered = filtered.filter(p => 
+      (p.name && p.name.toLowerCase().includes(q)) ||
+      (p.code && p.code.toLowerCase().includes(q)) ||
+      (p.category && p.category.toLowerCase().includes(q))
+    );
+  }
+
+  if (cat) {
+    filtered = filtered.filter(p => p.category === cat);
+  }
+
+  if (status === 'ativo') {
+    filtered = filtered.filter(p => p.active !== false && Number(p.stockQty) > 0);
+  } else if (status === 'pausado') {
+    filtered = filtered.filter(p => p.active === false);
+  } else if (status === 'esgotado') {
+    filtered = filtered.filter(p => Number(p.stockQty) <= 0);
+  } else if (status === 'baixo') {
+    filtered = filtered.filter(p => Number(p.stockQty) > 0 && Number(p.stockQty) <= 5);
+  }
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--text-muted)">Nenhum produto comercial encontrado com os filtros selecionados.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(p => {
+    const photo = getProductPhoto(p);
+    const stockNum = Number(p.stockQty) || 0;
+    const priceNum = Number(p.price) || 0;
+    const isActive = p.active !== false;
+
+    let statusBadge = '';
+    if (!isActive) {
+      statusBadge = '<span class="status-badge cancelado" style="background:#f1f5f9;color:#64748b;border:1px solid #cbd5e1">Pausado</span>';
+    } else if (stockNum > 0) {
+      statusBadge = '<span class="status-badge pronto" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0">Ativo na Loja</span>';
+    } else {
+      statusBadge = '<span class="status-badge cancelado" style="background:#fef2f2;color:#dc2626;border:1px solid #fecaca">Esgotado</span>';
+    }
+
+    return `
+      <tr>
+        <td style="width:45px">
+          <img src="${photo}" alt="" class="prod-thumb-img" onerror="this.onerror=null; this.src='/images/categorias/freios.jpg';"/>
+        </td>
+        <td>
+          <strong class="prod-name-strong">${p.name}</strong>
+          ${p.description ? `<small style="display:block;font-size:11px;color:var(--text-muted);">${p.description.slice(0, 50)}${p.description.length > 50 ? '...' : ''}</small>` : ''}
+        </td>
+        <td><span class="prod-sku-code" style="font-weight:700;font-family:monospace">${p.code || 'S/REF'}</span></td>
+        <td><span class="cat-pill-badge">${p.category || 'Geral'}</span></td>
+        <td><strong style="color:var(--text-primary);font-size:13px">${money(priceNum)}</strong></td>
+        <td style="text-align:center">
+          <span style="font-weight:700;font-size:12.5px;color:${stockNum > 0 ? 'var(--text-primary)' : '#dc2626'}">${stockNum} un</span>
+        </td>
+        <td>${statusBadge}</td>
+        <td style="text-align:right;white-space:nowrap">
+          <div style="display:inline-flex;gap:4px">
+            <button class="btn btn-secondary btn-sm" onclick="window.open('/', '_blank')" title="Ver produto na vitrine pública da loja">
+              🌐 Loja
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="editCommercialProduct(${p.id})" title="Editar dados do produto comercial">
+              ✏️ Editar
+            </button>
+            <button class="btn btn-sm btn-prod-delete" data-remove="${p.id}" title="Excluir produto">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+window.renderCommercialProductsTable = renderCommercialProductsTable;
+
+function applyCommercialFilter() {
+  renderCommercialProductsTable(allProducts);
+}
+window.applyCommercialFilter = applyCommercialFilter;
+
+function filterCommercialProducts(type) {
+  currentCommercialFilter = type;
+  const sel = document.getElementById('commStatusFilter');
+  if (sel) sel.value = type === 'all' ? '' : type;
+  renderCommercialProductsTable(allProducts);
+}
+window.filterCommercialProducts = filterCommercialProducts;
+
+let editingCommercialProductId = null;
+
+function openNewCommercialProductForm() {
+  editingCommercialProductId = null;
+  const panel = document.getElementById('commercialProductFormPanel');
+  if (!panel) return;
+  document.getElementById('commFormTitle').textContent = 'Cadastrar Novo Produto';
+  document.getElementById('cpName').value = '';
+  document.getElementById('cpCode').value = '';
+  document.getElementById('cpCategory').value = '';
+  document.getElementById('cpPrice').value = '';
+  document.getElementById('cpStock').value = '';
+  document.getElementById('cpActive').value = 'true';
+  document.getElementById('cpPhoto').value = '';
+  document.getElementById('cpDescription').value = '';
+  document.getElementById('commProductFormError')?.classList.add('hidden');
+  panel.classList.remove('hidden');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  setTimeout(() => document.getElementById('cpName')?.focus(), 150);
+}
+window.openNewCommercialProductForm = openNewCommercialProductForm;
+
+function closeCommercialProductForm() {
+  const panel = document.getElementById('commercialProductFormPanel');
+  if (panel) panel.classList.add('hidden');
+  editingCommercialProductId = null;
+}
+window.closeCommercialProductForm = closeCommercialProductForm;
+
+function editCommercialProduct(id) {
+  const p = allProducts.find(item => String(item.id) === String(id));
+  if (!p) return;
+  switchTab('produtos');
+  editingCommercialProductId = p.id;
+  const panel = document.getElementById('commercialProductFormPanel');
+  if (!panel) return;
+  document.getElementById('commFormTitle').textContent = `Editar Produto: ${p.name}`;
+  document.getElementById('cpName').value = p.name || '';
+  document.getElementById('cpCode').value = p.code || '';
+  document.getElementById('cpCategory').value = p.category || '';
+  document.getElementById('cpPrice').value = p.price !== undefined ? String(p.price).replace('.', ',') : '';
+  document.getElementById('cpStock').value = p.stockQty !== undefined ? p.stockQty : '';
+  document.getElementById('cpActive').value = p.active === false ? 'false' : 'true';
+  document.getElementById('cpPhoto').value = p.photoUrl || '';
+  document.getElementById('cpDescription').value = p.description || '';
+  document.getElementById('commProductFormError')?.classList.add('hidden');
+  panel.classList.remove('hidden');
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+window.editCommercialProduct = editCommercialProduct;
+
+async function saveCommercialProduct() {
+  const errEl = document.getElementById('commProductFormError');
+  if (errEl) errEl.classList.add('hidden');
+
+  const name = document.getElementById('cpName')?.value?.trim();
+  const code = document.getElementById('cpCode')?.value?.trim() || null;
+  const category = document.getElementById('cpCategory')?.value?.trim() || null;
+  const priceRaw = document.getElementById('cpPrice')?.value?.trim();
+  const stockQtyRaw = document.getElementById('cpStock')?.value?.trim();
+  const active = document.getElementById('cpActive')?.value === 'true';
+  const photoUrl = document.getElementById('cpPhoto')?.value?.trim() || null;
+  const description = document.getElementById('cpDescription')?.value?.trim() || null;
+
+  if (!name) {
+    if (errEl) {
+      errEl.textContent = 'Informe o nome do produto.';
+      errEl.classList.remove('hidden');
+    }
+    return;
+  }
+  if (!priceRaw) {
+    if (errEl) {
+      errEl.textContent = 'Informe o preço de venda.';
+      errEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const price = parseFloat(priceRaw.replace(',', '.'));
+  if (isNaN(price) || price < 0) {
+    if (errEl) {
+      errEl.textContent = 'Preço de venda inválido.';
+      errEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const stockQty = stockQtyRaw !== '' ? parseInt(stockQtyRaw, 10) : 0;
+  if (isNaN(stockQty) || stockQty < 0) {
+    if (errEl) {
+      errEl.textContent = 'Quantidade em estoque inválida.';
+      errEl.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const payload = {
+    name,
+    code,
+    category,
+    price,
+    stockQty,
+    active,
+    photoUrl,
+    description,
+    itemType: 'produto'
+  };
+
+  try {
+    const btn = document.getElementById('saveCommProductBtn');
+    if (btn) btn.disabled = true;
+
+    let res;
+    if (editingCommercialProductId) {
+      res = await fetch(`/api/products/${editingCommercialProductId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } else {
+      res = await fetch('/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Erro ao salvar produto');
+
+    closeCommercialProductForm();
+    await refreshAllData();
+    renderCommercialProductsTable(allProducts);
+    alert(editingCommercialProductId ? 'Produto comercial atualizado!' : 'Produto comercial cadastrado!');
+  } catch (err) {
+    if (errEl) {
+      errEl.textContent = err.message;
+      errEl.classList.remove('hidden');
+    }
+  } finally {
+    const btn = document.getElementById('saveCommProductBtn');
+    if (btn) btn.disabled = false;
+  }
+}
+window.saveCommercialProduct = saveCommercialProduct;
+
+function triggerSyncCatalog() {
+  const btn = document.getElementById('syncCatalogBtn');
+  if (btn) btn.click();
+}
+window.triggerSyncCatalog = triggerSyncCatalog;
+
+// Anexo de Foto do Produto Comercial
+document.getElementById('cpPhotoFile')?.addEventListener('change', async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  if (file.size > 5 * 1024 * 1024) {
+    showToast('A imagem deve ter no máximo 5MB.');
+    e.target.value = '';
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('photo', file);
+
+    const res = await fetch('/api/uploads', {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Falha no envio da imagem');
+
+    const photoInput = document.getElementById('cpPhoto');
+    if (photoInput) photoInput.value = data.url;
+    showToast('Imagem do produto anexada com sucesso!');
+  } catch (err) {
+    console.error('Erro no upload de foto comercial:', err);
+    showToast(err.message || 'Erro ao enviar imagem');
+  }
+});
 
 
