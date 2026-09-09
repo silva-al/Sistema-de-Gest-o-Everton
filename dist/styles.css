@@ -263,7 +263,7 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
   width:max-content;
   gap:14px;
   padding:0 30px;
-  animation:fp-carousel 65s linear infinite !important;
+  animation:fp-carousel 140s linear infinite !important;
   will-change:transform;
 }
 .carousel:hover .carousel-track,
@@ -374,7 +374,7 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
 
 @media(max-width:600px){
   .carousel{margin:0 -16px}
-  .carousel-track{padding:0 16px;gap:10px;animation-duration:55s !important}
+  .carousel-track{padding:0 16px;gap:10px;animation-duration:110s !important}
   .carousel .cat-card{flex:0 0 165px}
   .cat-card-img-wrap{height:115px}
   .carousel .cat-card-all{flex:0 0 165px;padding:16px 10px}
