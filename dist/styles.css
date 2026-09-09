@@ -5014,11 +5014,61 @@ body.tema-claro .pix-micro-tag{
   border-color:rgba(10,143,77,.28) !important;
 }
 
-/* Títulos com degradê recortado no texto: no claro o branco sumia */
-body.tema-claro .hero-clean-title span,
-body.tema-claro .splash-logo{
+/* Títulos com degradê recortado no texto */
+body.tema-claro .hero-clean-title span {
   background:linear-gradient(135deg,#12151b 35%,#ed1c24 100%);
   -webkit-background-clip:text;
   background-clip:text;
   -webkit-text-fill-color:transparent;
 }
+
+/* ===================================================================
+   IDENTIDADE VISUAL OFICIAL: FAHREN (VERMELHO) & PARTS (PRETO)
+   =================================================================== */
+.brand-fahren,
+.logo .brand-fahren,
+.logo-text .brand-fahren,
+.splash-logo .brand-fahren {
+  color: #ed1c24 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.2px !important;
+  -webkit-text-fill-color: #ed1c24 !important;
+  background: none !important;
+  display: inline-block !important;
+}
+
+.brand-parts,
+.logo .brand-parts,
+.logo-text .brand-parts,
+.splash-logo .brand-parts {
+  color: #000000 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.2px !important;
+  -webkit-text-fill-color: #000000 !important;
+  background: none !important;
+  margin-left: 3px !important;
+  display: inline-block !important;
+}
+
+body:not(.tema-claro) .brand-parts,
+body:not(.tema-claro) .logo .brand-parts,
+body:not(.tema-claro) .logo-text .brand-parts,
+body:not(.tema-claro) .splash-logo .brand-parts {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+body.tema-claro .brand-parts,
+body.tema-claro .logo-text .brand-parts,
+body.tema-claro .splash-logo .brand-parts {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+body.tema-claro .brand-fahren,
+body.tema-claro .logo-text .brand-fahren,
+body.tema-claro .splash-logo .brand-fahren {
+  color: #ed1c24 !important;
+  -webkit-text-fill-color: #ed1c24 !important;
+}
+

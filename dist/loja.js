@@ -345,7 +345,7 @@ document.getElementById('createAccount')?.addEventListener('click', async () => 
   try {
     const { customer } = await api('/api/auth/register', { method: 'POST', body: JSON.stringify({ name, phone, email, password: pass, cpfCnpj }) });
     applyUser(customer);
-    alert('Cadastro realizado! Bem-vindo à Fahren Motors.');
+    alert('Cadastro realizado! Bem-vindo à Fahren Parts.');
     show('inicio');
   } catch (err) {
     alert(err.message);
@@ -369,7 +369,7 @@ document.getElementById('loginBtn')?.addEventListener('click', async () => {
 });
 
 document.getElementById('forgotPassword')?.addEventListener('click', () => {
-  alert('Para recuperar o acesso, entre em contato com a Fahren Motors. A recuperação por e-mail será conectada quando o servidor de autenticação for configurado.');
+  alert('Para recuperar o acesso, entre em contato com a Fahren Parts. A recuperação por e-mail será conectada quando o servidor de autenticação for configurado.');
 });
 
 document.getElementById('logoutBtn')?.addEventListener('click', async () => {
@@ -1366,7 +1366,7 @@ document.getElementById('filterCategory')?.addEventListener('change', loadCatalo
 // A chave Pix é pública para quem vai pagar (funciona como um número de conta
 // para receber), por isso pode ficar no código do site sem problema.
 const PIX_KEY = '47784317000120';
-const PIX_MERCHANT_NAME = 'FAHREN MOTORS LTDA';
+const PIX_MERCHANT_NAME = 'FAHREN PARTS LTDA';
 const PIX_MERCHANT_CITY = 'HORTOLANDIA';
 const PIX_DISCOUNT_RATE = 0.04;
 

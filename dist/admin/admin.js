@@ -10,8 +10,8 @@ let editingProductId = null;
 
 // Configuração Fiscal da Empresa
 const FISCAL_CONFIG = {
-  razaoSocial: 'FAHREN MOTORS LTDA',
-  nomeFantasia: 'FAHREN MOTORS',
+  razaoSocial: 'FAHREN PARTS LTDA',
+  nomeFantasia: 'FAHREN PARTS',
   cnpj: '47.784.317/0001-20',
   ie: '338.419.820.114',
   logradouro: 'Av. Santana, 1420 - Parque Hortolândia',
