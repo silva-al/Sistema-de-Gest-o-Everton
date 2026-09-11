@@ -372,13 +372,13 @@ html,body{scrollbar-color:#3a3d43 #0b0c0f}
   text-overflow:ellipsis;
 }
 
-@media(max-width:600px){
+@media(max-width:760px){
   .carousel{margin:0 -16px}
-  .carousel-track{padding:0 16px;gap:10px;animation-duration:110s !important}
-  .carousel .cat-card{flex:0 0 165px}
-  .cat-card-img-wrap{height:115px}
-  .carousel .cat-card-all{flex:0 0 165px;padding:16px 10px}
-  .cat-card-all-icon{width:42px;height:42px}
+  .carousel-track{padding:0 16px;gap:14px;animation-duration:110s !important}
+  .carousel .cat-card{flex:0 0 240px !important;max-width:78vw !important}
+  .cat-card-img-wrap{height:160px !important}
+  .carousel .cat-card-all{flex:0 0 240px !important;padding:18px 14px !important}
+  .cat-card-all-icon{width:48px;height:48px}
 }
 
 /* ===== STYLE BLOCK — cabeçalho de seção e botão moderno "VER TODAS" ===== */
