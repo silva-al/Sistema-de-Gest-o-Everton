@@ -709,11 +709,11 @@
                 <input id="pLocation" placeholder="Ex: A-02-03" />
               </div>
               <div class="field full-width">
-                <label>URL DA FOTO (HD) OU ANEXO DE ARQUIVO</label>
+                <label>URL DA FOTO (HD) OU ANEXO DE ARQUIVOS (MÚLTIPLAS IMAGENS)</label>
                 <div class="photo-input-wrap">
-                  <input id="pPhoto" placeholder="Cole a URL da imagem ou anexe um arquivo..." />
+                  <input id="pPhoto" placeholder="Cole a URL ou anexe imagens (você pode selecionar várias de uma vez)..." />
                   <label for="pPhotoFile" class="btn-attach-photo" id="btnAttachPhoto"
-                    title="Anexar imagem do computador (JPG, PNG, WebP)">
+                    title="Anexar imagens do computador (JPG, PNG, WebP) — selecione uma ou várias">
                     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
                       <path
                         d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
@@ -721,16 +721,17 @@
                     </svg>
                     <span id="btnAttachPhotoText">ANEXAR</span>
                     <input type="file" id="pPhotoFile" accept="image/jpeg,image/png,image/webp,image/jpg"
-                      style="display:none" />
+                      multiple style="display:none" />
                   </label>
                 </div>
                 <div id="pPhotoPreviewWrap" class="photo-preview-wrap hidden">
-                  <img id="pPhotoPreview" src="" alt="Prévia da foto" />
-                  <div class="photo-preview-details">
-                    <span id="pPhotoPreviewName" class="photo-preview-name">foto-anexada.jpg</span>
-                    <span class="photo-preview-badge">✓ Imagem vinculada à peça</span>
+                  <div class="photo-preview-header">
+                    <span id="pPhotoPreviewCount" class="photo-preview-badge">✓ 0 fotos vinculadas (A 1ª é a capa)</span>
+                    <button type="button" class="btn-clear-all-photos" id="btnClearAllPhotos" title="Remover todas as fotos">✕ Limpar todas</button>
                   </div>
-                  <button type="button" class="btn-remove-photo" id="btnRemovePhoto" title="Remover imagem">✕</button>
+                  <div id="pPhotoThumbnails" class="photo-thumbnails-grid">
+                    <!-- Miniaturas das fotos anexadas renderizadas aqui -->
+                  </div>
                 </div>
               </div>
               <div class="field full-width">

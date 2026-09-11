@@ -5223,3 +5223,134 @@ body.tema-claro .cat-card-alt {
   color: #64748b !important;
 }
 
+/* ===================================================================
+   CORREÇÃO DEFINITIVA DO MODO CLARO NA LOJA:
+   1. Remoção de todo text-shadow escuro nos cards (eliminando efeito borrado)
+   2. Ofertas Especiais totalmente claras (fundo branco e textos nítidos)
+   =================================================================== */
+
+/* 1. NÍTIDO E SEM NENHUM TEXT-SHADOW NOS CARDS NO MODO CLARO */
+body.tema-claro .cat-grid-item,
+body.tema-claro .cat-grid-item *,
+body.tema-claro .cat-card,
+body.tema-claro .cat-card *,
+body.tema-claro .offer-card,
+body.tema-claro .offer-card *,
+body.tema-claro .card,
+body.tema-claro .card *,
+body.tema-claro .product-card,
+body.tema-claro .product-card *,
+body.tema-claro .fp-rec-card,
+body.tema-claro .fp-rec-card *,
+body.tema-claro .cat-card-sub,
+body.tema-claro .cat-card-title,
+body.tema-claro .cat-card-count-box,
+body.tema-claro .cat-grid-count,
+body.tema-claro .cat-card-pix {
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+/* Subtítulo das categorias no modo claro: texto suave e sem borrões */
+body.tema-claro .cat-card-sub {
+  color: #475569 !important;
+  font-weight: 500 !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* Contagem de produtos nos cards de categoria no modo claro */
+body.tema-claro .cat-card-count-box {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+  color: #334155 !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+body.tema-claro .cat-card-count-box svg {
+  stroke: #64748b !important;
+}
+
+body.tema-claro .cat-card-count-box .cat-grid-count {
+  color: #ed1c24 !important;
+  font-weight: 700 !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+/* 2. OFERTAS ESPECIAIS 100% NO TEMA CLARO */
+body.tema-claro .offers-head h2 {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro .offers-head p {
+  color: #64748b !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro .offer-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06) !important;
+}
+
+body.tema-claro .offer-card:hover {
+  background: #ffffff !important;
+  border-color: #ed1c24 !important;
+  box-shadow: 0 12px 28px rgba(237, 28, 36, 0.12), 0 4px 12px rgba(15, 23, 42, 0.06) !important;
+}
+
+body.tema-claro .offer-card-cat {
+  color: #dc2626 !important;
+}
+
+body.tema-claro .offer-card-tag-pix {
+  color: #059669 !important;
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+}
+
+body.tema-claro .offer-card-name {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro .offer-card-compat {
+  color: #64748b !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro .offer-card-compat svg {
+  color: #dc2626 !important;
+}
+
+body.tema-claro .offer-card-label {
+  color: #64748b !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro .offer-card-price {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro .offer-card-price small {
+  color: #0f172a !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro .offer-card-note {
+  color: #059669 !important;
+  text-shadow: none !important;
+}
+
+body.tema-claro .offer-card-img {
+  background: radial-gradient(circle at 50% 45%, rgba(237, 28, 36, 0.08) 0%, rgba(237, 28, 36, 0.02) 55%, transparent 75%), #f8fafc !important;
+  border-left: 1px solid #f1f5f9 !important;
+}
+
+

@@ -12,6 +12,20 @@ function toReais(cents) {
   return Math.round(cents) / 100;
 }
 function serialize(row) {
+  let photos = [];
+  if (row.photo_url) {
+    const raw = String(row.photo_url).trim();
+    if (raw.startsWith('[')) {
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) photos = parsed;
+      } catch {}
+    } else if (raw.includes(',')) {
+      photos = raw.split(',').map(s => s.trim()).filter(Boolean);
+    } else if (raw) {
+      photos = [raw];
+    }
+  }
   return {
     id: row.id,
     name: row.name,
@@ -23,6 +37,7 @@ function serialize(row) {
     stockQty: row.stock_qty,
     inStock: row.stock_qty > 0,
     photoUrl: row.photo_url,
+    photos: photos.length ? photos : (row.photo_url ? [row.photo_url] : []),
     location: row.location || null,
     active: row.active,
     itemType: row.item_type || 'peca',

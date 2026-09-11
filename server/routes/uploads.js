@@ -87,23 +87,42 @@ function gravarNoDisco(file) {
 }
 
 router.post('/', requireRole('admin'), (req, res) => {
-  upload.single('photo')(req, res, async (err) => {
+  upload.any()(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ error: 'A imagem deve ter no máximo 5MB.' });
+        return res.status(400).json({ error: 'Cada imagem deve ter no máximo 5MB.' });
       }
       return res.status(400).json({ error: `Erro no upload: ${err.message}` });
     }
     if (err) return res.status(400).json({ error: err.message });
-    if (!req.file) return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+    
+    const files = req.files || (req.file ? [req.file] : []);
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: 'Nenhum arquivo enviado.' });
+    }
 
     try {
-      const url = usarSupabase ? await enviarParaSupabase(req.file) : gravarNoDisco(req.file);
+      const results = [];
+      for (const file of files) {
+        const url = usarSupabase ? await enviarParaSupabase(file) : gravarNoDisco(file);
+        results.push({
+          url,
+          filename: path.basename(url),
+          originalName: file.originalname,
+          size: file.size,
+          storage: usarSupabase ? 'supabase' : 'disco-local',
+        });
+      }
+      
+      const urls = results.map(r => r.url);
       return res.json({
-        url,
-        filename: path.basename(url),
-        size: req.file.size,
-        storage: usarSupabase ? 'supabase' : 'disco-local',
+        ok: true,
+        url: urls[0],
+        urls,
+        files: results,
+        count: results.length,
+        filename: results[0]?.filename,
+        storage: results[0]?.storage,
       });
     } catch (erro) {
       console.error('[Uploads]', erro.message);

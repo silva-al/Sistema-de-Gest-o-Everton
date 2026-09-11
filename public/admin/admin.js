@@ -130,9 +130,23 @@ function formatDate(isoStr) {
 }
 
 function getProductPhoto(p) {
-  let photo = (p && (p.photoUrl || p.photo_url)) || '';
+  let photo = '';
+  if (p && p.photos && Array.isArray(p.photos) && p.photos.length) {
+    photo = p.photos[0];
+  } else {
+    photo = (p && (p.photoUrl || p.photo_url)) || '';
+  }
   if (!photo) return '/images/categorias/freios.jpg';
   photo = String(photo).trim();
+  if (photo.startsWith('[')) {
+    try {
+      const arr = JSON.parse(photo);
+      if (Array.isArray(arr) && arr.length) photo = arr[0];
+    } catch {}
+  } else if (photo.includes(',')) {
+    photo = photo.split(',')[0].trim();
+  }
+  if (!photo) return '/images/categorias/freios.jpg';
   if (photo.startsWith('http://') || photo.startsWith('https://') || photo.startsWith('data:')) {
     return photo;
   }
@@ -1431,18 +1445,9 @@ function startEdit(id) {
   const locEl = document.getElementById('pLocation');
   if (locEl) locEl.value = p.location || getProductLocation(p);
   
-  const photoVal = p.photoUrl || '';
-  document.getElementById('pPhoto').value = photoVal;
-  const previewWrap = document.getElementById('pPhotoPreviewWrap');
-  const previewImg = document.getElementById('pPhotoPreview');
-  const previewName = document.getElementById('pPhotoPreviewName');
-  if (photoVal) {
-    if (previewImg) previewImg.src = photoVal;
-    if (previewName) previewName.textContent = photoVal.split('/').pop().split('?')[0] || 'Foto da Peça';
-    if (previewWrap) previewWrap.classList.remove('hidden');
-  } else {
-    if (previewWrap) previewWrap.classList.add('hidden');
-  }
+  const photoVal = (p.photos && p.photos.length) ? p.photos : (p.photoUrl || p.photo_url || '');
+  currentProductImages = parseProductImages(photoVal);
+  renderProductPhotoGallery();
 
   document.getElementById('pDescription').value = p.description || '';
   document.getElementById('pCompatibility').value = p.compatibility || '';
@@ -1459,6 +1464,96 @@ function startEdit(id) {
   }, 180);
 }
 
+// Gerenciamento de Múltiplas Imagens da Peça
+let currentProductImages = [];
+
+function parseProductImages(val) {
+  if (!val) return [];
+  if (Array.isArray(val)) return val.filter(Boolean).map(s => String(s).trim());
+  val = String(val).trim();
+  if (val.startsWith('[')) {
+    try {
+      const arr = JSON.parse(val);
+      if (Array.isArray(arr)) return arr.filter(Boolean).map(s => String(s).trim());
+    } catch {}
+  }
+  return val.split(',').map(s => s.trim()).filter(Boolean);
+}
+
+function renderProductPhotoGallery() {
+  const previewWrap = document.getElementById('pPhotoPreviewWrap');
+  const thumbsGrid = document.getElementById('pPhotoThumbnails');
+  const countBadge = document.getElementById('pPhotoPreviewCount');
+  const photoInput = document.getElementById('pPhoto');
+  
+  if (!previewWrap || !thumbsGrid) return;
+  
+  if (!currentProductImages.length) {
+    previewWrap.classList.add('hidden');
+    thumbsGrid.innerHTML = '';
+    if (photoInput) photoInput.value = '';
+    return;
+  }
+  
+  previewWrap.classList.remove('hidden');
+  const n = currentProductImages.length;
+  if (countBadge) {
+    countBadge.textContent = `✓ ${n} ${n === 1 ? 'foto vinculada' : 'fotos vinculadas'} (A 1ª é a capa principal)`;
+  }
+  if (photoInput) {
+    photoInput.value = currentProductImages.join(', ');
+  }
+  
+  thumbsGrid.innerHTML = currentProductImages.map((url, idx) => {
+    const isPrimary = idx === 0;
+    const cleanName = url.split('/').pop().split('?')[0] || `Foto ${idx + 1}`;
+    return `
+      <div class="photo-thumb-card ${isPrimary ? 'is-primary' : ''}" data-index="${idx}">
+        <div class="photo-thumb-img-wrap" onclick="setPrimaryProductPhoto(${idx})" title="${isPrimary ? 'Capa Principal da Peça' : 'Clique para definir como Foto de Capa'}">
+          <img src="${url}" alt="Foto ${idx + 1}" loading="lazy" />
+          ${isPrimary ? '<span class="photo-capa-badge">★ CAPA</span>' : `<span class="photo-order-num">#${idx + 1}</span>`}
+        </div>
+        <div class="photo-thumb-info">
+          <span class="photo-thumb-name" title="${cleanName}">${cleanName}</span>
+        </div>
+        <button type="button" class="btn-thumb-remove" onclick="removeProductPhoto(${idx})" title="Remover esta foto">✕</button>
+      </div>
+    `;
+  }).join('');
+}
+
+function removeProductPhoto(index) {
+  if (index >= 0 && index < currentProductImages.length) {
+    currentProductImages.splice(index, 1);
+    renderProductPhotoGallery();
+    showToast('Imagem removida.');
+  }
+}
+window.removeProductPhoto = removeProductPhoto;
+
+function setPrimaryProductPhoto(index) {
+  if (index > 0 && index < currentProductImages.length) {
+    const [picked] = currentProductImages.splice(index, 1);
+    currentProductImages.unshift(picked);
+    renderProductPhotoGallery();
+    showToast('Foto definida como capa principal!');
+  }
+}
+window.setPrimaryProductPhoto = setPrimaryProductPhoto;
+
+function clearAllProductPhotos() {
+  currentProductImages = [];
+  renderProductPhotoGallery();
+  const fileInput = document.getElementById('pPhotoFile');
+  if (fileInput) fileInput.value = '';
+}
+window.clearAllProductPhotos = clearAllProductPhotos;
+
+document.getElementById('btnClearAllPhotos')?.addEventListener('click', () => {
+  clearAllProductPhotos();
+  showToast('Todas as fotos foram removidas.');
+});
+
 function resetProductForm() {
   editingProductId = null;
   const title = document.getElementById('formTitle');
@@ -1468,12 +1563,7 @@ function resetProductForm() {
     if (el) el.value = '';
   });
   
-  const fileInput = document.getElementById('pPhotoFile');
-  if (fileInput) fileInput.value = '';
-  const previewWrap = document.getElementById('pPhotoPreviewWrap');
-  if (previewWrap) previewWrap.classList.add('hidden');
-  const previewImg = document.getElementById('pPhotoPreview');
-  if (previewImg) previewImg.src = '';
+  clearAllProductPhotos();
 
   const cancelBtn = document.getElementById('cancelEditBtn');
   if (cancelBtn) cancelBtn.classList.add('hidden');
@@ -1496,27 +1586,34 @@ window.cancelPieceEdit = cancelPieceEdit;
 
 document.getElementById('cancelEditBtn')?.addEventListener('click', cancelPieceEdit);
 
-// Upload e Anexo de Foto do Produto (Upload de Arquivo Local)
+// Upload e Anexo de Foto do Produto (Upload de Arquivos Únicos ou Múltiplos)
 document.getElementById('pPhotoFile')?.addEventListener('change', async (e) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const files = Array.from(e.target.files || []);
+  if (!files.length) return;
 
   const btnText = document.getElementById('btnAttachPhotoText');
   const btnLabel = document.getElementById('btnAttachPhoto');
-  const originalText = btnText ? btnText.textContent : 'Anexar';
+  const originalText = btnText ? btnText.textContent : 'ANEXAR';
 
-  if (file.size > 5 * 1024 * 1024) {
-    showToast('A imagem deve ter no máximo 5MB.');
+  // Validação de limite individual de 5MB por arquivo
+  const tooBig = files.filter(f => f.size > 5 * 1024 * 1024);
+  if (tooBig.length > 0) {
+    showToast(`${tooBig.length} arquivo(s) excedem o limite de 5MB por imagem.`);
+  }
+  const validFiles = files.filter(f => f.size <= 5 * 1024 * 1024);
+  if (!validFiles.length) {
     e.target.value = '';
     return;
   }
 
   try {
-    if (btnText) btnText.textContent = 'Enviando...';
+    if (btnText) btnText.textContent = validFiles.length === 1 ? 'Enviando...' : `Enviando (${validFiles.length})...`;
     if (btnLabel) btnLabel.classList.add('is-uploading');
 
     const formData = new FormData();
-    formData.append('photo', file);
+    validFiles.forEach((file) => {
+      formData.append('photos', file);
+    });
 
     const res = await fetch('/api/uploads', {
       method: 'POST',
@@ -1525,23 +1622,22 @@ document.getElementById('pPhotoFile')?.addEventListener('change', async (e) => {
 
     const data = await res.json();
     if (!res.ok) {
-      throw new Error(data.error || 'Falha no envio da imagem');
+      throw new Error(data.error || 'Falha no envio das imagens');
     }
 
-    const photoInput = document.getElementById('pPhoto');
-    if (photoInput) photoInput.value = data.url;
-
-    const previewWrap = document.getElementById('pPhotoPreviewWrap');
-    const previewImg = document.getElementById('pPhotoPreview');
-    const previewName = document.getElementById('pPhotoPreviewName');
-    if (previewImg) previewImg.src = data.url;
-    if (previewName) previewName.textContent = file.name;
-    if (previewWrap) previewWrap.classList.remove('hidden');
-
-    showToast('Imagem anexada com sucesso!');
+    const newUrls = data.urls || (data.url ? [data.url] : []);
+    if (newUrls.length > 0) {
+      newUrls.forEach(url => {
+        if (!currentProductImages.includes(url)) {
+          currentProductImages.push(url);
+        }
+      });
+      renderProductPhotoGallery();
+      showToast(`${newUrls.length} ${newUrls.length === 1 ? 'imagem anexada' : 'imagens anexadas'} com sucesso!`);
+    }
   } catch (err) {
-    console.error('Erro no upload de foto:', err);
-    showToast(err.message || 'Erro ao enviar imagem');
+    console.error('Erro no upload de fotos:', err);
+    showToast(err.message || 'Erro ao enviar imagens');
   } finally {
     if (btnText) btnText.textContent = originalText;
     if (btnLabel) btnLabel.classList.remove('is-uploading');
@@ -1549,32 +1645,11 @@ document.getElementById('pPhotoFile')?.addEventListener('change', async (e) => {
   }
 });
 
-// Atualização de prévia ao colar ou digitar a URL da imagem
+// Atualização de prévia ao colar ou digitar a URL da imagem manualmente
 document.getElementById('pPhoto')?.addEventListener('input', (e) => {
   const val = e.target.value.trim();
-  const previewWrap = document.getElementById('pPhotoPreviewWrap');
-  const previewImg = document.getElementById('pPhotoPreview');
-  const previewName = document.getElementById('pPhotoPreviewName');
-  if (val) {
-    if (previewImg) previewImg.src = val;
-    if (previewName) previewName.textContent = val.split('/').pop().split('?')[0] || 'Imagem via Link URL';
-    if (previewWrap) previewWrap.classList.remove('hidden');
-  } else {
-    if (previewWrap) previewWrap.classList.add('hidden');
-  }
-});
-
-// Botão para remover a imagem da peça
-document.getElementById('btnRemovePhoto')?.addEventListener('click', () => {
-  const photoInput = document.getElementById('pPhoto');
-  if (photoInput) photoInput.value = '';
-  const fileInput = document.getElementById('pPhotoFile');
-  if (fileInput) fileInput.value = '';
-  const previewWrap = document.getElementById('pPhotoPreviewWrap');
-  if (previewWrap) previewWrap.classList.add('hidden');
-  const previewImg = document.getElementById('pPhotoPreview');
-  if (previewImg) previewImg.src = '';
-  showToast('Imagem removida do cadastro.');
+  currentProductImages = parseProductImages(val);
+  renderProductPhotoGallery();
 });
 
 document.getElementById('saveProductBtn')?.addEventListener('click', async () => {
@@ -1589,7 +1664,7 @@ document.getElementById('saveProductBtn')?.addEventListener('click', async () =>
   const price = parseFloat(document.getElementById('pPrice').value.replace(',', '.'));
   const stockQty = parseInt(document.getElementById('pStock').value, 10);
   const location = (document.getElementById('pLocation')?.value || '').trim();
-  const photoUrl = document.getElementById('pPhoto').value.trim();
+  const photoUrl = currentProductImages.join(', ') || document.getElementById('pPhoto').value.trim();
   const description = document.getElementById('pDescription').value.trim();
   const compatibility = document.getElementById('pCompatibility').value.trim();
 
